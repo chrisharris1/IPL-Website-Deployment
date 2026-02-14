@@ -80,6 +80,7 @@ export async function POST(request: NextRequest) {
         // For now, let's validate non-file fields
         const validation = serviceSchema.safeParse(rawData)
         if (!validation.success) {
+            console.error('Validation Error for Service:', JSON.stringify(validation.error.format(), null, 2))
             return NextResponse.json({ success: false, error: 'Invalid input', details: validation.error.format() }, { status: 400 })
         }
 

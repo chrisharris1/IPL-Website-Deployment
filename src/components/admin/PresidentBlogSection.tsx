@@ -82,7 +82,16 @@ export default function PresidentBlogSection() {
                 setEditing(null)
                 fetchItems()
             } else {
-                setMessage({ text: data.error || 'Failed', type: 'error' })
+                // Show detailed validation error if available
+                let errorMessage = data.error
+                if (data.details) {
+                    const fieldErrors = Object.entries(data.details)
+                        .filter(([key]) => key !== '_errors')
+                        .map(([key, val]: [string, any]) => val._errors && val._errors.length > 0 ? `${key}: ${val._errors.join(', ')}` : null)
+                        .filter(Boolean)
+                    if (fieldErrors.length > 0) errorMessage = fieldErrors.join(' | ')
+                }
+                setMessage({ text: errorMessage || 'Failed', type: 'error' })
             }
         } catch {
             setMessage({ text: 'Failed', type: 'error' })
@@ -155,8 +164,14 @@ export default function PresidentBlogSection() {
                                     <p className="text-xs text-gray-600">Add title in English and Tamil (Tamil optional).</p>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <input value={formData.title_en} onChange={(e) => setFormData({ ...formData, title_en: e.target.value })} placeholder="Title (English)" className="border rounded-lg p-2.5" />
-                                    <input value={formData.title_ta} onChange={(e) => setFormData({ ...formData, title_ta: e.target.value })} placeholder="Title (Tamil)" className="border rounded-lg p-2.5" />
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1">Title (English)</label>
+                                        <input value={formData.title_en} onChange={(e) => setFormData({ ...formData, title_en: e.target.value })} placeholder="Enter title" className="w-full border rounded-lg p-2.5" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1">Title (Tamil)</label>
+                                        <input value={formData.title_ta} onChange={(e) => setFormData({ ...formData, title_ta: e.target.value })} placeholder="Enter title (Tamil)" className="w-full border rounded-lg p-2.5" />
+                                    </div>
                                 </div>
 
                                 <div className="rounded-lg border border-gray-200 p-3 bg-gray-50">

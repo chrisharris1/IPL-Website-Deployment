@@ -27,6 +27,7 @@ import {
     X,
     Edit
 } from 'lucide-react'
+import { motion } from 'framer-motion'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface CarouselImage { id: string; image_url: string; title?: string; subtitle?: string; hide_text: boolean; active: boolean; created_at: string }
@@ -1964,6 +1965,44 @@ function TeamSection() {
     const [draggedRoleId, setDraggedRoleId] = useState<string | null>(null)
     const [showConflictPopup, setShowConflictPopup] = useState(false)
     const [conflictRoles, setConflictRoles] = useState<string[]>([])
+    const [draggedMemberId, setDraggedMemberId] = useState<string | null>(null)
+
+    // Member Drag and Drop Handlers
+    const handleMemberDragStart = (id: string) => {
+        setDraggedMemberId(id)
+    }
+
+    const handleMemberDragEnter = (targetId: string) => {
+        if (!draggedMemberId || draggedMemberId === targetId) return
+
+        const draggedIndex = members.findIndex(m => m.id === draggedMemberId)
+        const targetIndex = members.findIndex(m => m.id === targetId)
+
+        if (draggedIndex === -1 || targetIndex === -1) return
+
+        // Create new array and swap
+        const newMembers = [...members]
+        const [removed] = newMembers.splice(draggedIndex, 1)
+        newMembers.splice(targetIndex, 0, removed)
+
+        setMembers(newMembers)
+    }
+
+    const handleMemberDragEnd = async () => {
+        setDraggedMemberId(null)
+        // Save new order to backend
+        try {
+            await fetch('/api/admin/team', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderedIds: members.map(m => m.id) })
+            })
+            // Optional: Show success toast lightly? 
+            // setMsg({ text: 'Order saved', type: 'success' }) // Might be too annoying
+        } catch {
+            setMsg({ text: 'Failed to save order', type: 'error' })
+        }
+    }
 
     const fetchRoles = useCallback(async () => {
         try {
@@ -2098,32 +2137,45 @@ function TeamSection() {
         const targetRole = roles.find(r => r.id === targetRoleId)
         if (!draggedRole || !targetRole) return
 
-        // Swap their levels
-        const draggedLevel = draggedRole.level
+        // Calculate new level: we want to insert 'before' or 'at' the target's position
+        // If we dragged from below to above, we take target's level.
+        // If we dragged from above to below, we take target's level (ignoring self).
+        // The backend `recompactRoles` handles insertion at index `level-1`.
         const targetLevel = targetRole.level
 
-        // Optimistic update
-        setRoles(prev => prev.map(r => {
-            if (r.id === draggedRoleId) return { ...r, level: targetLevel }
-            if (r.id === targetRoleId) return { ...r, level: draggedLevel }
-            return r
-        }).sort((a, b) => a.level - b.level))
+        // Optimistic update: Move item and re-index sequentially to simulate backend
+        const newRoles = roles.filter(r => r.id !== draggedRoleId)
+        const targetIndex = newRoles.findIndex(r => r.id === targetRoleId)
+        // Insert at target position (handling edge case of end of list?)
+        // Actually targetRole is still in newRoles.
+        // We want to insert *at* the position of targetRole?
+        // Let's rely on standard splice insertion
+        let insertIndex = targetIndex
+        if (insertIndex === -1) insertIndex = newRoles.length
+
+        // If dragging downwards, we might want to insert 'after'? 
+        // Simple heuristic: If dragged level < target level, insert after?
+        // Actually, simpler: Always insert *before* the target visually (standard sortable behavior usually)
+        // But if I drop ON "Coordinator", I want to be above/below it?
+        // Let's assume insert BEFORE.
+        newRoles.splice(insertIndex, 0, draggedRole)
+
+        // Renumber 1..N
+        const optimisticallyUpdated = newRoles.map((r, i) => ({ ...r, level: i + 1 }))
+        setRoles(optimisticallyUpdated)
         setDraggedRoleId(null)
 
-        // Update both roles in DB
+        // Update in DB (trigger recompact)
         try {
-            await Promise.all([
-                fetch('/api/admin/team/roles', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: draggedRoleId, name: draggedRole.name, level: targetLevel, skipShift: true }),
-                }),
-                fetch('/api/admin/team/roles', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: targetRoleId, name: targetRole.name, level: draggedLevel, skipShift: true }),
-                }),
-            ])
+            await fetch('/api/admin/team/roles', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                // Sending targetLevel ensures it gets inserted at that Level number
+                // IMPORTANT: The backend uses `level` as the 1-based index to insert AT.
+                // If we want to replace the target, we use targetLevel.
+                body: JSON.stringify({ id: draggedRoleId, name: draggedRole.name, level: targetLevel }),
+            })
+            // Fetch strict data to ensure sync
             fetchRoles()
             fetchMembers()
         } catch {
@@ -2189,8 +2241,22 @@ function TeamSection() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     {group.map(member => (
-                        <div key={member.id} className="bg-white rounded-xl shadow overflow-hidden text-center">
-                            <img src={member.image_url} alt={member.name} className="w-full h-48 object-cover" />
+                        <motion.div
+                            layout
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            key={member.id}
+                            draggable
+                            onDragStart={() => handleMemberDragStart(member.id)}
+                            onDragEnter={() => handleMemberDragEnter(member.id)}
+                            onDragEnd={handleMemberDragEnd}
+                            onDragOver={(e) => e.preventDefault()} // Valid drop target
+                            className={`bg-white rounded-xl shadow overflow-hidden text-center cursor-move ${draggedMemberId === member.id ? 'opacity-50 ring-2 ring-purple-500 scale-95' : ''
+                                }`}
+                        >
+                            <img src={member.image_url} alt={member.name} className="w-full h-48 object-cover pointer-events-none" />
                             <div className="p-4">
                                 <h4 className="font-bold text-gray-900 text-sm">{member.name}</h4>
                                 <div className="flex items-center gap-2 mb-2">
@@ -2199,13 +2265,13 @@ function TeamSection() {
                                 {member.email && <p className="text-xs text-blue-700 mb-1 break-all">{member.email}</p>}
                                 {member.phone && <p className="text-xs text-gray-700 mb-2">{member.phone}</p>}
                                 <div className="flex gap-1">
-                                    <button onClick={() => { setEditing(member); setShowModal(true) }}
+                                    <button onClick={(e) => { e.stopPropagation(); setEditing(member); setShowModal(true) }}
                                         className="flex-1 bg-blue-600 text-white px-2 py-1.5 rounded text-xs hover:bg-blue-700 transition">Edit</button>
-                                    <button onClick={() => handleDelete(member.id)}
+                                    <button onClick={(e) => { e.stopPropagation(); handleDelete(member.id) }}
                                         className="flex-1 bg-red-600 text-white px-2 py-1.5 rounded text-xs hover:bg-red-700 transition">Del</button>
                                 </div>
                             </div>
-                        </div>
+                        </motion.div>
                     ))}
                 </div>
                 {group.length === 0 && <p className="text-gray-400 text-sm">No {title.toLowerCase()} yet.</p>}

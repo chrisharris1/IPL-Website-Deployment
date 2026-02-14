@@ -47,7 +47,7 @@ const Card: React.FC<{ person: Person }> = ({ person }) => {
             <p className="text-red-700 font-medium mb-4 text-sm">{person.role}</p>
 
             <div className="flex items-center justify-center gap-3">
-                {(person.linkedin || person.email || (person.role === 'President' && person.phone)) ? (
+                {(person.linkedin || person.email || ((person.role === 'President' || person.role === 'Founder, President') && person.phone)) ? (
                     <>
                         {person.linkedin && (
                             <a
@@ -77,7 +77,7 @@ const Card: React.FC<{ person: Person }> = ({ person }) => {
                                 <Mail className="w-4 h-4" />
                             </a>
                         )}
-                        {person.phone && person.role === 'President' && (
+                        {person.phone && (person.role === 'President' || person.role === 'Founder, President') && (
                             <a
                                 href={`tel:${person.phone.replace(/\s+/g, '')}`}
                                 onClick={(e) => e.stopPropagation()}
@@ -92,7 +92,7 @@ const Card: React.FC<{ person: Person }> = ({ person }) => {
                     <span className="h-10" /> // Spacer to keep height consistent if no links
                 )}
             </div>
-            {person.phone && person.role === 'President' && (
+            {person.phone && (person.role === 'President' || person.role === 'Founder, President') && (
                 <p className="text-neutral-600 text-sm mt-2">{person.phone}</p>
             )}
         </div>
@@ -114,7 +114,7 @@ export default function OurTeam() {
                     // Maintain backward compatibility
                     setPresidents(response.data.presidents)
                     setTrustees(response.data.trustees)
-                    
+
                     // Use new hierarchical structure
                     setMembersByLevel(response.data.membersByLevel || [])
                 }
@@ -173,56 +173,174 @@ export default function OurTeam() {
                 </div>
             ) : (
                 <>
-                    {/* Display members by hierarchy level */}
-                    {membersByLevel.map((levelGroup, index) => {
-                        const { level, roleName, members } = levelGroup
-                        const isExecutive = level <= 3 // Executive leadership gets special styling
-                        const isBoard = roleName === 'Board of Trustee'
-                        
-                        return (
-                            <section 
-                                key={level} 
-                                className="py-12 border-b border-neutral-100"
-                                style={{
-                                    background: isExecutive 
-                                        ? 'linear-gradient(135deg, rgba(220, 38, 38, 0.05) 0%, rgba(239, 68, 68, 0.02) 100%)'
-                                        : 'transparent'
-                                }}
-                            >
-                                <div className="container-custom mx-auto">
-                                    <div className="text-center mb-10">
-                                        <div className="flex items-center justify-center gap-3 mb-3">
-                                            <Shield className={`w-6 h-6 ${isExecutive ? 'text-red-700' : 'text-red-600'}`} />
-                                            <div>
+                    {/* Group Photo Section */}
+                    <section className="py-12 border-b border-neutral-100 bg-white">
+                        <div className="container-custom mx-auto px-4">
+                            <div className="max-w-5xl mx-auto">
+                                <div className="relative aspect-video w-full rounded-2xl overflow-hidden shadow-lg border border-neutral-100 bg-[#FFFACD]">
+                                    <Image
+                                        src="/Images/our-tea,m.jpg"
+                                        alt="IPL Team Group Photo"
+                                        fill
+                                        className="object-contain"
+                                        priority
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Display members dynamically based on Hierarchy Level from Admin */}
+                    {(() => {
+                        // 1. Sort groups by level ensures we follow Admin Hierarchy
+                        const sortedGroups = [...membersByLevel].sort((a, b) => a.level - b.level)
+
+                        // Helper for pluralization
+                        const getRoleTitle = (role: string, count: number) => {
+                            if (count <= 1) return role
+                            if (role.endsWith('y')) return role.slice(0, -1) + 'ies'
+                            return role + 's'
+                        }
+
+                        // Helper: Normalize role names for matching
+                        const isRole = (group: any, baseName: string) => {
+                            if (!group) return false
+                            const name = group.roleName || ''
+                            if (baseName === 'President') return name === 'President' || name === 'Founder, President'
+                            if (baseName === 'Board') return name === 'Board of Trustee' || name === 'Board of Trustees'
+                            return name === baseName
+                        }
+
+                        // Helper to render a standard section
+                        const renderStandardSection = (group: any) => {
+                            const { roleName, members, level } = group
+                            if (!members || members.length === 0) return null
+
+                            const displayRole = getRoleTitle(roleName, members.length)
+                            const isExecutive = level <= 3
+                            // Board is usually Grid layout
+                            const isBoard = isRole(group, 'Board')
+
+                            return (
+                                <section
+                                    key={roleName}
+                                    className="py-12 border-b border-neutral-100"
+                                    style={{
+                                        background: isExecutive
+                                            ? 'linear-gradient(135deg, rgba(220, 38, 38, 0.05) 0%, rgba(239, 68, 68, 0.02) 100%)'
+                                            : 'transparent'
+                                    }}
+                                >
+                                    <div className="container-custom mx-auto">
+                                        <div className="text-center mb-10">
+                                            <div className="flex items-center justify-center gap-3 mb-3">
+                                                <Shield className={`w-6 h-6 ${isExecutive ? 'text-red-700' : 'text-red-600'}`} />
                                                 <h2 className={`text-3xl font-bold ${isExecutive ? 'text-red-800' : 'text-neutral-900'}`}>
-                                                    {roleName}
+                                                    {displayRole}
                                                 </h2>
-                                                
+                                            </div>
+                                        </div>
+
+                                        <div className={`grid gap-6 justify-items-center ${members.length === 1 ? 'sm:grid-cols-1 max-w-sm mx-auto' :
+                                            isBoard ? 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4' :
+                                                members.length <= 2 ? 'sm:grid-cols-1 md:grid-cols-2 max-w-2xl mx-auto' :
+                                                    'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
+                                            }`}>
+                                            {members.map((member: TeamMember, i: number) => (
+                                                <div
+                                                    key={member.id}
+                                                    className="animate-slide-up"
+                                                    style={{ animationDelay: `${i * 100}ms` }}
+                                                >
+                                                    <Card person={mapToPerson(member)} />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </section>
+                            )
+                        }
+
+                        // Helper for Side-by-Side Sections
+                        const renderSideBySideSection = (group1: any, group2: any, bgColor: string) => {
+                            // Identify which is which to enforce Left/Right alignment preference
+                            // We prefer Gen Sec LEFT, Treasurer RIGHT
+                            // We prefer VP LEFT, Joint Sec RIGHT
+
+                            let leftGroup = group1
+                            let rightGroup = group2
+
+                            const isGenSec = (g: any) => isRole(g, 'General Secretary')
+                            const isTreasurer = (g: any) => isRole(g, 'Treasurer')
+                            const isVP = (g: any) => isRole(g, 'Vice President')
+
+                            // Swap if needed to match visual preference
+                            if (isTreasurer(leftGroup) && isGenSec(rightGroup)) { leftGroup = group2; rightGroup = group1 }
+                            if (!isVP(leftGroup) && isVP(rightGroup)) { leftGroup = group2; rightGroup = group1 }
+
+                            return (
+                                <section key={`${leftGroup.roleName}-${rightGroup.roleName}`} className={`py-12 border-b border-neutral-100 ${bgColor}`}>
+                                    <div className="container-custom mx-auto">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-24">
+                                            {/* Left Column */}
+                                            <div className="flex flex-col items-center">
+                                                <div className="flex items-center justify-center gap-3 mb-8">
+                                                    <Shield className="w-6 h-6 text-purple-700" />
+                                                    <h2 className="text-3xl font-bold text-purple-900">{getRoleTitle(leftGroup.roleName, leftGroup.members.length)}</h2>
+                                                </div>
+                                                <div className="w-full grid justify-items-center max-w-sm">
+                                                    {leftGroup.members.map((member: TeamMember) => (
+                                                        <Card key={member.id} person={mapToPerson(member)} />
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* Right Column */}
+                                            <div className="flex flex-col items-center">
+                                                <div className="flex items-center justify-center gap-3 mb-8">
+                                                    <Shield className="w-6 h-6 text-purple-700" />
+                                                    <h2 className="text-3xl font-bold text-purple-900">{getRoleTitle(rightGroup.roleName, rightGroup.members.length)}</h2>
+                                                </div>
+                                                <div className="w-full grid justify-items-center max-w-sm">
+                                                    {rightGroup.members.map((member: TeamMember) => (
+                                                        <Card key={member.id} person={mapToPerson(member)} />
+                                                    ))}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
+                                </section>
+                            )
+                        }
 
-                                    <div className={`grid gap-6 justify-items-center ${
-                                        level === 1 ? 'sm:grid-cols-1 max-w-sm mx-auto' : // President: single column
-                                        isBoard ? 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : // Board: 4 columns
-                                        members.length <= 2 ? 'sm:grid-cols-1 md:grid-cols-2 max-w-2xl mx-auto' : // Small groups: 2 columns centered
-                                        'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4' // Large groups: 4 columns
-                                    }`}>
-                                        {members.map((member: TeamMember, i: number) => (
-                                            <div 
-                                                key={member.id} 
-                                                className="animate-slide-up" 
-                                                style={{ animationDelay: `${i * 100}ms` }}
-                                            >
-                                                <Card person={mapToPerson(member)} />
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </section>
-                        )
-                    })}
-                    
+                        // Iteration Logic
+                        const renderedSections = []
+                        for (let i = 0; i < sortedGroups.length; i++) {
+                            const group = sortedGroups[i]
+                            const nextGroup = sortedGroups[i + 1]
+
+                            // Check for Pair 1: Gen Sec + Treasurer
+                            const isGenSecPair = (isRole(group, 'General Secretary') && nextGroup && isRole(nextGroup, 'Treasurer')) ||
+                                (isRole(group, 'Treasurer') && nextGroup && isRole(nextGroup, 'General Secretary'))
+
+                            // Check for Pair 2: Vice President + Joint Secretary
+                            const isVPPair = (isRole(group, 'Vice President') && nextGroup && isRole(nextGroup, 'Joint Secretary')) ||
+                                (isRole(group, 'Joint Secretary') && nextGroup && isRole(nextGroup, 'Vice President'))
+
+                            if (isGenSecPair) {
+                                renderedSections.push(renderSideBySideSection(group, nextGroup, 'bg-linear-to-b from-red-50/30 to-white'))
+                                i++ // Skip next
+                            } else if (isVPPair) {
+                                renderedSections.push(renderSideBySideSection(group, nextGroup, 'bg-white'))
+                                i++ // Skip next
+                            } else {
+                                renderedSections.push(renderStandardSection(group))
+                            }
+                        }
+
+                        return renderedSections
+                    })()}
+
                     {/* Fallback to legacy display if no hierarchical data */}
                     {membersByLevel.length === 0 && (
                         <>
@@ -233,7 +351,7 @@ export default function OurTeam() {
                                         <div className="text-center mb-10">
                                             <div className="flex items-center justify-center gap-3 mb-3">
                                                 <Shield className="w-6 h-6 text-red-700" />
-                                                <h2 className="text-3xl font-bold text-neutral-900">President</h2>
+                                                <h2 className="text-3xl font-bold text-neutral-900">Founder,President</h2>
                                             </div>
                                         </div>
 
@@ -271,7 +389,7 @@ export default function OurTeam() {
                             )}
                         </>
                     )}
-                    
+
                     {/* Empty State */}
                     {membersByLevel.length === 0 && presidents.length === 0 && trustees.length === 0 && (
                         <section className="py-20 text-center">

@@ -39,7 +39,7 @@ export const newsSchema = z.object({
     city: z.string().optional(),
     date: z.string().optional(),
     time: z.string().optional(),
-    description_en: z.string().min(1),
+    description_en: z.string().optional(),
     description_ta: z.string().optional(),
     id: z.string().optional(),
 })
@@ -52,7 +52,7 @@ export const serviceSchema = z.object({
     district: z.string().optional(),
     city: z.string().optional(),
     date: z.string().optional(),
-    description_en: z.string().min(1),
+    description_en: z.string().optional(),
     description_ta: z.string().optional(),
     id: z.string().optional(),
 })
@@ -78,9 +78,9 @@ export const aboutSchema = z.object({
 export const historySchema = aboutSchema
 
 export const presidentBlogSchema = z.object({
-    title_en: z.string().min(1),
+    title_en: z.string().optional(),
     title_ta: z.string().optional(),
-    description_en: z.string().min(1),
+    description_en: z.string().optional(),
     description_ta: z.string().optional(),
     id: z.string().optional(),
 })

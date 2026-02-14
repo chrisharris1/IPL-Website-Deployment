@@ -85,14 +85,14 @@ const ImageCarousel: React.FC = () => {
   }
 
   return (
-    <div className="relative h-[280px] sm:h-[360px] md:h-[420px] lg:h-[520px] w-full overflow-hidden rounded-xl md:rounded-2xl shadow-2xl group bg-black">
+    <div className="relative h-[280px] sm:h-[360px] md:h-[420px] lg:h-[520px] w-full overflow-hidden rounded-xl md:rounded-2xl shadow-2xl group bg-[#FFFACD]">
       {images.map((img, index) => (
         <div
           key={index}
           className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${index === currentIndex ? 'opacity-100' : 'opacity-0'
             }`}
         >
-          <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent z-10" />
+
           <Image
             src={img.src}
             alt={img.title || 'IPL Carousel'}
@@ -102,14 +102,14 @@ const ImageCarousel: React.FC = () => {
             priority={index === 0}
           />
           {!img.hideText && (img.title || img.subtitle) && (
-            <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8 z-20 text-white transform transition-all duration-500 translate-y-0">
+            <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8 z-20 text-neutral-900 transform transition-all duration-500 translate-y-0">
               {img.title && (
-                <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3 drop-shadow-lg">
+                <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3 drop-shadow-sm">
                   {img.title}
                 </h3>
               )}
               {img.subtitle && (
-                <p className="text-sm sm:text-base md:text-lg text-neutral-200 max-w-2xl drop-shadow-md line-clamp-2 sm:line-clamp-none">
+                <p className="text-sm sm:text-base md:text-lg text-neutral-700 max-w-2xl drop-shadow-sm line-clamp-2 sm:line-clamp-none">
                   {img.subtitle}
                 </p>
               )}
@@ -121,13 +121,13 @@ const ImageCarousel: React.FC = () => {
       {/* Navigation Buttons */}
       <button
         onClick={goToPrevious}
-        className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-30 p-2 sm:p-3 rounded-full bg-white/10 backdrop-blur-md text-white border border-white/20 hover:bg-white hover:text-red-700 transition-all opacity-50 sm:opacity-0 group-hover:opacity-100 sm:-translate-x-4 sm:group-hover:translate-x-0"
+        className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-30 p-2 sm:p-3 rounded-full bg-black/10 backdrop-blur-md text-neutral-800 border border-black/10 hover:bg-black hover:text-white transition-all opacity-50 sm:opacity-0 group-hover:opacity-100 sm:-translate-x-4 sm:group-hover:translate-x-0"
       >
         <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
       </button>
       <button
         onClick={goToNext}
-        className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-30 p-2 sm:p-3 rounded-full bg-white/10 backdrop-blur-md text-white border border-white/20 hover:bg-white hover:text-red-700 transition-all opacity-50 sm:opacity-0 group-hover:opacity-100 sm:translate-x-4 sm:group-hover:translate-x-0"
+        className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-30 p-2 sm:p-3 rounded-full bg-black/10 backdrop-blur-md text-neutral-800 border border-black/10 hover:bg-black hover:text-white transition-all opacity-50 sm:opacity-0 group-hover:opacity-100 sm:translate-x-4 sm:group-hover:translate-x-0"
       >
         <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
       </button>
@@ -138,7 +138,7 @@ const ImageCarousel: React.FC = () => {
           <button
             key={index}
             onClick={() => changeIndex(index)}
-            className={`h-2 rounded-full transition-all duration-300 ${index === currentIndex ? 'w-8 bg-red-600' : 'w-2 bg-white/50 hover:bg-white'
+            className={`h-2 rounded-full transition-all duration-300 ${index === currentIndex ? 'w-8 bg-red-600' : 'w-2 bg-neutral-300 hover:bg-neutral-500'
               }`}
           />
         ))}

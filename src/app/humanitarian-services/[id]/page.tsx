@@ -92,18 +92,6 @@ export default function HumanitarianServiceDetail() {
                             className="object-contain bg-neutral-100"
                             priority
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                        
-                        {/* Title Overlay */}
-                        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
-                            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full mb-4">
-                                <HandHeart className="w-5 h-5 text-white" />
-                                <span className="text-white font-medium text-sm">Humanitarian Service</span>
-                            </div>
-                            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight">
-                                {lang === 'ta' && service.title_ta ? service.title_ta : service.title_en}
-                            </h1>
-                        </div>
                     </div>
                 </div>
             </section>
@@ -112,6 +100,17 @@ export default function HumanitarianServiceDetail() {
             <section className="py-12">
                 <div className="container-custom mx-auto px-4">
                     <div className="max-w-4xl mx-auto">
+                        {/* Title */}
+                        <div className="mb-8">
+                            <div className="inline-flex items-center gap-2 bg-primary-100 px-4 py-2 rounded-full mb-4">
+                                <HandHeart className="w-5 h-5 text-primary-700" />
+                                <span className="text-primary-700 font-medium text-sm">Humanitarian Service</span>
+                            </div>
+                            <h1 className="text-3xl md:text-4xl font-bold text-neutral-900 leading-tight">
+                                {lang === 'ta' && service.title_ta ? service.title_ta : service.title_en}
+                            </h1>
+                        </div>
+
                         {/* Meta Info */}
                         <div className="bg-white rounded-2xl shadow-md p-6 mb-8 border border-neutral-200">
                             <div className="flex flex-wrap gap-6">

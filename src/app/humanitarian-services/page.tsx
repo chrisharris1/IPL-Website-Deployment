@@ -10,7 +10,8 @@ import type { HumanitarianService } from '@/types/api'
 
 export default function HumanitarianServices() {
     const { t, lang } = useTranslation()
-    const [services, setServices] = useState<HumanitarianService[]>([])
+    const [upcomingServices, setUpcomingEvents] = useState<HumanitarianService[]>([])
+    const [pastServices, setPastEvents] = useState<HumanitarianService[]>([])
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
@@ -19,8 +20,14 @@ export default function HumanitarianServices() {
                 const response = await getServices({ limit: 100 })
                 if (response.success && response.data) {
                     const d = response.data as unknown
-                    const arr = Array.isArray(d) ? d : (d as { data?: HumanitarianService[] }).data ?? []
-                    setServices(arr)
+                    const allServices = Array.isArray(d) ? d : (d as { data?: HumanitarianService[] }).data ?? []
+
+                    const now = new Date()
+                    const upcoming = allServices.filter(s => new Date(s.date) > now).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+                    const past = allServices.filter(s => new Date(s.date) <= now).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+
+                    setUpcomingEvents(upcoming)
+                    setPastEvents(past)
                 }
             } catch (error) {
                 console.error('Failed to load services:', error)
@@ -37,8 +44,67 @@ export default function HumanitarianServices() {
         return html.replace(/<[^>]*>/g, '').substring(0, 100)
     }
 
+    const renderServiceCard = (service: HumanitarianService, isUpcoming: boolean) => (
+        <Link
+            key={service.id}
+            href={`/humanitarian-services/${service.id}`}
+            className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-neutral-200 hover:border-neutral-300 transition-all duration-300 hover:-translate-y-1 block"
+        >
+            <div className="relative h-48">
+                <Image
+                    src={service.image_url}
+                    alt={lang === 'ta' ? service.title_ta : service.title_en}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="object-contain bg-neutral-100"
+                />
+                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition" />
+
+                {/* Badge */}
+                <div className="absolute top-4 right-4 z-10">
+                    <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider text-white shadow-lg ${isUpcoming ? 'bg-emerald-500' : 'bg-neutral-500'}`}>
+                        {isUpcoming && <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
+                        {isUpcoming ? 'Upcoming' : 'Past'}
+                    </span>
+                </div>
+
+                {/* Date Badge */}
+                <div className="absolute top-4 left-4 bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div className={`${isUpcoming ? 'bg-red-700' : 'bg-neutral-500'} text-white text-xs font-bold px-3 py-1 text-center`}>
+                        {new Date(service.date).toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
+                    </div>
+                    <div className="px-3 py-2 text-2xl font-bold text-neutral-900 text-center">
+                        {new Date(service.date).getDate()}
+                    </div>
+                </div>
+            </div>
+
+            <div className="p-6">
+                <h3 className="text-lg font-bold text-neutral-900 mb-3 line-clamp-2 group-hover:text-red-700 transition-colors leading-tight">
+                    {lang === 'ta' ? service.title_ta : service.title_en}
+                </h3>
+
+                <div className="flex items-center gap-2 text-xs text-neutral-500 mb-3">
+                    <Calendar className={`w-3.5 h-3.5 ${isUpcoming ? 'text-emerald-600' : 'text-neutral-400'}`} />
+                    <span className="font-medium">
+                        {new Date(service.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </span>
+                </div>
+
+                <div className="flex items-start gap-2 text-xs text-neutral-600 mb-4">
+                    <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-red-600" />
+                    <span className="line-clamp-1">{service.city}, {service.district}, {service.state}</span>
+                </div>
+
+                <p className="text-sm text-neutral-600 line-clamp-3 leading-relaxed">
+                    {stripHtml(lang === 'ta' ? service.description_ta : service.description_en)}...
+                </p>
+            </div>
+        </Link>
+    )
+
     return (
-        <div className="bg-neutral-50">
+        <div className="bg-neutral-50 min-h-screen">
             {/* Hero Section */}
             <section className="relative bg-transparent pt-12 md:pt-16 lg:pt-20 pb-8 overflow-hidden" style={{ minHeight: '320px' }}>
                 <div className="absolute inset-0 z-0 pointer-events-none">
@@ -65,76 +131,54 @@ export default function HumanitarianServices() {
                 </div>
             </section>
 
-            {/* Events Grid */}
-            <section className="py-16">
-                <div className="container-custom mx-auto px-4">
-                    <div className="mb-12 text-center">
-                        <h2 className="text-3xl md:text-4xl font-bold text-neutral-900 mb-3">
-                            {t('humanitarian.our_activities', lang === 'ta' ? 'எங்கள் மனிதநேய செயல்பாடுகள்' : 'Our Humanitarian Activities')}
-                        </h2>
-                        <p className="text-neutral-600 max-w-2xl mx-auto">
-                            {t('humanitarian.explore_initiatives', lang === 'ta' ? 'உலகம் முழுவதும் சமூகங்களில் நேர்மறை தாக்கம் ஏற்படுத்தும் எங்கள் முயற்சிகளை ஆராயுங்கள்' : 'Explore our initiatives making a positive impact in communities worldwide')}
-                        </p>
+            {/* Services Grid */}
+            <section className="container-custom mx-auto px-4 py-16">
+                {loading ? (
+                    <div className="flex justify-center items-center py-20">
+                        <Loader2 className="w-8 h-8 animate-spin text-primary-700" />
                     </div>
+                ) : (
+                    <>
+                        {/* Upcoming Activities */}
+                        {upcomingServices.length > 0 && (
+                            <div className="mb-16">
+                                <div className="flex items-center gap-3 mb-8">
+                                    <Calendar className="w-6 h-6 text-red-700" />
+                                    <h2 className="text-3xl font-bold text-neutral-900">
+                                        {t('humanitarian.upcoming', 'Upcoming Activities')}
+                                        <span className="ml-3 text-lg font-normal text-neutral-500">({upcomingServices.length})</span>
+                                    </h2>
+                                </div>
+                                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                                    {upcomingServices.map(service => renderServiceCard(service, true))}
+                                </div>
+                            </div>
+                        )}
 
-                    {loading ? (
-                        <div className="flex justify-center items-center py-20">
-                            <Loader2 className="w-8 h-8 animate-spin text-primary-700" />
-                        </div>
-                    ) : services.length === 0 ? (
-                        <div className="text-center py-20">
-                            <p className="text-neutral-500">{t('humanitarian.no_activities', lang === 'ta' ? 'செயல்பாடுகள் எதுவும் இல்லை.' : 'No activities found.')}</p>
-                        </div>
-                    ) : (
-                        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {services.map(event => (
-                                <Link
-                                    key={event.id}
-                                    href={`/humanitarian-services/${event.id}`}
-                                    className="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-neutral-100"
-                                >
-                                    <div className="relative aspect-16/10 overflow-hidden bg-neutral-100">
-                                        <Image
-                                            src={event.image_url}
-                                            alt={lang === 'ta' ? event.title_ta : event.title_en}
-                                            fill
-                                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                                            className="object-contain object-center bg-neutral-100"
-                                        />
-                                        <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                                        <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                            <span className="inline-block bg-white/90 backdrop-blur-sm text-primary-700 text-xs font-semibold px-3 py-1 rounded-full">
-                                                {t('news.view_details', lang === 'ta' ? 'விவரங்கள்' : 'View Details')} {'->'}
-                                            </span>
-                                        </div>
-                                    </div>
+                        {/* Past Activities */}
+                        {pastServices.length > 0 && (
+                            <div>
+                                <div className="flex items-center gap-3 mb-8">
+                                    <Calendar className="w-6 h-6 text-neutral-500" />
+                                    <h2 className="text-3xl font-bold text-neutral-900">
+                                        {t('humanitarian.past', 'Past Activities')}
+                                        <span className="ml-3 text-lg font-normal text-neutral-500">({pastServices.length})</span>
+                                    </h2>
+                                </div>
+                                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                                    {pastServices.map(service => renderServiceCard(service, false))}
+                                </div>
+                            </div>
+                        )}
 
-                                    <div className="p-5">
-                                        <h3 className="font-bold text-lg text-neutral-900 mb-2 line-clamp-2 group-hover:text-primary-700 transition-colors leading-tight">
-                                            {lang === 'ta' ? event.title_ta : event.title_en}
-                                        </h3>
-                                        
-                                        <div className="flex items-center gap-2 text-xs text-neutral-500 mb-3">
-                                            <Calendar className="w-3.5 h-3.5 text-primary-600" />
-                                            <span className="font-medium">
-                                                {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                                            </span>
-                                        </div>
-
-                                        <div className="flex items-start gap-2 text-xs text-neutral-600 mb-3">
-                                            <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-primary-600" />
-                                            <span className="line-clamp-2">{event.city}, {event.district}, {event.state}</span>
-                                        </div>
-
-                                        <p className="text-sm text-neutral-600 line-clamp-3 leading-relaxed">
-                                            {stripHtml(lang === 'ta' ? event.description_ta : event.description_en)}...
-                                        </p>
-                                    </div>
-                                </Link>
-                            ))}
-                        </div>
-                    )}
-                </div>
+                        {/* No Activities */}
+                        {upcomingServices.length === 0 && pastServices.length === 0 && (
+                            <div className="text-center py-20">
+                                <p className="text-neutral-500">{t('humanitarian.no_activities', lang === 'ta' ? 'செயல்பாடுகள் எதுவும் இல்லை.' : 'No activities found.')}</p>
+                            </div>
+                        )}
+                    </>
+                )}
             </section>
         </div>
     )

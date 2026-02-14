@@ -39,7 +39,13 @@ function getRoleLevel(roleName: string, roles: { name: string; level: number }[]
 export async function GET() {
     try {
         const db = await getDb()
-        const roles = await getRolesFromDb()
+        // eslint-disable-next-line prefer-const
+        let roles = await getRolesFromDb()
+
+        // Manual override: Ensure "Founder, President" exists with Level 1
+        if (!roles.find(r => r.name === 'Founder, President')) {
+            roles.push({ name: 'Founder, President', level: 1 })
+        }
 
         // Get all team members and organize by hierarchy
         const allMembers = await db
@@ -51,7 +57,7 @@ export async function GET() {
         const mapMember = (m: Record<string, unknown>) => ({
             id: String(m._id),
             name: m.name,
-            role: m.role,
+            role: (m.name as string).includes('Karun') && m.role === 'President' ? 'Founder, President' : m.role,
             hierarchy_level: m.hierarchy_level || getRoleLevel(m.role as string, roles),
             image_url: m.image_url,
             order_index: m.order_index,
@@ -72,12 +78,15 @@ export async function GET() {
         // Group roles by level (same power number = grouped together)
         const levelGroups = new Map<number, { level: number; roleNames: string[]; members: any[] }>()
         for (const role of roles) {
+            const members = organizedByHierarchy[role.name] || []
+            if (members.length === 0) continue
+
             if (!levelGroups.has(role.level)) {
                 levelGroups.set(role.level, { level: role.level, roleNames: [], members: [] })
             }
             const group = levelGroups.get(role.level)!
             group.roleNames.push(role.name)
-            group.members.push(...(organizedByHierarchy[role.name] || []))
+            group.members.push(...members)
         }
 
         // Build membersByLevel from grouped roles
