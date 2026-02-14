@@ -109,8 +109,8 @@ export async function POST(request: NextRequest) {
             district: rawData.district,
             city: rawData.city,
             date: rawData.date,
-            description_en: DOMPurify.sanitize(rawData.description_en),
-            description_ta: DOMPurify.sanitize(rawData.description_ta),
+            description_en: rawData.description_en ? DOMPurify.sanitize(rawData.description_en) : '',
+            description_ta: rawData.description_ta ? DOMPurify.sanitize(rawData.description_ta) : '',
             image_url: uploadResult.url,
             created_at: new Date(),
         }
@@ -156,8 +156,8 @@ export async function PUT(request: NextRequest) {
             district: formData.get('district') as string,
             city: formData.get('city') as string,
             date: formData.get('date') as string,
-            description_en: DOMPurify.sanitize(formData.get('description_en') as string),
-            description_ta: DOMPurify.sanitize(formData.get('description_ta') as string),
+            description_en: formData.get('description_en') ? DOMPurify.sanitize(formData.get('description_en') as string) : '',
+            description_ta: formData.get('description_ta') ? DOMPurify.sanitize(formData.get('description_ta') as string) : '',
         }
 
         // Handle optional new image

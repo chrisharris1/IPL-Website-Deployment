@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
         const db = await getDb()
         const doc = {
             ...data,
-            description_en: DOMPurify.sanitize(data.description_en),
+            description_en: data.description_en ? DOMPurify.sanitize(data.description_en) : '',
             description_ta: data.description_ta ? DOMPurify.sanitize(data.description_ta) : '',
             image_url: uploadResult.url,
             created_at: new Date(),
@@ -151,7 +151,7 @@ export async function PUT(request: NextRequest) {
 
         const update: Record<string, unknown> = {
             ...data,
-            description_en: DOMPurify.sanitize(data.description_en),
+            description_en: data.description_en ? DOMPurify.sanitize(data.description_en) : '',
             description_ta: data.description_ta ? DOMPurify.sanitize(data.description_ta) : '',
         }
         // Remove id from update object
