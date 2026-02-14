@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getDb } from '@/lib/mongodb'
 import { ObjectId } from 'mongodb'
 import { v2 as cloudinary } from 'cloudinary'
+import { getAdminSession } from '@/lib/auth-edge'
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -26,9 +27,14 @@ async function deleteImageFromCloudinary(publicId: string): Promise<void> {
 // GET: Fetch all gallery items for a friendship meet
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
+        const session = await getAdminSession()
+        if (!session) {
+            return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+        }
+
         const { id } = await params
         const db = await getDb()
-        
+
         // Support both slug and ObjectId lookup
         let meetQuery: any
         try {
@@ -42,20 +48,20 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
             // Fallback to slug
             meetQuery = { slug: id }
         }
-        
+
         // Verify meet exists and get its slug
         const meetCollection = db.collection('friendship_meets')
         const meet = await meetCollection.findOne(meetQuery)
         if (!meet) {
             return NextResponse.json({ success: false, error: 'Meet not found' }, { status: 404 })
         }
-        
+
         // Use slug if available, otherwise use _id string
         const meetId = meet.slug || meet._id.toString()
-        
+
         const collection = db.collection('gallery_items')
         const items = await collection
-            .find({ 
+            .find({
                 $or: [
                     { meet_id: meetId },
                     { meet_id: meet._id.toString() },
@@ -91,6 +97,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 // POST: Create a new gallery item
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
+        const session = await getAdminSession()
+        if (!session) {
+            return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+        }
+
         const { id } = await params
         const data = await request.json()
 
@@ -124,7 +135,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         }
 
         const db = await getDb()
-        
+
         // Support both slug and ObjectId lookup
         let meetQuery: any
         try {
@@ -136,17 +147,17 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         } catch {
             meetQuery = { slug: id }
         }
-        
+
         // Verify meet exists and get its slug
         const meetCollection = db.collection('friendship_meets')
         const meet = await meetCollection.findOne(meetQuery)
         if (!meet) {
             return NextResponse.json({ success: false, error: 'Friendship meet not found' }, { status: 404 })
         }
-        
+
         // Use slug if available, otherwise use _id string
         const meetId = meet.slug || meet._id.toString()
-        
+
         const galleryCollection = db.collection('gallery_items')
 
         const document = {
@@ -179,22 +190,52 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 // PUT: Update a gallery item
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
+        const session = await getAdminSession()
+        if (!session) {
+            return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+        }
+
         const { id } = await params
         const data = await request.json()
-
-        if (!id || !ObjectId.isValid(id)) {
-            return NextResponse.json({ success: false, error: 'Invalid meet ID' }, { status: 400 })
-        }
 
         if (!data.item_id || !ObjectId.isValid(data.item_id)) {
             return NextResponse.json({ success: false, error: 'Invalid item ID' }, { status: 400 })
         }
 
         const db = await getDb()
-        const galleryCollection = db.collection('gallery_items')
 
+        // Support both slug and ObjectId lookup for the meet
+        let meetQuery: any
+        try {
+            if (ObjectId.isValid(id)) {
+                meetQuery = { _id: new ObjectId(id) }
+            } else {
+                throw new Error('Not an ObjectId')
+            }
+        } catch {
+            meetQuery = { slug: id }
+        }
+
+        // Find meet to get canonical ID
+        const meetCollection = db.collection('friendship_meets')
+        const meet = await meetCollection.findOne(meetQuery)
+        if (!meet) {
+            return NextResponse.json({ success: false, error: 'Friendship meet not found' }, { status: 404 })
+        }
+
+        const meetId = meet.slug || meet._id.toString()
+        const galleryCollection = db.collection('gallery_items')
         const itemId = new ObjectId(data.item_id)
-        const existingItem = await galleryCollection.findOne({ _id: itemId, meet_id: new ObjectId(id) })
+
+        // Find existing item with lenient meet_id check
+        const existingItem = await galleryCollection.findOne({
+            _id: itemId,
+            $or: [
+                { meet_id: meetId },
+                { meet_id: meet._id.toString() },
+                { meet_id: meet._id }
+            ]
+        })
 
         if (!existingItem) {
             return NextResponse.json({ success: false, error: 'Gallery item not found' }, { status: 404 })
@@ -249,22 +290,52 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 // DELETE: Delete a gallery item
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
+        const session = await getAdminSession()
+        if (!session) {
+            return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+        }
+
         const { id } = await params
         const data = await request.json()
-
-        if (!id || !ObjectId.isValid(id)) {
-            return NextResponse.json({ success: false, error: 'Invalid meet ID' }, { status: 400 })
-        }
 
         if (!data.item_id || !ObjectId.isValid(data.item_id)) {
             return NextResponse.json({ success: false, error: 'Invalid item ID' }, { status: 400 })
         }
 
         const db = await getDb()
-        const galleryCollection = db.collection('gallery_items')
 
+        // Support both slug and ObjectId lookup
+        let meetQuery: any
+        try {
+            if (ObjectId.isValid(id)) {
+                meetQuery = { _id: new ObjectId(id) }
+            } else {
+                throw new Error('Not an ObjectId')
+            }
+        } catch {
+            meetQuery = { slug: id }
+        }
+
+        // Find meet to get canonical ID
+        const meetCollection = db.collection('friendship_meets')
+        const meet = await meetCollection.findOne(meetQuery)
+        if (!meet) {
+            return NextResponse.json({ success: false, error: 'Friendship meet not found' }, { status: 404 })
+        }
+
+        const meetId = meet.slug || meet._id.toString()
+        const galleryCollection = db.collection('gallery_items')
         const itemId = new ObjectId(data.item_id)
-        const item = await galleryCollection.findOne({ _id: itemId, meet_id: new ObjectId(id) })
+
+        // Find existing item with lenient meet_id check
+        const item = await galleryCollection.findOne({
+            _id: itemId,
+            $or: [
+                { meet_id: meetId },
+                { meet_id: meet._id.toString() },
+                { meet_id: meet._id }
+            ]
+        })
 
         if (!item) {
             return NextResponse.json({ success: false, error: 'Gallery item not found' }, { status: 404 })

@@ -791,6 +791,10 @@ function ServicesSection() {
         e.preventDefault()
         setSubmitting(true)
 
+        // Capture file input BEFORE async operations
+        const fileInput = e.currentTarget.querySelector('input[type="file"]') as HTMLInputElement
+        const imageFile = fileInput?.files?.[0]
+
         // Handle custom country
         let finalCountry = formData.country
         if (showCountryInput && customCountryInput.trim()) {
@@ -893,9 +897,8 @@ function ServicesSection() {
             submitData.append(key, value)
         })
 
-        const fileInput = e.currentTarget.querySelector('input[type="file"]') as HTMLInputElement
-        if (fileInput?.files?.[0]) {
-            submitData.append('image', fileInput.files[0])
+        if (imageFile) {
+            submitData.append('image', imageFile)
         }
 
         if (editing) submitData.append('id', editing.id)
@@ -935,7 +938,7 @@ function ServicesSection() {
     const availableStates = [...baseStates, ...customStates]
     const baseDistricts = formData.country && formData.state && !showCountryInput && !showStateInput ? getDistricts(formData.country, formData.state) : []
     const availableDistricts = [...baseDistricts, ...customDistricts]
-    const baseCities = formData.country && formData.state && formData.district && !showCountryInput && !showStateInput && !showDistrictInput ? getCities(formData.country, formData.state, formData.district) : []
+    const baseCities = formData.country && formData.state && !showCountryInput && !showStateInput && !showDistrictInput ? getCities(formData.country, formData.state, formData.district || undefined) : []
     const availableCities = [...baseCities, ...customCities]
 
     return (
@@ -983,12 +986,17 @@ function ServicesSection() {
             {loading ? <p className="text-gray-500">Loading...</p> : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredItems.map(item => (
-                        <div key={item.id} className="bg-white rounded-xl shadow overflow-hidden hover:shadow-lg transition">
+                        <div key={item.id} className="bg-white rounded-xl shadow overflow-hidden hover:shadow-lg transition relative">
+                            {new Date(item.date) >= new Date(new Date().setHours(0, 0, 0, 0)) && (
+                                <div className="absolute top-2 right-2 z-10 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold">
+                                    UPCOMING
+                                </div>
+                            )}
                             <img src={item.image_url} alt={item.title_en} className="w-full h-48 object-cover" />
                             <div className="p-4">
                                 <h3 className="font-bold text-gray-900 mb-1">{item.title_en}</h3>
                                 {item.title_ta && <p className="text-sm text-gray-500 mb-2">{item.title_ta}</p>}
-                                <p className="text-xs text-gray-400 mb-1">📍 {item.city}, {item.district}, {item.state}, {item.country}</p>
+                                <p className="text-xs text-gray-400 mb-1">📍 {[item.city, item.district, item.state, item.country].filter(Boolean).join(', ')}</p>
                                 <p className="text-xs text-gray-400 mb-3">📅 {item.date}</p>
                                 <div className="flex gap-2">
                                     <button onClick={() => openEditModal(item)}
@@ -1027,7 +1035,7 @@ function ServicesSection() {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium mb-1">Country *</label>
+                            <label className="block text-sm font-medium mb-1">Country</label>
                             {!showCountryInput ? (
                                 <select
                                     value={formData.country}
@@ -1039,7 +1047,6 @@ function ServicesSection() {
                                             setFormData({ ...formData, country: e.target.value, state: '', district: '', city: '' })
                                         }
                                     }}
-                                    required
                                     className="w-full border rounded-lg p-2.5"
                                 >
                                     <option value="">Select Country</option>
@@ -1054,7 +1061,6 @@ function ServicesSection() {
                                         onChange={(e) => setCustomCountryInput(e.target.value)}
                                         placeholder="Enter country name"
                                         className="flex-1 border rounded-lg p-2.5"
-                                        required
                                     />
                                     <button
                                         type="button"
@@ -1070,7 +1076,7 @@ function ServicesSection() {
                             )}
                         </div>
                         <div>
-                            <label className="block text-sm font-medium mb-1">State *</label>
+                            <label className="block text-sm font-medium mb-1">State</label>
                             {!showStateInput ? (
                                 <select
                                     value={formData.state}
@@ -1082,7 +1088,6 @@ function ServicesSection() {
                                             setFormData({ ...formData, state: e.target.value, district: '', city: '' })
                                         }
                                     }}
-                                    required
                                     disabled={!formData.country && !showCountryInput}
                                     className="w-full border rounded-lg p-2.5 disabled:bg-gray-100"
                                 >
@@ -1098,7 +1103,6 @@ function ServicesSection() {
                                         onChange={(e) => setCustomStateInput(e.target.value)}
                                         placeholder="Enter state/province name"
                                         className="flex-1 border rounded-lg p-2.5"
-                                        required
                                     />
                                     <button
                                         type="button"
@@ -1117,7 +1121,7 @@ function ServicesSection() {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium mb-1">District *</label>
+                            <label className="block text-sm font-medium mb-1">District</label>
                             {!showDistrictInput ? (
                                 <select
                                     value={formData.district}
@@ -1129,7 +1133,6 @@ function ServicesSection() {
                                             setFormData({ ...formData, district: e.target.value, city: '' })
                                         }
                                     }}
-                                    required
                                     disabled={!formData.state && !showStateInput}
                                     className="w-full border rounded-lg p-2.5 disabled:bg-gray-100"
                                 >
@@ -1145,7 +1148,6 @@ function ServicesSection() {
                                         onChange={(e) => setCustomDistrictInput(e.target.value)}
                                         placeholder="Enter district name"
                                         className="flex-1 border rounded-lg p-2.5"
-                                        required
                                     />
                                     <button
                                         type="button"
@@ -1161,7 +1163,7 @@ function ServicesSection() {
                             )}
                         </div>
                         <div>
-                            <label className="block text-sm font-medium mb-1">City *</label>
+                            <label className="block text-sm font-medium mb-1">City</label>
                             {!showCityInput ? (
                                 <select
                                     value={formData.city}
@@ -1173,8 +1175,7 @@ function ServicesSection() {
                                             setFormData({ ...formData, city: e.target.value })
                                         }
                                     }}
-                                    required
-                                    disabled={!formData.district && !showDistrictInput}
+                                    disabled={!formData.state && !showStateInput}
                                     className="w-full border rounded-lg p-2.5 disabled:bg-gray-100"
                                 >
                                     <option value="">Select City</option>
@@ -1189,7 +1190,6 @@ function ServicesSection() {
                                         onChange={(e) => setCustomCityInput(e.target.value)}
                                         placeholder="Enter city name"
                                         className="flex-1 border rounded-lg p-2.5"
-                                        required
                                     />
                                     <button
                                         type="button"
@@ -1239,7 +1239,7 @@ function ServicesSection() {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium mb-1">Description (English) *</label>
+                        <label className="block text-sm font-medium mb-1">Description (English)</label>
                         <RichTextEditor
                             value={formData.description_en}
                             onChange={(value) => setFormData({ ...formData, description_en: value })}
@@ -1586,7 +1586,7 @@ function NewsSection() {
     const baseDistricts = !showCountryInput && !showStateInput && formData.country && formData.state ? getDistricts(formData.country, formData.state) : []
     const availableDistricts = [...baseDistricts, ...customDistricts]
 
-    const baseCities = !showCountryInput && !showStateInput && !showDistrictInput && formData.country && formData.state && formData.district ? getCities(formData.country, formData.state, formData.district) : []
+    const baseCities = !showCountryInput && !showStateInput && !showDistrictInput && formData.country && formData.state ? getCities(formData.country, formData.state, formData.district || undefined) : []
     const availableCities = [...baseCities, ...customCities]
 
     return (
@@ -1611,7 +1611,7 @@ function NewsSection() {
                                 <div className="p-4">
                                     <h3 className="font-bold text-gray-900 mb-1">{item.title_en}</h3>
                                     {item.title_ta && <p className="text-sm text-gray-500 mb-2">{item.title_ta}</p>}
-                                    <p className="text-xs text-gray-400 mb-1">📍 {item.city}, {item.state}, {item.country}</p>
+                                    <p className="text-xs text-gray-400 mb-1">📍 {[item.city, item.district, item.state, item.country].filter(Boolean).join(', ')}</p>
                                     <p className="text-xs text-gray-400 mb-3">
                                         📅 {item.date} {item.time && `⏰ ${item.time}`}
                                     </p>
@@ -1744,7 +1744,7 @@ function NewsSection() {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium mb-1">District *</label>
+                            <label className="block text-sm font-medium mb-1">District</label>
                             {!showDistrictInput ? (
                                 <select
                                     value={formData.district}
@@ -1756,7 +1756,6 @@ function NewsSection() {
                                             setFormData({ ...formData, district: e.target.value, city: '' })
                                         }
                                     }}
-                                    required
                                     disabled={!formData.state && !showStateInput}
                                     className="w-full border rounded-lg p-2.5 disabled:bg-gray-100"
                                 >
@@ -1772,7 +1771,6 @@ function NewsSection() {
                                         onChange={(e) => setCustomDistrictInput(e.target.value)}
                                         placeholder="Enter district name"
                                         className="flex-1 border rounded-lg p-2.5"
-                                        required
                                     />
                                     <button
                                         type="button"
@@ -1788,7 +1786,7 @@ function NewsSection() {
                             )}
                         </div>
                         <div>
-                            <label className="block text-sm font-medium mb-1">City *</label>
+                            <label className="block text-sm font-medium mb-1">City</label>
                             {!showCityInput ? (
                                 <select
                                     value={formData.city}
@@ -1800,8 +1798,7 @@ function NewsSection() {
                                             setFormData({ ...formData, city: e.target.value })
                                         }
                                     }}
-                                    required
-                                    disabled={!formData.district && !showDistrictInput}
+                                    disabled={!formData.state && !showStateInput}
                                     className="w-full border rounded-lg p-2.5 disabled:bg-gray-100"
                                 >
                                     <option value="">Select City</option>
@@ -1816,7 +1813,6 @@ function NewsSection() {
                                         onChange={(e) => setCustomCityInput(e.target.value)}
                                         placeholder="Enter city name"
                                         className="flex-1 border rounded-lg p-2.5"
-                                        required
                                     />
                                     <button
                                         type="button"

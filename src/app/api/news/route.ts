@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getDb } from '@/lib/mongodb'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
     try {
         const db = await getDb()
@@ -67,6 +69,10 @@ export async function GET(request: NextRequest) {
 
         const upcoming = [...todayUpcoming, ...futureEvents]
         const past = [...todayPast.reverse(), ...pastEvents] // reverse so newest today events first
+
+        if (past.length > 0) {
+            console.log('DEBUG API - Past Event Sample:', JSON.stringify(mapEvent(past[0]), null, 2))
+        }
 
         return NextResponse.json({
             success: true,

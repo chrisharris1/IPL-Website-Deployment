@@ -33,7 +33,7 @@ export default function HumanitarianServiceDetail() {
                 setLoading(false)
             }
         }
-        
+
         if (params.id) {
             loadService()
         }
@@ -53,7 +53,7 @@ export default function HumanitarianServiceDetail() {
                 <div className="text-center">
                     <h1 className="text-3xl font-bold text-neutral-900 mb-4">Service Not Found</h1>
                     <p className="text-neutral-600 mb-6">The humanitarian service you're looking for doesn't exist.</p>
-                    <Link 
+                    <Link
                         href="/humanitarian-services"
                         className="inline-flex items-center gap-2 bg-primary-700 text-white px-6 py-3 rounded-lg hover:bg-primary-800 transition"
                     >
@@ -70,7 +70,7 @@ export default function HumanitarianServiceDetail() {
             {/* Back Button */}
             <div className="bg-white border-b border-neutral-200">
                 <div className="container-custom mx-auto px-4 py-4">
-                    <Link 
+                    <Link
                         href="/humanitarian-services"
                         className="inline-flex items-center gap-2 text-neutral-600 hover:text-primary-700 transition font-medium"
                     >
@@ -121,10 +121,10 @@ export default function HumanitarianServiceDetail() {
                                     <div>
                                         <p className="text-xs text-neutral-500 uppercase tracking-wide mb-0.5">Date</p>
                                         <p className="text-neutral-900 font-semibold">
-                                            {new Date(service.date).toLocaleDateString('en-US', { 
-                                                month: 'long', 
-                                                day: 'numeric', 
-                                                year: 'numeric' 
+                                            {new Date(service.date).toLocaleDateString('en-US', {
+                                                month: 'long',
+                                                day: 'numeric',
+                                                year: 'numeric'
                                             })}
                                         </p>
                                     </div>
@@ -137,10 +137,7 @@ export default function HumanitarianServiceDetail() {
                                     <div>
                                         <p className="text-xs text-neutral-500 uppercase tracking-wide mb-0.5">Location</p>
                                         <p className="text-neutral-900 font-semibold">
-                                            {service.city}, {service.district}
-                                        </p>
-                                        <p className="text-sm text-neutral-600">
-                                            {service.state}, {service.country}
+                                            {[service.city, service.district, service.state, service.country].filter(Boolean).join(', ')}
                                         </p>
                                     </div>
                                 </div>
@@ -150,19 +147,19 @@ export default function HumanitarianServiceDetail() {
                         {/* Description */}
                         <div className="bg-white rounded-2xl shadow-md p-8 border border-neutral-200">
                             <h2 className="text-2xl font-bold text-neutral-900 mb-6">About This Service</h2>
-                            <div 
+                            <div
                                 className="prose prose-lg max-w-none text-neutral-700 leading-relaxed"
-                                dangerouslySetInnerHTML={{ 
-                                    __html: lang === 'ta' && service.description_ta 
-                                        ? service.description_ta 
-                                        : service.description_en 
+                                dangerouslySetInnerHTML={{
+                                    __html: lang === 'ta' && service.description_ta
+                                        ? service.description_ta
+                                        : service.description_en
                                 }}
                             />
                         </div>
 
                         {/* CTA */}
                         <div className="mt-8 text-center">
-                            <Link 
+                            <Link
                                 href="/humanitarian-services"
                                 className="inline-flex items-center gap-2 bg-neutral-100 text-neutral-700 hover:bg-neutral-200 px-8 py-3 rounded-lg font-medium transition"
                             >

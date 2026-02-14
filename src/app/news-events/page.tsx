@@ -28,6 +28,7 @@ function NewsEventsContent() {
             setLoading(true)
             const response = await getNewsEvents(searchQuery || undefined)
             if (response.success && response.data) {
+
                 setUpcomingEvents(response.data.upcoming)
                 setPastEvents(response.data.past)
             }
@@ -136,11 +137,11 @@ function NewsEventsContent() {
                                                 </div>
 
                                                 {/* Date Badge */}
-                                                <div className="absolute top-4 left-4 bg-white rounded-lg shadow-lg overflow-hidden">
-                                                    <div className="bg-red-700 text-white text-xs font-bold px-3 py-1 text-center">
+                                                <div className="absolute top-3 left-3 bg-white rounded-md shadow-md overflow-hidden">
+                                                    <div className="bg-red-700 text-white text-[10px] font-bold px-2 py-0.5 text-center">
                                                         {new Date(event.date).toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
                                                     </div>
-                                                    <div className="px-3 py-2 text-2xl font-bold text-neutral-900 text-center">
+                                                    <div className="px-2 py-1 text-lg font-bold text-neutral-900 text-center">
                                                         {new Date(event.date).getDate()}
                                                     </div>
                                                 </div>
@@ -152,16 +153,16 @@ function NewsEventsContent() {
                                                     {lang === 'ta' ? event.title_ta : event.title_en}
                                                 </h3>
 
-                                                <p className="text-sm text-neutral-600 line-clamp-3 leading-relaxed mb-4">
-                                                    {stripHtml(lang === 'ta' ? event.description_ta : event.description_en)}
-                                                </p>
-
-                                                <div className="flex items-start gap-2 text-sm text-neutral-500">
-                                                    <MapPin className="w-4 h-4 text-red-600 mt-0.5" />
+                                                <div className="flex items-start gap-2 text-xs text-neutral-600 mb-4">
+                                                    <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-red-600" />
                                                     <span className="line-clamp-1">
-                                                        {event.city}, {event.district}
+                                                        {[event.city, event.district, event.state, event.country].filter(Boolean).join(', ')}
                                                     </span>
                                                 </div>
+
+                                                <p className="text-sm text-neutral-600 line-clamp-3 leading-relaxed">
+                                                    {stripHtml(lang === 'ta' ? event.description_ta : event.description_en)}
+                                                </p>
 
                                                 <div className="flex items-center gap-2 text-sm text-neutral-500 mt-3 pt-3 border-t border-neutral-100">
                                                     <Calendar className="w-4 h-4 text-emerald-600" />
@@ -219,11 +220,11 @@ function NewsEventsContent() {
                                                 </div>
 
                                                 {/* Date Badge */}
-                                                <div className="absolute top-4 left-4 bg-white rounded-lg shadow-lg overflow-hidden">
-                                                    <div className="bg-neutral-500 text-white text-xs font-bold px-3 py-1 text-center">
+                                                <div className="absolute top-3 left-3 bg-white rounded-md shadow-md overflow-hidden">
+                                                    <div className="bg-neutral-500 text-white text-[10px] font-bold px-2 py-0.5 text-center">
                                                         {new Date(event.date).toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
                                                     </div>
-                                                    <div className="px-3 py-2 text-2xl font-bold text-neutral-900 text-center">
+                                                    <div className="px-2 py-1 text-lg font-bold text-neutral-900 text-center">
                                                         {new Date(event.date).getDate()}
                                                     </div>
                                                 </div>
@@ -235,16 +236,16 @@ function NewsEventsContent() {
                                                     {lang === 'ta' ? event.title_ta : event.title_en}
                                                 </h3>
 
-                                                <p className="text-sm text-neutral-600 line-clamp-3 leading-relaxed mb-4">
-                                                    {stripHtml(lang === 'ta' ? event.description_ta : event.description_en)}
-                                                </p>
-
-                                                <div className="flex items-start gap-2 text-sm text-neutral-500">
-                                                    <MapPin className="w-4 h-4 text-red-600 mt-0.5" />
+                                                <div className="flex items-start gap-2 text-xs text-neutral-600 mb-4">
+                                                    <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-red-600" />
                                                     <span className="line-clamp-1">
-                                                        {event.city}, {event.district}
+                                                        {[event.city, event.district, event.state, event.country].filter(Boolean).join(', ')}
                                                     </span>
                                                 </div>
+
+                                                <p className="text-sm text-neutral-600 line-clamp-3 leading-relaxed">
+                                                    {stripHtml(lang === 'ta' ? event.description_ta : event.description_en)}
+                                                </p>
 
                                                 <div className="flex items-center gap-2 text-sm text-neutral-500 mt-3 pt-3 border-t border-neutral-100">
                                                     <Calendar className="w-4 h-4 text-neutral-400" />
@@ -346,7 +347,7 @@ function NewsEventsContent() {
                                 )}
                                 <div className="flex items-center gap-2 bg-neutral-50 px-4 py-2 rounded-lg text-neutral-700 border border-neutral-100">
                                     <MapPin className="w-4 h-4 text-red-700" />
-                                    <span>{selectedEvent.city}, {selectedEvent.district}, {selectedEvent.state}</span>
+                                    <span>{[selectedEvent.city, selectedEvent.district, selectedEvent.state, selectedEvent.country].filter(Boolean).join(', ')}</span>
                                 </div>
                             </div>
 

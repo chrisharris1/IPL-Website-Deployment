@@ -69,11 +69,11 @@ export default function HumanitarianServices() {
                 </div>
 
                 {/* Date Badge */}
-                <div className="absolute top-4 left-4 bg-white rounded-lg shadow-lg overflow-hidden">
-                    <div className={`${isUpcoming ? 'bg-red-700' : 'bg-neutral-500'} text-white text-xs font-bold px-3 py-1 text-center`}>
+                <div className="absolute top-3 left-3 bg-white rounded-md shadow-md overflow-hidden">
+                    <div className={`${isUpcoming ? 'bg-red-700' : 'bg-neutral-500'} text-white text-[10px] font-bold px-2 py-0.5 text-center`}>
                         {new Date(service.date).toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
                     </div>
-                    <div className="px-3 py-2 text-2xl font-bold text-neutral-900 text-center">
+                    <div className="px-2 py-1 text-lg font-bold text-neutral-900 text-center">
                         {new Date(service.date).getDate()}
                     </div>
                 </div>
@@ -93,7 +93,7 @@ export default function HumanitarianServices() {
 
                 <div className="flex items-start gap-2 text-xs text-neutral-600 mb-4">
                     <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-red-600" />
-                    <span className="line-clamp-1">{service.city}, {service.district}, {service.state}</span>
+                    <span className="line-clamp-1">{[service.city, service.district, service.state, service.country].filter(Boolean).join(', ')}</span>
                 </div>
 
                 <p className="text-sm text-neutral-600 line-clamp-3 leading-relaxed">
@@ -143,7 +143,7 @@ export default function HumanitarianServices() {
                         {upcomingServices.length > 0 && (
                             <div className="mb-16">
                                 <div className="flex items-center gap-3 mb-8">
-                                    <Calendar className="w-6 h-6 text-red-700" />
+                                    <Calendar className="w-5 h-5 text-red-700" />
                                     <h2 className="text-3xl font-bold text-neutral-900">
                                         {t('humanitarian.upcoming', 'Upcoming Activities')}
                                         <span className="ml-3 text-lg font-normal text-neutral-500">({upcomingServices.length})</span>
@@ -159,7 +159,7 @@ export default function HumanitarianServices() {
                         {pastServices.length > 0 && (
                             <div>
                                 <div className="flex items-center gap-3 mb-8">
-                                    <Calendar className="w-6 h-6 text-neutral-500" />
+                                    <Calendar className="w-5 h-5 text-neutral-500" />
                                     <h2 className="text-3xl font-bold text-neutral-900">
                                         {t('humanitarian.past', 'Past Activities')}
                                         <span className="ml-3 text-lg font-normal text-neutral-500">({pastServices.length})</span>

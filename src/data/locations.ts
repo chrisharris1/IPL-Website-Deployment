@@ -188,11 +188,17 @@ export function getDistricts(countryName: string, stateName: string): string[] {
   return state ? state.districts.map((district) => district.name) : []
 }
 
-export function getCities(countryName: string, stateName: string, districtName: string): string[] {
+export function getCities(countryName: string, stateName: string, districtName?: string): string[] {
   const country = locations.find((c) => c.name === countryName)
   if (!country) return []
   const state = country.states.find((s) => s.name === stateName)
   if (!state) return []
-  const district = state.districts.find((d) => d.name === districtName)
-  return district ? district.cities.map((city) => city.name) : []
+
+  if (districtName) {
+    const district = state.districts.find((d) => d.name === districtName)
+    return district ? district.cities.map((city) => city.name) : []
+  }
+
+  // If no district provided, return all cities in the state
+  return state.districts.flatMap(d => d.cities.map(c => c.name)).sort()
 }
