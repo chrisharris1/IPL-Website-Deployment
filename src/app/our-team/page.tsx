@@ -197,7 +197,8 @@ export default function OurTeam() {
 
                         // Helper for pluralization
                         const getRoleTitle = (role: string, count: number) => {
-                            if (count <= 1) return role
+                            if (count <= 1) return role === 'Coordinator' ? 'Co-ordinator' : role
+                            if (role === 'Coordinator') return 'Co-ordinators'
                             if (role.endsWith('y')) return role.slice(0, -1) + 'ies'
                             return role + 's'
                         }
@@ -278,32 +279,43 @@ export default function OurTeam() {
                             if (isTreasurer(leftGroup) && isGenSec(rightGroup)) { leftGroup = group2; rightGroup = group1 }
                             if (!isVP(leftGroup) && isVP(rightGroup)) { leftGroup = group2; rightGroup = group1 }
 
+                            // Determine grid layout (Uneven for VP to allow side-by-side)
+                            const hasVP = isVP(leftGroup) || isVP(rightGroup)
+                            const gridCols = hasVP ? 'grid-cols-1 lg:grid-cols-5' : 'grid-cols-1 md:grid-cols-2'
+                            const leftSpan = hasVP ? (isVP(leftGroup) ? 'lg:col-span-3' : 'lg:col-span-2') : ''
+                            const rightSpan = hasVP ? (isVP(rightGroup) ? 'lg:col-span-3' : 'lg:col-span-2') : ''
+                            const gap = hasVP ? 'gap-8' : 'gap-12 lg:gap-24'
+
                             return (
                                 <section key={`${leftGroup.roleName}-${rightGroup.roleName}`} className={`py-12 border-b border-neutral-100 ${bgColor}`}>
                                     <div className="container-custom mx-auto">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-24">
+                                        <div className={`grid ${gridCols} ${gap} items-start`}>
                                             {/* Left Column */}
-                                            <div className="flex flex-col items-center">
+                                            <div className={`flex flex-col items-center w-full ${leftSpan}`}>
                                                 <div className="flex items-center justify-center gap-3 mb-8">
                                                     <Shield className="w-6 h-6 text-purple-700" />
                                                     <h2 className="text-3xl font-bold text-purple-900">{getRoleTitle(leftGroup.roleName, leftGroup.members.length)}</h2>
                                                 </div>
-                                                <div className="w-full grid justify-items-center max-w-sm">
+                                                <div className={`w-full flex flex-wrap justify-center gap-6 ${!hasVP && leftGroup.members.length === 1 ? 'max-w-sm' : ''}`}>
                                                     {leftGroup.members.map((member: TeamMember) => (
-                                                        <Card key={member.id} person={mapToPerson(member)} />
+                                                        <div key={member.id} className="flex justify-center">
+                                                            <Card person={mapToPerson(member)} />
+                                                        </div>
                                                     ))}
                                                 </div>
                                             </div>
 
                                             {/* Right Column */}
-                                            <div className="flex flex-col items-center">
+                                            <div className={`flex flex-col items-center w-full ${rightSpan}`}>
                                                 <div className="flex items-center justify-center gap-3 mb-8">
                                                     <Shield className="w-6 h-6 text-purple-700" />
                                                     <h2 className="text-3xl font-bold text-purple-900">{getRoleTitle(rightGroup.roleName, rightGroup.members.length)}</h2>
                                                 </div>
-                                                <div className="w-full grid justify-items-center max-w-sm">
+                                                <div className={`w-full flex flex-wrap justify-center gap-6 ${!hasVP && rightGroup.members.length === 1 ? 'max-w-sm' : ''}`}>
                                                     {rightGroup.members.map((member: TeamMember) => (
-                                                        <Card key={member.id} person={mapToPerson(member)} />
+                                                        <div key={member.id} className="flex justify-center">
+                                                            <Card person={mapToPerson(member)} />
+                                                        </div>
                                                     ))}
                                                 </div>
                                             </div>
