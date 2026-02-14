@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
         const posts = await db
             .collection('president_blog')
             .find(filter)
-            .sort({ date: -1, created_at: -1 })
+            .sort({ order_index: 1, date: -1, created_at: -1 }) // Added order_index sorting
             .toArray()
 
         const mapped = posts.map((p) => ({
@@ -37,6 +37,7 @@ export async function GET(request: NextRequest) {
             description_en: p.description_en || '',
             description_ta: p.description_ta || '',
             image_url: p.image_url || '',
+            order_index: p.order_index || 0, // Include order_index
         }))
 
         return NextResponse.json({ success: true, data: mapped })
@@ -85,6 +86,10 @@ export async function POST(request: NextRequest) {
         }
 
         const db = await getDb()
+
+        // Get strict count for order_index
+        const count = await db.collection('president_blog').countDocuments()
+
         const doc = {
             title_en: title_en || '',
             title_ta: title_ta || '',
@@ -92,6 +97,7 @@ export async function POST(request: NextRequest) {
             description_ta: description_ta ? DOMPurify.sanitize(description_ta) : '',
             image_url: uploadResult.url,
             created_at: new Date(),
+            order_index: count, // Assign new order index
         }
 
         const result = await db.collection('president_blog').insertOne(doc)
@@ -113,6 +119,32 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
         }
 
+        const contentType = request.headers.get('content-type') || ''
+        const db = await getDb()
+
+        // Handle JSON for reordering
+        if (contentType.includes('application/json')) {
+            const body = await request.json()
+            if (body.orderedIds && Array.isArray(body.orderedIds)) {
+                const { orderedIds } = body
+
+                // Bulk write for efficiency
+                const operations = orderedIds.map((id: string, index: number) => ({
+                    updateOne: {
+                        filter: { _id: new ObjectId(id) },
+                        update: { $set: { order_index: index } }
+                    }
+                }))
+
+                if (operations.length > 0) {
+                    await db.collection('president_blog').bulkWrite(operations)
+                }
+
+                return NextResponse.json({ success: true })
+            }
+        }
+
+        // Handle FormData for edits
         const formData = await request.formData()
         const id = formData.get('id') as string
 
@@ -134,7 +166,6 @@ export async function PUT(request: NextRequest) {
         }
         const { title_en, title_ta, description_en, description_ta } = validation.data
 
-        const db = await getDb()
         const existing = await db.collection('president_blog').findOne({ _id: new ObjectId(id) })
         if (!existing) {
             return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 })

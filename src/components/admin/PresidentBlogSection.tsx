@@ -115,10 +115,49 @@ export default function PresidentBlogSection() {
         }
     }
 
+    // ─── Drag and Drop Handlers ──────────────────────────────────────────────────
+    const [draggedId, setDraggedId] = useState<string | null>(null)
+
+    const handleDragStart = (id: string) => {
+        setDraggedId(id)
+    }
+
+    const handleDragEnter = (targetId: string) => {
+        if (!draggedId || draggedId === targetId) return
+
+        const draggedIndex = items.findIndex(item => item.id === draggedId)
+        const targetIndex = items.findIndex(item => item.id === targetId)
+
+        if (draggedIndex === -1 || targetIndex === -1) return
+
+        const newItems = [...items]
+        const [removed] = newItems.splice(draggedIndex, 1)
+        newItems.splice(targetIndex, 0, removed)
+
+        setItems(newItems)
+    }
+
+    const handleDragEnd = async () => {
+        setDraggedId(null)
+        try {
+            await fetch('/api/admin/president-blog', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderedIds: items.map(i => i.id) })
+            })
+            setMessage({ text: 'Order saved', type: 'success' })
+        } catch {
+            setMessage({ text: 'Failed to save order', type: 'error' })
+        }
+    }
+
     return (
         <div>
             <div className="flex justify-between items-center mb-6">
-                <h2 className="text-3xl font-bold text-gray-900">IPL President&apos;s Blog</h2>
+                <div>
+                    <h2 className="text-3xl font-bold text-gray-900">IPL President&apos;s Blog</h2>
+                    <p className="text-sm text-gray-500 mt-1">↕ Drag cards to reorder posts</p>
+                </div>
                 <button onClick={openAddModal} className="bg-red-600 text-white px-5 py-2.5 rounded-lg hover:bg-red-700 transition font-medium text-sm">
                     + Add Blog
                 </button>
@@ -133,14 +172,22 @@ export default function PresidentBlogSection() {
             {loading ? <p className="text-gray-500">Loading...</p> : (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     {items.map(item => (
-                        <div key={item.id} className="bg-white rounded-xl shadow overflow-hidden">
-                            <img src={item.image_url} alt={item.title_en} className="w-full h-48 object-cover" />
+                        <div
+                            key={item.id}
+                            className={`bg-white rounded-xl shadow overflow-hidden transition-all duration-200 cursor-move ${draggedId === item.id ? 'opacity-50 scale-95 ring-2 ring-red-500' : 'hover:-translate-y-1 hover:shadow-lg'}`}
+                            draggable
+                            onDragStart={() => handleDragStart(item.id)}
+                            onDragEnter={() => handleDragEnter(item.id)}
+                            onDragEnd={handleDragEnd}
+                            onDragOver={(e) => e.preventDefault()}
+                        >
+                            <img src={item.image_url} alt={item.title_en} className="w-full h-48 object-cover pointer-events-none" />
                             <div className="p-4">
-                                <h3 className="font-bold text-gray-900 mb-2">{item.title_en}</h3>
+                                <h3 className="font-bold text-gray-900 mb-2 line-clamp-1">{item.title_en}</h3>
                                 <p className="text-sm text-gray-600 line-clamp-3 mb-4">{item.description_en?.replace(/<[^>]*>/g, '')}</p>
                                 <div className="flex gap-2">
-                                    <button onClick={() => openEditModal(item)} className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm hover:bg-blue-700 transition">Edit</button>
-                                    <button onClick={() => handleDelete(item.id)} className="flex-1 bg-red-600 text-white py-2 rounded-lg text-sm hover:bg-red-700 transition">Delete</button>
+                                    <button onClick={(e) => { e.stopPropagation(); openEditModal(item) }} className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm hover:bg-blue-700 transition">Edit</button>
+                                    <button onClick={(e) => { e.stopPropagation(); handleDelete(item.id) }} className="flex-1 bg-red-600 text-white py-2 rounded-lg text-sm hover:bg-red-700 transition">Delete</button>
                                 </div>
                             </div>
                         </div>
