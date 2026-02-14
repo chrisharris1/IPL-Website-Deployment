@@ -4,7 +4,6 @@ import { uploadImage, deleteImage } from '@/lib/cloudinary'
 import { ObjectId } from 'mongodb'
 import { getAdminSession } from '@/lib/auth-edge'
 import { newsSchema } from '@/lib/validation'
-import DOMPurify from 'isomorphic-dompurify'
 
 // GET - List all news events
 export async function GET() {
@@ -87,6 +86,7 @@ export async function POST(request: NextRequest) {
             )
         }
 
+        const DOMPurify = (await import('isomorphic-dompurify')).default
         const db = await getDb()
         const doc = {
             ...data,
@@ -149,6 +149,7 @@ export async function PUT(request: NextRequest) {
         }
         const data = validation.data
 
+        const DOMPurify = (await import('isomorphic-dompurify')).default
         const update: Record<string, unknown> = {
             ...data,
             description_en: data.description_en ? DOMPurify.sanitize(data.description_en) : '',

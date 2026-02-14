@@ -4,7 +4,6 @@ import { uploadImage, deleteImage } from '@/lib/cloudinary'
 import { ObjectId } from 'mongodb'
 import { getAdminSession } from '@/lib/auth-edge'
 import { serviceSchema } from '@/lib/validation'
-import DOMPurify from 'isomorphic-dompurify'
 
 // GET - List all humanitarian services with search/filter
 export async function GET(request: NextRequest) {
@@ -100,6 +99,7 @@ export async function POST(request: NextRequest) {
             )
         }
 
+        const DOMPurify = (await import('isomorphic-dompurify')).default
         const db = await getDb()
         const doc = {
             title_en: rawData.title_en,
@@ -148,6 +148,7 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 })
         }
 
+        const DOMPurify = (await import('isomorphic-dompurify')).default
         const update: Record<string, unknown> = {
             title_en: formData.get('title_en') as string,
             title_ta: formData.get('title_ta') as string,

@@ -3,7 +3,6 @@ import { getDb } from '@/lib/mongodb'
 import { ObjectId } from 'mongodb'
 import { getAdminSession } from '@/lib/auth-edge'
 import { aboutSchema } from '@/lib/validation'
-import DOMPurify from 'isomorphic-dompurify'
 
 // GET - List all about sections
 export async function GET(request: NextRequest) {
@@ -53,6 +52,7 @@ export async function POST(request: NextRequest) {
 
         const { section_title_en, section_title_ta, content_en, content_ta } = validation.data
 
+        const DOMPurify = (await import('isomorphic-dompurify')).default
         const db = await getDb()
 
         // Get next order index
@@ -97,6 +97,7 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ success: false, error: 'No ID provided' }, { status: 400 })
         }
 
+        const DOMPurify = (await import('isomorphic-dompurify')).default
         const db = await getDb()
         const update: Record<string, unknown> = {}
 
