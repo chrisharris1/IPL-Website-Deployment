@@ -74,7 +74,7 @@ const ImageCarousel: React.FC = () => {
     if (images.length === 0) return
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))
-    }, 5000)
+    }, 2000)
     return () => clearInterval(timer)
   }, [images.length])
 
@@ -89,7 +89,7 @@ const ImageCarousel: React.FC = () => {
       {images.map((img, index) => (
         <div
           key={index}
-          className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${index === currentIndex ? 'opacity-100' : 'opacity-0'
+          className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${index === currentIndex ? 'opacity-100' : 'opacity-0'
             }`}
         >
 

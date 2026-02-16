@@ -409,7 +409,7 @@ export default function GalleryManagementPage({ params }: { params: Promise<{ id
 
                 {/* Meet Information Card */}
                 {meet && (
-                    <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-6 mb-6">
+                    <div className="bg-linear-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-6 mb-6">
                         <h2 className="text-lg font-semibold text-gray-900 mb-3">📍 Section Information</h2>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <div>

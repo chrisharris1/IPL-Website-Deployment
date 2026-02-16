@@ -38,10 +38,16 @@ export default function HumanitarianServices() {
         loadServices()
     }, [])
 
-    // Helper to strip HTML tags for preview
     const stripHtml = (html: string) => {
         if (!html) return ''
-        return html.replace(/<[^>]*>/g, '').substring(0, 100)
+        const text = html.replace(/<[^>]*>/g, '')
+            .replace(/&nbsp;/g, ' ')
+            .replace(/&amp;/g, '&')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&quot;/g, '"')
+            .replace(/&#39;/g, "'")
+        return Array.from(text).slice(0, 100).join('')
     }
 
     const renderServiceCard = (service: HumanitarianService, isUpcoming: boolean) => (
@@ -64,14 +70,14 @@ export default function HumanitarianServices() {
                 <div className="absolute top-4 right-4 z-10">
                     <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider text-white shadow-lg ${isUpcoming ? 'bg-emerald-500' : 'bg-neutral-500'}`}>
                         {isUpcoming && <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
-                        {isUpcoming ? 'Upcoming' : 'Past'}
+                        {isUpcoming ? t('news.upcoming_badge', 'Upcoming') : t('news.past_badge', 'Past')}
                     </span>
                 </div>
 
                 {/* Date Badge */}
                 <div className="absolute top-3 left-3 bg-white rounded-md shadow-md overflow-hidden">
                     <div className={`${isUpcoming ? 'bg-red-700' : 'bg-neutral-500'} text-white text-[10px] font-bold px-2 py-0.5 text-center`}>
-                        {new Date(service.date).toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
+                        {new Date(service.date).toLocaleDateString(lang === 'ta' ? 'ta-IN' : 'en-US', { month: 'short' }).toUpperCase()}
                     </div>
                     <div className="px-2 py-1 text-lg font-bold text-neutral-900 text-center">
                         {new Date(service.date).getDate()}
@@ -81,13 +87,13 @@ export default function HumanitarianServices() {
 
             <div className="p-6">
                 <h3 className="text-lg font-bold text-neutral-900 mb-3 line-clamp-2 group-hover:text-red-700 transition-colors leading-tight">
-                    {lang === 'ta' ? service.title_ta : service.title_en}
+                    {(lang === 'ta' ? service.title_ta : service.title_en) || service.title_en}
                 </h3>
 
                 <div className="flex items-center gap-2 text-xs text-neutral-500 mb-3">
                     <Calendar className={`w-3.5 h-3.5 ${isUpcoming ? 'text-emerald-600' : 'text-neutral-400'}`} />
                     <span className="font-medium">
-                        {new Date(service.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        {new Date(service.date).toLocaleDateString(lang === 'ta' ? 'ta-IN' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                     </span>
                 </div>
 
@@ -97,7 +103,7 @@ export default function HumanitarianServices() {
                 </div>
 
                 <p className="text-sm text-neutral-600 line-clamp-3 leading-relaxed">
-                    {stripHtml(lang === 'ta' ? service.description_ta : service.description_en)}...
+                    {stripHtml((lang === 'ta' ? service.description_ta : service.description_en) || service.description_en)}...
                 </p>
             </div>
         </Link>

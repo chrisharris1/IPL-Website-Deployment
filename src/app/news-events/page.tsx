@@ -106,7 +106,7 @@ function NewsEventsContent() {
                                 <div className="flex items-center gap-3 mb-8">
                                     <Calendar className="w-6 h-6 text-red-700" />
                                     <h2 className="text-3xl font-bold text-neutral-900">
-                                        Upcoming Events
+                                        {t('news.upcoming_events', 'Upcoming Events')}
                                         <span className="ml-3 text-lg font-normal text-neutral-500">({upcomingEvents.length})</span>
                                     </h2>
                                 </div>
@@ -132,14 +132,14 @@ function NewsEventsContent() {
                                                 <div className="absolute top-4 right-4 z-10">
                                                     <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-500 text-white shadow-lg">
                                                         <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                                                        Upcoming
+                                                        {t('news.upcoming_badge', 'Upcoming')}
                                                     </span>
                                                 </div>
 
                                                 {/* Date Badge */}
                                                 <div className="absolute top-3 left-3 bg-white rounded-md shadow-md overflow-hidden">
                                                     <div className="bg-red-700 text-white text-[10px] font-bold px-2 py-0.5 text-center">
-                                                        {new Date(event.date).toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
+                                                        {new Date(event.date).toLocaleDateString(lang === 'ta' ? 'ta-IN' : 'en-US', { month: 'short' }).toUpperCase()}
                                                     </div>
                                                     <div className="px-2 py-1 text-lg font-bold text-neutral-900 text-center">
                                                         {new Date(event.date).getDate()}
@@ -150,7 +150,7 @@ function NewsEventsContent() {
 
                                             <div className="p-6 flex flex-col flex-1">
                                                 <h3 className="text-lg font-bold text-neutral-900 mb-3 line-clamp-2 group-hover:text-red-700 transition-colors">
-                                                    {lang === 'ta' ? event.title_ta : event.title_en}
+                                                    {(lang === 'ta' ? event.title_ta : event.title_en) || event.title_en}
                                                 </h3>
 
                                                 <div className="flex items-start gap-2 text-xs text-neutral-600 mb-4">
@@ -161,13 +161,13 @@ function NewsEventsContent() {
                                                 </div>
 
                                                 <p className="text-sm text-neutral-600 line-clamp-3 leading-relaxed">
-                                                    {stripHtml(lang === 'ta' ? event.description_ta : event.description_en)}
+                                                    {stripHtml((lang === 'ta' ? event.description_ta : event.description_en) || event.description_en)}
                                                 </p>
 
                                                 <div className="flex items-center gap-2 text-sm text-neutral-500 mt-3 pt-3 border-t border-neutral-100">
                                                     <Calendar className="w-4 h-4 text-emerald-600" />
                                                     <span className="font-medium text-neutral-700">
-                                                        {new Date(event.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                                                        {new Date(event.date).toLocaleDateString(lang === 'ta' ? 'ta-IN' : 'en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                                                     </span>
                                                     {event.time && (
                                                         <>
@@ -190,7 +190,7 @@ function NewsEventsContent() {
                                 <div className="flex items-center gap-3 mb-8">
                                     <Calendar className="w-6 h-6 text-neutral-500" />
                                     <h2 className="text-3xl font-bold text-neutral-900">
-                                        Past Events
+                                        {t('news.past_events', 'Past Events')}
                                         <span className="ml-3 text-lg font-normal text-neutral-500">({pastEvents.length})</span>
                                     </h2>
                                 </div>
@@ -215,14 +215,14 @@ function NewsEventsContent() {
                                                 {/* Past Badge */}
                                                 <div className="absolute top-4 right-4 z-10">
                                                     <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-neutral-500 text-white shadow-lg">
-                                                        Past
+                                                        {t('news.past_badge', 'Past')}
                                                     </span>
                                                 </div>
 
                                                 {/* Date Badge */}
                                                 <div className="absolute top-3 left-3 bg-white rounded-md shadow-md overflow-hidden">
                                                     <div className="bg-neutral-500 text-white text-[10px] font-bold px-2 py-0.5 text-center">
-                                                        {new Date(event.date).toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
+                                                        {new Date(event.date).toLocaleDateString(lang === 'ta' ? 'ta-IN' : 'en-US', { month: 'short' }).toUpperCase()}
                                                     </div>
                                                     <div className="px-2 py-1 text-lg font-bold text-neutral-900 text-center">
                                                         {new Date(event.date).getDate()}
@@ -271,7 +271,7 @@ function NewsEventsContent() {
                         {upcomingEvents.length === 0 && pastEvents.length === 0 && (
                             <div className="text-center py-20">
                                 <Calendar className="w-16 h-16 mx-auto text-neutral-300 mb-4" />
-                                <p className="text-neutral-500 text-lg">No events found</p>
+                                <p className="text-neutral-500 text-lg">{t('news.no_events', 'No events found')}</p>
                             </div>
                         )}
                     </>

@@ -13,6 +13,7 @@ const translations = {
       iplNews: 'IPL News',
       meet: 'Friendship Meet',
       contact: 'Contact',
+      joinNow: 'Join Now',
     },
     header: {
       lang_en: 'EN',
@@ -454,6 +455,8 @@ const translations = {
       donate_title: 'Support Our Mission',
       donate_desc: 'Your contribution helps us serve more communities in need',
       tax_benefit: 'Tax benefits available under Section 80G',
+      upcoming: 'Upcoming Activities',
+      past: 'Past Activities',
     },
     about: {
       title: 'About Us',
@@ -498,6 +501,11 @@ const translations = {
       view_details: 'View Details',
       all_events: 'All Events',
       all_events_sub: 'Browse events in grid or timeline view. Use search to filter results by title, description or location.',
+      upcoming_events: 'Upcoming Events',
+      past_events: 'Past Events',
+      no_events: 'No events found',
+      upcoming_badge: 'Upcoming',
+      past_badge: 'Past',
     },
     pagination: {
       prev: 'Previous',
@@ -537,6 +545,7 @@ const translations = {
       iplNews: 'ஐபிஎல் செய்திகள்',
       meet: 'நட்புச் சங்கமம்',
       contact: 'தொடர்பு கொள்ள',
+      joinNow: 'இப்போதே இணையுங்கள்',
     },
     header: {
       lang_en: 'EN',
@@ -713,6 +722,8 @@ const translations = {
     donate_title: 'எங்கள் பணியை ஆதரிக்கவும்',
     donate_desc: 'உங்கள் பங்களிப்பு தேவைப்படும் மேலும் பல சமூகங்களுக்கு சேவை செய்ய உதவுகிறது',
     tax_benefit: 'பிரிவு 80ஜி இன் கீழ் வரி சலுகைகள் கிடைக்கும்',
+    upcoming: 'வரவிருக்கும் செயல்பாடுகள்',
+    past: 'கடந்தகால செயல்பாடுகள்',
   },
   about: {
     title: 'எங்களைப் பற்றி',
@@ -755,6 +766,11 @@ const translations = {
     view_details: 'விவரங்களைப் பார்க்க',
     all_events: 'அனைத்து நிகழ்வுகள்',
     all_events_sub: 'கட்டம் அல்லது நாட்காட்டி காட்சியில் உலாவவும். தலைப்பு, விளக்கம் அல்லது இடம் மூலம் வடிகட்டவும்.',
+    upcoming_events: 'வரவிருக்கும் நிகழ்வுகள்',
+    past_events: 'கடந்தகால நிகழ்வுகள்',
+    no_events: 'நிகழ்வுகள் எதுவும் இல்லை',
+    upcoming_badge: 'வரவிருக்கும்',
+    past_badge: 'கடந்த',
   },
   pagination: {
     prev: 'முந்தையது',

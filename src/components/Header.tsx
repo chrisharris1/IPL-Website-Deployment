@@ -59,6 +59,7 @@ const Header: React.FC<Props> = () => {
         { path: '/friendship-meet', label: 'nav.meet' },
       ],
     },
+    { path: '/join-now', label: 'nav.joinNow' },
     { path: '/contact', label: 'nav.contact' },
   ] as const
 
@@ -171,7 +172,9 @@ const Header: React.FC<Props> = () => {
                       ? 'text-white'
                       : link.path === '/contact'
                         ? 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-red-900 hover:from-yellow-300 hover:to-yellow-400 hover:scale-105 hover:shadow-lg hover:shadow-yellow-400/30 rounded-full font-bold px-4'
-                        : 'text-white/80 hover:text-white'}
+                        : link.path === '/join-now'
+                          ? 'bg-fuchsia-700 text-white hover:bg-fuchsia-600 hover:scale-110 hover:shadow-[0_0_15px_rgba(255,255,255,0.4)] rounded-full px-4 font-bold border border-fuchsia-500/50 animate-pop'
+                          : 'text-white/80 hover:text-white'}
                 `}
                 >
                   {/* Animated underline for non-contact links */}

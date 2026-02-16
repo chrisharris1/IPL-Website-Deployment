@@ -45,9 +45,10 @@ interface FriendshipMeet {
     caption_ta: string;
     banner_image: { url: string; public_id: string } | null;
 }
-interface DashboardStats { carousel: number; services: number; news: number; about: number; history: number; team: number; friendship: number; presidentBlog: number }
+interface JoinNowItem { id: string; title_en: string; title_ta: string; content_en: string; content_ta: string; google_form_url: string; order_index: number }
+interface DashboardStats { carousel: number; services: number; news: number; about: number; history: number; team: number; friendship: number; presidentBlog: number; joinNow: number }
 
-type Section = 'dashboard' | 'carousel' | 'about' | 'history' | 'services' | 'news' | 'team' | 'friendship' | 'presidentBlog'
+type Section = 'dashboard' | 'carousel' | 'about' | 'history' | 'services' | 'news' | 'team' | 'friendship' | 'presidentBlog' | 'joinNow'
 
 // ─── Sidebar Config ──────────────────────────────────────────────────────────
 const NAV_ITEMS: { key: Section; label: string; icon: React.ReactNode }[] = [
@@ -60,6 +61,7 @@ const NAV_ITEMS: { key: Section; label: string; icon: React.ReactNode }[] = [
     { key: 'presidentBlog', label: "President's Blog", icon: <PenTool size={20} /> },
     { key: 'team', label: 'Our Team', icon: <Users size={20} /> },
     { key: 'friendship', label: 'Friendship Meet', icon: <Globe size={20} /> },
+    { key: 'joinNow', label: 'Join Now', icon: <CheckCircle size={20} /> },
 ]
 // ─── Main Admin Page ─────────────────────────────────────────────────────────
 export default function AdminPage() {
@@ -138,6 +140,7 @@ export default function AdminPage() {
                         {activeSection === 'presidentBlog' && <PresidentBlogSection />}
                         {activeSection === 'team' && <TeamSection />}
                         {activeSection === 'friendship' && <FriendshipSection />}
+                        {activeSection === 'joinNow' && <JoinNowSection />}
                     </div>
                 </div>
             </main>
@@ -149,13 +152,13 @@ export default function AdminPage() {
 // DASHBOARD
 // ═══════════════════════════════════════════════════════════════════════════════
 function DashboardSection({ onNavigate }: { onNavigate: (s: Section) => void }) {
-    const [stats, setStats] = useState<DashboardStats>({ carousel: 0, services: 0, news: 0, about: 0, history: 0, team: 0, friendship: 0, presidentBlog: 0 })
+    const [stats, setStats] = useState<DashboardStats>({ carousel: 0, services: 0, news: 0, about: 0, history: 0, team: 0, friendship: 0, presidentBlog: 0, joinNow: 0 })
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         async function load() {
             try {
-                const endpoints = ['carousel', 'services', 'news', 'about', 'history', 'team', 'friendship', 'president-blog']
+                const endpoints = ['carousel', 'services', 'news', 'about', 'history', 'team', 'friendship', 'president-blog', 'join-now']
                 const results = await Promise.all(
                     endpoints.map(ep => fetch(`/api/admin/${ep}`).then(r => r.json()).catch(() => ({ data: [] })))
                 )
@@ -168,6 +171,7 @@ function DashboardSection({ onNavigate }: { onNavigate: (s: Section) => void }) 
                     team: Array.isArray(results[5]?.data) ? results[5].data.length : 0,
                     friendship: Array.isArray(results[6]?.data) ? results[6].data.length : 0,
                     presidentBlog: Array.isArray(results[7]?.data) ? results[7].data.length : 0,
+                    joinNow: Array.isArray(results[8]?.data) ? results[8].data.length : 0,
                 })
             } catch { /* ignore */ }
             setLoading(false)
@@ -184,6 +188,7 @@ function DashboardSection({ onNavigate }: { onNavigate: (s: Section) => void }) 
         { key: 'history', label: 'History Events', gradient: 'from-amber-500 to-orange-600', icon: <History size={40} />, delay: '250ms' },
         { key: 'team', label: 'Team Members', gradient: 'from-red-500 to-rose-600', icon: <Users size={40} />, delay: '300ms' },
         { key: 'friendship', label: 'Friendship Meets', gradient: 'from-teal-500 to-emerald-600', icon: <Globe size={40} />, delay: '350ms' },
+        { key: 'joinNow', label: 'Join Now', gradient: 'from-lime-500 to-green-600', icon: <CheckCircle size={40} />, delay: '400ms' },
     ]
     return (
         <div>
@@ -3185,6 +3190,153 @@ function FriendshipSection() {
                     <button type="submit" disabled={submitting}
                         className="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 font-semibold transition disabled:opacity-50">
                         {submitting ? 'Saving...' : editing ? 'Update Section' : 'Add Section'}
+                    </button>
+                </form>
+            </Modal>
+        </div>
+    )
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// JOIN NOW SECTION
+// ═══════════════════════════════════════════════════════════════════════════════
+function JoinNowSection() {
+    const [items, setItems] = useState<JoinNowItem[]>([])
+    const [loading, setLoading] = useState(true)
+    const [showModal, setShowModal] = useState(false)
+    const [editing, setEditing] = useState<JoinNowItem | null>(null)
+    const [msg, setMsg] = useState({ text: '', type: 'success' as 'success' | 'error' })
+    const [contentEn, setContentEn] = useState('')
+    const [contentTa, setContentTa] = useState('')
+
+    const fetchItems = useCallback(async () => {
+        try {
+            const res = await fetch('/api/admin/join-now')
+            const data = await res.json()
+            if (data.success) setItems(data.data)
+        } catch { /* ignore */ }
+        setLoading(false)
+    }, [])
+
+    useEffect(() => { fetchItems() }, [fetchItems])
+
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        const form = e.currentTarget
+        const fd = new FormData(form)
+        const body: any = Object.fromEntries(fd)
+        body.content_en = contentEn
+        body.content_ta = contentTa
+        if (editing) body.id = editing.id
+
+        try {
+            const res = await fetch('/api/admin/join-now', {
+                method: editing ? 'PUT' : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
+            })
+            const data = await res.json()
+            if (data.success) {
+                setMsg({ text: editing ? 'Item updated!' : 'Item added!', type: 'success' })
+                setShowModal(false)
+                setEditing(null)
+                fetchItems()
+            } else {
+                setMsg({ text: data.error || 'Failed', type: 'error' })
+            }
+        } catch { setMsg({ text: 'Failed', type: 'error' }) }
+    }
+
+    const handleDelete = async (id: string) => {
+        if (!confirm('Delete this item?')) return
+        try {
+            const res = await fetch('/api/admin/join-now', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id }),
+            })
+            const data = await res.json()
+            if (data.success) {
+                setMsg({ text: 'Item deleted', type: 'success' })
+                fetchItems()
+            } else {
+                setMsg({ text: data.error || 'Failed', type: 'error' })
+            }
+        } catch { setMsg({ text: 'Failed', type: 'error' }) }
+    }
+
+    return (
+        <div>
+            <SectionHeader title="Join Now Content" onAdd={() => { setEditing(null); setContentEn(''); setContentTa(''); setShowModal(true) }} addLabel="Add Content" />
+            <StatusMessage message={msg.text} type={msg.type} />
+
+            {loading ? <p className="text-gray-500">Loading...</p> : (
+                <div className="space-y-4">
+                    {items.map(item => (
+                        <div key={item.id} className="bg-white rounded-xl shadow p-6">
+                            <div className="flex justify-between items-start">
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <h3 className="text-lg font-bold text-gray-900">{item.title_en}</h3>
+                                        {item.title_ta && <span className="text-sm text-gray-500">| {item.title_ta}</span>}
+                                        <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs">Order: {item.order_index}</span>
+                                    </div>
+                                    <p className="text-sm text-gray-600 line-clamp-2">{item.content_en?.replace(/<[^>]*>/g, '').substring(0, 200)}...</p>
+                                    {item.google_form_url && (
+                                        <div className="mt-2 text-xs text-blue-600 flex items-center gap-1">
+                                            <span className="font-semibold">Form URL:</span> {item.google_form_url}
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex gap-2 ml-4">
+                                    <button onClick={() => { setEditing(item); setContentEn(item.content_en || ''); setContentTa(item.content_ta || ''); setShowModal(true) }}
+                                        className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition">Edit</button>
+                                    <button onClick={() => handleDelete(item.id)}
+                                        className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                    {items.length === 0 && <p className="text-gray-500 text-center py-8">No content items found.</p>}
+                </div>
+            )}
+
+            <Modal open={showModal} onClose={() => setShowModal(false)} title={editing ? 'Edit Join Now Content' : 'Add Join Now Content'}>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Title (English)</label>
+                            <input name="title_en" defaultValue={editing?.title_en} required className="w-full border rounded-lg p-2" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Title (Tamil)</label>
+                            <input name="title_ta" defaultValue={editing?.title_ta} className="w-full border rounded-lg p-2" />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium mb-1">Content (English)</label>
+                        <RichTextEditor value={contentEn} onChange={setContentEn} placeholder="Enter English content..." />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium mb-1">Content (Tamil)</label>
+                        <RichTextEditor value={contentTa} onChange={setContentTa} placeholder="Enter Tamil content..." />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium mb-1">Google Form URL (Optional)</label>
+                        <input name="google_form_url" defaultValue={editing?.google_form_url} placeholder="https://docs.google.com/forms/..." className="w-full border rounded-lg p-2" />
+                        <p className="text-xs text-gray-500 mt-1">Paste the full URL of the Google Form. <strong>Make sure the form is set to "Public" or "Anyone with the link" so users can see it without signing in.</strong></p>
+                    </div>
+
+                    <div className="w-32">
+                        <label className="block text-sm font-medium mb-1">Order Index</label>
+                        <input type="number" name="order_index" defaultValue={editing?.order_index || 0} className="w-full border rounded-lg p-2" />
+                    </div>
+
+                    <button type="submit" className="w-full bg-fuchsia-900 text-white py-2 rounded-lg hover:bg-fuchsia-800 font-bold transition">
+                        {editing ? 'Update Content' : 'Add Content'}
                     </button>
                 </form>
             </Modal>

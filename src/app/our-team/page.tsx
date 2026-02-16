@@ -335,9 +335,10 @@ export default function OurTeam() {
                             const isGenSecPair = (isRole(group, 'General Secretary') && nextGroup && isRole(nextGroup, 'Treasurer')) ||
                                 (isRole(group, 'Treasurer') && nextGroup && isRole(nextGroup, 'General Secretary'))
 
-                            // Check for Pair 2: Vice President + Joint Secretary
-                            const isVPPair = (isRole(group, 'Vice President') && nextGroup && isRole(nextGroup, 'Joint Secretary')) ||
-                                (isRole(group, 'Joint Secretary') && nextGroup && isRole(nextGroup, 'Vice President'))
+                            // Check for Pair 2: Vice President + Joint Secretary - DISABLED for now to allow full width
+                            /* const isVPPair = (isRole(group, 'Vice President') && nextGroup && isRole(nextGroup, 'Joint Secretary')) ||
+                                (isRole(group, 'Joint Secretary') && nextGroup && isRole(nextGroup, 'Vice President')) */
+                            const isVPPair = false
 
                             if (isGenSecPair) {
                                 renderedSections.push(renderSideBySideSection(group, nextGroup, 'bg-linear-to-b from-red-50/30 to-white'))

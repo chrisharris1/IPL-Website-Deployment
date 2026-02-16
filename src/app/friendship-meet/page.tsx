@@ -110,7 +110,7 @@ export default function FriendshipMeetPage() {
     return (
         <div className="min-h-screen bg-neutral-50">
             {/* Hero Section */}
-            <section className="relative bg-transparent pt-12 md:pt-16 lg:pt-20 pb-8 overflow-hidden" style={{ minHeight: '320px' }}>
+            <section className="relative bg-transparent pt-8 sm:pt-12 md:pt-16 lg:pt-20 pb-6 sm:pb-8 overflow-hidden" style={{ minHeight: '280px' }}>
                 <div className="absolute inset-0 z-0 pointer-events-none">
                     <Image
                         src="/Images/iplbanner.png"
@@ -272,7 +272,7 @@ export default function FriendshipMeetPage() {
                                         href={`/friendship-meet/${meet.id}`}
                                         className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-neutral-200 transition-all duration-300 hover:-translate-y-1 block"
                                     >
-                                        <div className="relative h-48 bg-gradient-to-br from-red-100 to-purple-100">
+                                        <div className="relative h-48 bg-linear-to-br from-red-100 to-purple-100">
                                             {meet.banner_image ? (
                                                 <img
                                                     src={meet.banner_image.url}
@@ -328,3 +328,4 @@ export default function FriendshipMeetPage() {
         </div>
     )
 }
+

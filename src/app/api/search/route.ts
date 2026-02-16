@@ -63,16 +63,18 @@ export async function GET(request: NextRequest) {
       { title: 'Humanitarian Services', subtitle: 'Community support activities', href: '/humanitarian-services', keywords: ['humanitarian', 'services', 'help'] },
       { title: 'News & Events', subtitle: 'Latest updates', href: '/news-events', keywords: ['news', 'events', 'updates'] },
       { title: 'Friendship Meet', subtitle: 'Friendship meet sections', href: '/friendship-meet', keywords: ['friendship', 'meet'] },
+      { title: 'Join Now', subtitle: 'Become a member', href: '/join-now', keywords: ['join', 'member', 'registration', 'form'] },
       { title: 'Contact', subtitle: 'Reach us', href: '/contact', keywords: ['contact', 'phone', 'email'] },
     ]
 
-    const [news, services, meets, blogs, aboutSections, team] = await Promise.all([
+    const [news, services, meets, blogs, aboutSections, team, joinNow] = await Promise.all([
       db.collection('news_events').find({}, { projection: { title_en: 1, title_ta: 1, city: 1, district: 1, date: 1, description_en: 1, description_ta: 1 } }).limit(200).toArray(),
       db.collection('humanitarian_services').find({}, { projection: { _id: 1, title_en: 1, title_ta: 1, city: 1, district: 1, state: 1, description_en: 1, description_ta: 1 } }).limit(200).toArray(),
       db.collection('friendship_meets').find({}, { projection: { slug: 1, district: 1, state: 1, country: 1, year: 1, caption_en: 1, caption_ta: 1 } }).limit(200).toArray(),
       db.collection('president_blog').find({}, { projection: { title_en: 1, title_ta: 1, description_en: 1, description_ta: 1 } }).limit(200).toArray(),
       db.collection('about_us').find({}, { projection: { section_title_en: 1, section_title_ta: 1, content_en: 1, content_ta: 1 } }).limit(200).toArray(),
       db.collection('our_team').find({}, { projection: { name: 1, role: 1 } }).limit(200).toArray(),
+      db.collection('join_now').find({}, { projection: { title_en: 1, title_ta: 1, content_en: 1, content_ta: 1 } }).limit(200).toArray(),
     ])
 
     const dynamicEntries: SearchItem[] = [
@@ -111,6 +113,12 @@ export async function GET(request: NextRequest) {
         subtitle: m.role || 'Our Team',
         href: '/our-team',
         keywords: [m.name || '', m.role || '', 'team', 'leadership'],
+      })),
+      ...joinNow.map((j: any) => ({
+        title: j.title_en || j.title_ta || 'Join Now Content',
+        subtitle: 'Join Now',
+        href: '/join-now',
+        keywords: [j.title_ta || '', stripHtml(j.content_en || ''), stripHtml(j.content_ta || ''), 'join', 'membership'],
       })),
     ]
 
