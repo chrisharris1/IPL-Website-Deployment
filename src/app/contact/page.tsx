@@ -279,7 +279,7 @@ export default function Contact() {
     const addressLines = (t('footer.address', `103, Starview Apts., Opp. Corporate Park,\nV.N.Purav Marg, Chembur,\nMumbai - 400071, India`) || '').split('\n')
 
     return (
-        <div className="bg-neutral-50 text-neutral-900">
+        <div className="bg-neutral-50 text-neutral-900 min-h-screen">
             {/* Hero */}
             <section className="relative bg-transparent pt-12 md:pt-16 lg:pt-20 pb-8 overflow-hidden" style={{ minHeight: '320px' }}>
                 <div className="absolute inset-0 z-0 pointer-events-none">

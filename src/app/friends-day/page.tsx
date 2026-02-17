@@ -6,8 +6,21 @@ import { Calendar, Heart, Users, Gift, Camera, Sparkles, Star, Globe, MapPin, Aw
 import { useTranslation } from '@/contexts/TranslationContext'
 
 export default function FriendsDay() {
-    const { t } = useTranslation()
+    const { t, lang } = useTranslation() // Assuming language is available in context
     const [selectedEvent, setSelectedEvent] = useState<number | null>(null)
+    const [content, setContent] = useState<any>(null)
+
+    React.useEffect(() => {
+        fetch('/api/admin/friends-day')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    setContent(data.data)
+                }
+            })
+            .catch(err => console.error('Failed to load content', err))
+    }, [])
+
 
     const friendsDayEvents = [
         {
@@ -100,12 +113,15 @@ export default function FriendsDay() {
                         <span className="text-xs font-semibold tracking-wider uppercase text-neutral-600">{t('friendsday.badge', 'International Friendship Day')}</span>
                     </div>
                     <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold tracking-tight text-neutral-900 mb-4 sm:mb-6 animate-slide-up">
-                        {t('friendsday.title', 'Friends Day')}
+                        {content ? (lang === 'ta' ? content.intro_title_ta : content.intro_title_en) : null}
                     </h1>
-                    <p className="text-base sm:text-lg md:text-xl text-neutral-600 font-medium mb-3 sm:mb-4 animate-slide-up" style={{ animationDelay: '0.1s' }}>{t('friendsday.subtitle_native', 'நட்பு தினம்')}</p>
-                    <p className="text-sm sm:text-base md:text-lg lg:text-xl text-neutral-600 leading-relaxed max-w-2xl mx-auto animate-slide-up px-2" style={{ animationDelay: '0.15s' }}>
-                        {t('friendsday.subtitle', 'Celebrating the spirit of friendship every first Sunday of August')}
-                    </p>
+                    {/* <p className="text-base sm:text-lg md:text-xl text-neutral-600 font-medium mb-3 sm:mb-4 animate-slide-up" style={{ animationDelay: '0.1s' }}>{t('friendsday.subtitle_native', 'நட்பு தினம்')}</p> */}
+
+                    <div className="text-sm sm:text-base md:text-lg lg:text-xl text-neutral-600 leading-relaxed max-w-2xl mx-auto animate-slide-up px-2" style={{ animationDelay: '0.15s' }}>
+                        {content && (
+                            <div dangerouslySetInnerHTML={{ __html: lang === 'ta' ? (content.intro_content_ta || content.intro_content_en) : (content.intro_content_en) }} />
+                        )}
+                    </div>
                 </div>
             </section>
 
@@ -128,30 +144,24 @@ export default function FriendsDay() {
             </section>
 
             {/* About Friends Day */}
-            <section className="container-custom mx-auto px-4 mb-16 sm:mb-24">
-                <div className="max-w-4xl mx-auto bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-10 md:p-12 shadow-lg border border-neutral-100">
-                    <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-red-50 border border-red-100 mb-6">
-                        <Heart className="w-4 h-4 text-red-700" />
-                        <span className="text-xs font-semibold tracking-wider uppercase text-red-800">{t('friendsday.about_badge', 'About the Celebration')}</span>
-                    </div>
+            {content && (content.about_title_en || content.about_title_ta || content.about_content_en || content.about_content_ta) && (
+                <section className="container-custom mx-auto px-4 mb-16 sm:mb-24">
+                    <div className="max-w-4xl mx-auto bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-10 md:p-12 shadow-lg border border-neutral-100">
+                        <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-red-50 border border-red-100 mb-6">
+                            <Heart className="w-4 h-4 text-red-700" />
+                            <span className="text-xs font-semibold tracking-wider uppercase text-red-800">{t('friendsday.about_badge', 'About the Celebration')}</span>
+                        </div>
 
-                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-neutral-900 mb-6">
-                        {t('friendsday.about_title', 'International Friendship Day')}
-                    </h2>
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-neutral-900 mb-6">
+                            {lang === 'ta' ? content.about_title_ta : content.about_title_en}
+                        </h2>
 
-                    <div className="prose prose-lg max-w-none text-neutral-600 space-y-4">
-                        <p>
-                            {t('friendsday.about_p1', 'International Friendship Day is celebrated on the first Sunday of August every year. Indian Penpals\' League has been celebrating this special day since its inception, bringing together pen friends from across the globe to honor the beautiful bonds of friendship.')}
-                        </p>
-                        <p>
-                            {t('friendsday.about_p2', 'On this day, IPL members participate in various activities including cultural programs, gift exchanges, friendship band distribution, and community gatherings. It\'s a day to strengthen existing friendships and create new ones.')}
-                        </p>
-                        <p>
-                            {t('friendsday.about_p3', 'The celebration embodies IPL\'s core values of Love, Friendship, and Humanity, bringing people together regardless of geographical boundaries, cultures, or backgrounds.')}
-                        </p>
+                        <div className="prose prose-lg max-w-none text-neutral-600 space-y-4">
+                            <div dangerouslySetInnerHTML={{ __html: lang === 'ta' ? (content.about_content_ta || content.about_content_en) : (content.about_content_en) }} />
+                        </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            )}
 
             {/* Highlights */}
             <section className="container-custom mx-auto px-4 mb-16 sm:mb-24">

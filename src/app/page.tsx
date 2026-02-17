@@ -121,13 +121,13 @@ const ImageCarousel: React.FC = () => {
       {/* Navigation Buttons */}
       <button
         onClick={goToPrevious}
-        className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-30 p-2 sm:p-3 rounded-full bg-black/10 backdrop-blur-md text-neutral-800 border border-black/10 hover:bg-black hover:text-white transition-all opacity-50 sm:opacity-0 group-hover:opacity-100 sm:-translate-x-4 sm:group-hover:translate-x-0"
+        className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-30 p-2 sm:p-3 rounded-full bg-black/10 backdrop-blur-md text-neutral-800 border border-black/10 hover:bg-[#d50032] hover:text-white transition-all opacity-50 sm:opacity-0 group-hover:opacity-100 sm:-translate-x-4 sm:group-hover:translate-x-0"
       >
         <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
       </button>
       <button
         onClick={goToNext}
-        className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-30 p-2 sm:p-3 rounded-full bg-black/10 backdrop-blur-md text-neutral-800 border border-black/10 hover:bg-black hover:text-white transition-all opacity-50 sm:opacity-0 group-hover:opacity-100 sm:translate-x-4 sm:group-hover:translate-x-0"
+        className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-30 p-2 sm:p-3 rounded-full bg-black/10 backdrop-blur-md text-neutral-800 border border-black/10 hover:bg-[#d50032] hover:text-white transition-all opacity-50 sm:opacity-0 group-hover:opacity-100 sm:translate-x-4 sm:group-hover:translate-x-0"
       >
         <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
       </button>

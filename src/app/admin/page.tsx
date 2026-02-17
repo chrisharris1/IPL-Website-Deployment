@@ -25,7 +25,8 @@ import {
     AlertTriangle,
     Plus,
     X,
-    Edit
+    Edit,
+    PartyPopper
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 
@@ -2580,10 +2581,33 @@ function TeamSection() {
     )
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// FRIENDSHIP MEET SECTION
-// ═══════════════════════════════════════════════════════════════════════════════
+
 function FriendshipSection() {
+    const [activeTab, setActiveTab] = useState<'meets' | 'content'>('meets')
+
+    return (
+        <div>
+            <div className="flex gap-4 mb-6 border-b border-gray-200">
+                <button
+                    onClick={() => setActiveTab('meets')}
+                    className={`pb-2 px-4 font-semibold transition-colors ${activeTab === 'meets' ? 'text-fuchsia-700 border-b-2 border-fuchsia-700' : 'text-gray-500 hover:text-gray-700'}`}
+                >
+                    Friendship Meets
+                </button>
+                <button
+                    onClick={() => setActiveTab('content')}
+                    className={`pb-2 px-4 font-semibold transition-colors ${activeTab === 'content' ? 'text-fuchsia-700 border-b-2 border-fuchsia-700' : 'text-gray-500 hover:text-gray-700'}`}
+                >
+                    Friends Day Content
+                </button>
+            </div>
+
+            {activeTab === 'meets' ? <FriendshipMeetsManager /> : <FriendshipContentManager />}
+        </div>
+    )
+}
+
+function FriendshipMeetsManager() {
     const [meets, setMeets] = useState<FriendshipMeet[]>([])
     const [filteredMeets, setFilteredMeets] = useState<FriendshipMeet[]>([])
     const [loading, setLoading] = useState(true)
@@ -2592,12 +2616,11 @@ function FriendshipSection() {
     const [submitting, setSubmitting] = useState(false)
     const [msg, setMsg] = useState({ text: '', type: 'success' as 'success' | 'error' })
 
-    // Form state (simplified - no description_en/ta)
     const [formData, setFormData] = useState({
         country: '',
         state: '',
         district: '',
-        year: '',
+        year: '' as string | number,
         caption_en: '',
         caption_ta: '',
     })
@@ -2613,11 +2636,10 @@ function FriendshipSection() {
     const [customStateInput, setCustomStateInput] = useState('')
     const [customDistrictInput, setCustomDistrictInput] = useState('')
 
-    // Banner image state
     const [bannerFile, setBannerFile] = useState<File | null>(null)
     const [bannerPreview, setBannerPreview] = useState<string>('')
 
-    // Filter state
+    // Filters
     const [filterCountry, setFilterCountry] = useState('All')
     const [filterState, setFilterState] = useState('All')
     const [filterDistrict, setFilterDistrict] = useState('All')
@@ -2631,23 +2653,14 @@ function FriendshipSection() {
                 setMeets(data.data)
                 setFilteredMeets(data.data)
             }
+
         } catch { /* ignore */ }
         setLoading(false)
     }, [])
 
     useEffect(() => { fetchMeets() }, [fetchMeets])
 
-    // Apply filters
-    useEffect(() => {
-        let filtered = meets
-        if (filterCountry !== 'All') filtered = filtered.filter(m => m.country === filterCountry)
-        if (filterState !== 'All') filtered = filtered.filter(m => m.state === filterState)
-        if (filterDistrict !== 'All') filtered = filtered.filter(m => m.district === filterDistrict)
-        if (filterYear !== 'All') filtered = filtered.filter(m => m.year.toString() === filterYear)
-        setFilteredMeets(filtered)
-    }, [meets, filterCountry, filterState, filterDistrict, filterYear])
-
-    // Load custom locations from MongoDB
+    // Load custom locations
     const fetchCustomLocations = useCallback(async () => {
         try {
             const [countriesRes, statesRes, districtsRes] = await Promise.all([
@@ -2674,18 +2687,21 @@ function FriendshipSection() {
         fetchCustomLocations()
     }, [fetchCustomLocations])
 
+    // Filter logic
+    useEffect(() => {
+        let temp = [...meets]
+        if (filterCountry !== 'All') temp = temp.filter(m => m.country === filterCountry)
+        if (filterState !== 'All') temp = temp.filter(m => m.state === filterState)
+        if (filterDistrict !== 'All') temp = temp.filter(m => m.district === filterDistrict)
+        if (filterYear !== 'All') temp = temp.filter(m => String(m.year) === filterYear)
+        setFilteredMeets(temp)
+    }, [meets, filterCountry, filterState, filterDistrict, filterYear])
+
     const openAddModal = () => {
         setEditing(null)
+        setFormData({ country: '', state: '', district: '', year: '', caption_en: '', caption_ta: '' })
         setBannerFile(null)
         setBannerPreview('')
-        setFormData({
-            country: '',
-            state: '',
-            district: '',
-            year: '',
-            caption_en: '',
-            caption_ta: '',
-        })
         setShowCountryInput(false)
         setShowStateInput(false)
         setShowDistrictInput(false)
@@ -2697,16 +2713,16 @@ function FriendshipSection() {
 
     const openEditModal = (meet: FriendshipMeet) => {
         setEditing(meet)
-        setBannerFile(null)
-        setBannerPreview('')
         setFormData({
             country: meet.country,
             state: meet.state,
             district: meet.district,
-            year: meet.year.toString(),
+            year: meet.year,
             caption_en: meet.caption_en,
             caption_ta: meet.caption_ta,
         })
+        setBannerFile(null)
+        setBannerPreview('')
         setShowCountryInput(false)
         setShowStateInput(false)
         setShowDistrictInput(false)
@@ -2717,41 +2733,33 @@ function FriendshipSection() {
     }
 
     const handleBannerSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
-        if (file) {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0]
             setBannerFile(file)
-            const reader = new FileReader()
-            reader.onloadend = () => {
-                setBannerPreview(reader.result as string)
-            }
-            reader.readAsDataURL(file)
+            setBannerPreview(URL.createObjectURL(file))
         }
     }
 
     const removeBannerImage = () => {
         setBannerFile(null)
         setBannerPreview('')
+        if (editing) {
+            // Logic to mark image for deletion if needed, but for now just UI
+            // In a real app we might need a separate flag or API call
+        }
     }
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         setSubmitting(true)
 
-        // Handle custom locations
+        // Handle custom locations (same as ServicesSection logic)
         let finalCountry = formData.country
         if (showCountryInput && customCountryInput.trim()) {
             finalCountry = customCountryInput.trim()
             if (!customCountries.includes(finalCountry)) {
-                try {
-                    await fetch('/api/admin/custom-locations', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ type: 'country', name: finalCountry, parent: {} })
-                    })
-                    setCustomCountries([...customCountries, finalCountry])
-                } catch (error) {
-                    console.error('Failed to save custom country:', error)
-                }
+                await fetch('/api/admin/custom-locations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'country', name: finalCountry, parent: {} }) })
+                setCustomCountries(prev => [...prev, finalCountry])
             }
         }
 
@@ -2759,16 +2767,8 @@ function FriendshipSection() {
         if (showStateInput && customStateInput.trim()) {
             finalState = customStateInput.trim()
             if (!customStates.includes(finalState)) {
-                try {
-                    await fetch('/api/admin/custom-locations', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ type: 'state', name: finalState, parent: { country: finalCountry } })
-                    })
-                    setCustomStates([...customStates, finalState])
-                } catch (error) {
-                    console.error('Failed to save custom state:', error)
-                }
+                await fetch('/api/admin/custom-locations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'state', name: finalState, parent: { country: finalCountry } }) })
+                setCustomStates(prev => [...prev, finalState])
             }
         }
 
@@ -2776,50 +2776,30 @@ function FriendshipSection() {
         if (showDistrictInput && customDistrictInput.trim()) {
             finalDistrict = customDistrictInput.trim()
             if (!customDistricts.includes(finalDistrict)) {
-                try {
-                    await fetch('/api/admin/custom-locations', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ type: 'district', name: finalDistrict, parent: { country: finalCountry, state: finalState } })
-                    })
-                    setCustomDistricts([...customDistricts, finalDistrict])
-                } catch (error) {
-                    console.error('Failed to save custom district:', error)
-                }
+                await fetch('/api/admin/custom-locations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'district', name: finalDistrict, parent: { country: finalCountry, state: finalState } }) })
+                setCustomDistricts(prev => [...prev, finalDistrict])
             }
         }
 
-        // Convert banner to base64
-        let bannerBase64 = ''
+
+        const submitData = new FormData()
+        submitData.append('country', finalCountry)
+        submitData.append('state', finalState)
+        submitData.append('district', finalDistrict)
+        submitData.append('year', String(formData.year))
+        submitData.append('caption_en', formData.caption_en)
+        submitData.append('caption_ta', formData.caption_ta)
+
         if (bannerFile) {
-            bannerBase64 = await new Promise<string>((resolve) => {
-                const reader = new FileReader()
-                reader.onloadend = () => resolve(reader.result as string)
-                reader.readAsDataURL(bannerFile)
-            })
+            submitData.append('banner', bannerFile)
         }
 
-        const submitData: any = {
-            country: finalCountry,
-            state: finalState,
-            district: finalDistrict,
-            year: formData.year,
-            caption_en: formData.caption_en,
-            caption_ta: formData.caption_ta,
-        }
-
-        if (editing) {
-            submitData.id = editing.id
-            if (bannerBase64) submitData.new_banner_image = bannerBase64
-        } else {
-            if (bannerBase64) submitData.banner_image = bannerBase64
-        }
+        if (editing) submitData.append('id', editing.id)
 
         try {
             const res = await fetch('/api/admin/friendship-meets', {
                 method: editing ? 'PUT' : 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(submitData)
+                body: submitData
             })
             const data = await res.json()
             if (data.success) {
@@ -2835,7 +2815,7 @@ function FriendshipSection() {
     }
 
     const handleDelete = async (id: string) => {
-        if (!confirm('Delete this friendship meet?')) return
+        if (!confirm('Delete this meet?')) return
         try {
             await fetch('/api/admin/friendship-meets', {
                 method: 'DELETE',
@@ -2847,21 +2827,22 @@ function FriendshipSection() {
         } catch { setMsg({ text: 'Delete failed', type: 'error' }) }
     }
 
-    // Cascading dropdown logic
-    const baseCountries = getCountries()
-    const availableCountries = [...baseCountries, ...customCountries]
+    // Derived options for dropdowns
+    const availableCountries = [...new Set([...locations.map(l => l.name), ...customCountries])].filter(Boolean).sort()
+    const availableStates = [...new Set([
+        ...(formData.country && !showCountryInput ? getStates(formData.country) : []),
+        ...customStates
+    ])].filter(Boolean).sort()
+    const availableDistricts = [...new Set([
+        ...(formData.state && !showStateInput ? getDistricts(formData.country, formData.state) : []),
+        ...customDistricts
+    ])].filter(Boolean).sort()
 
-    const baseStates = !showCountryInput && formData.country ? getStates(formData.country) : []
-    const availableStates = [...baseStates, ...customStates]
-
-    const baseDistricts = !showCountryInput && !showStateInput && formData.country && formData.state ? getDistricts(formData.country, formData.state) : []
-    const availableDistricts = [...baseDistricts, ...customDistricts]
-
-    // Get unique values for filters
-    const uniqueCountries = Array.from(new Set(meets.map(m => m.country))).sort()
-    const uniqueStates = Array.from(new Set(meets.map(m => m.state))).sort()
-    const uniqueDistricts = Array.from(new Set(meets.map(m => m.district))).sort()
-    const uniqueYears = Array.from(new Set(meets.map(m => m.year.toString()))).sort().reverse()
+    // Filter Lists
+    const uniqueCountries = [...new Set(meets.map(m => m.country).filter(Boolean))].sort()
+    const uniqueStates = [...new Set(meets.map(m => m.state).filter(Boolean))].sort()
+    const uniqueDistricts = [...new Set(meets.map(m => m.district).filter(Boolean))].sort()
+    const uniqueYears = [...new Set(meets.map(m => m.year).filter(Boolean))].sort((a, b) => Number(b) - Number(a))
 
     // Generate year options (1996 to current year)
     const currentYear = new Date().getFullYear()
@@ -2962,7 +2943,7 @@ function FriendshipSection() {
                                 {meet.banner_image && (
                                     <div className="mb-4">
                                         <p className="text-sm font-medium text-gray-700 mb-2">Banner Photo:</p>
-                                        <img src={meet.banner_image.url} alt="Banner" className="w-full max-w-2xl h-64 object-cover rounded-lg" />
+                                        <img src={meet.banner_image.url} alt="Banner" className="w-full max-w-2xl h-20 object-cover rounded-lg" />
                                     </div>
                                 )}
                             </div>
@@ -3193,6 +3174,164 @@ function FriendshipSection() {
                     </button>
                 </form>
             </Modal>
+        </div>
+    )
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FRIENDS DAY SECTION
+// ═══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════════
+// FRIENDS DAY CONTENT MANAGER (Sub-component)
+// ═══════════════════════════════════════════════════════════════════════════════
+function FriendshipContentManager() {
+    const [loading, setLoading] = useState(true)
+    const [submitting, setSubmitting] = useState(false)
+    const [msg, setMsg] = useState({ text: '', type: 'success' as 'success' | 'error' })
+
+    // Content state
+    const [introTitleEn, setIntroTitleEn] = useState('')
+    const [introTitleTa, setIntroTitleTa] = useState('')
+    const [introContentEn, setIntroContentEn] = useState('')
+    const [introContentTa, setIntroContentTa] = useState('')
+    const [aboutTitleEn, setAboutTitleEn] = useState('')
+    const [aboutTitleTa, setAboutTitleTa] = useState('')
+    const [aboutContentEn, setAboutContentEn] = useState('')
+    const [aboutContentTa, setAboutContentTa] = useState('')
+
+    const fetchContent = useCallback(async () => {
+        try {
+            const res = await fetch('/api/admin/friends-day')
+            const data = await res.json()
+            if (data.success && data.data) {
+                const d = data.data
+                setIntroTitleEn(d.intro_title_en || '')
+                setIntroTitleTa(d.intro_title_ta || '')
+                setIntroContentEn(d.intro_content_en || '')
+                setIntroContentTa(d.intro_content_ta || '')
+                setAboutTitleEn(d.about_title_en || '')
+                setAboutTitleTa(d.about_title_ta || '')
+                setAboutContentEn(d.about_content_en || '')
+                setAboutContentTa(d.about_content_ta || '')
+            }
+        } catch { /* ignore */ }
+        setLoading(false)
+    }, [])
+
+    useEffect(() => { fetchContent() }, [fetchContent])
+
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        setSubmitting(true)
+
+        const body = {
+            intro_title_en: introTitleEn,
+            intro_title_ta: introTitleTa,
+            intro_content_en: introContentEn,
+            intro_content_ta: introContentTa,
+            about_title_en: aboutTitleEn,
+            about_title_ta: aboutTitleTa,
+            about_content_en: aboutContentEn,
+            about_content_ta: aboutContentTa,
+        }
+
+        try {
+            const res = await fetch('/api/admin/friends-day', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
+            })
+            const data = await res.json()
+            if (data.success) {
+                setMsg({ text: 'Content updated successfully!', type: 'success' })
+            } else {
+                setMsg({ text: data.error || 'Failed to update', type: 'error' })
+            }
+        } catch { setMsg({ text: 'Failed to update', type: 'error' }) }
+        setSubmitting(false)
+    }
+
+    if (loading) return <p className="text-gray-500">Loading...</p>
+
+    return (
+        <div>
+            <SectionHeader title="Friends Day Content" />
+            <StatusMessage message={msg.text} type={msg.type} />
+
+            <form onSubmit={handleSubmit} className="space-y-8 bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+                {/* Introduction Section */}
+                <div className="space-y-4">
+                    <h3 className="text-xl font-bold text-gray-800 border-b pb-2">Introduction Section</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Title (English) *</label>
+                            <input
+                                value={introTitleEn}
+                                onChange={(e) => setIntroTitleEn(e.target.value)}
+                                required
+                                className="w-full border rounded-lg p-2.5"
+                                placeholder="e.g. Friends Day"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Title (Tamil)</label>
+                            <input
+                                value={introTitleTa}
+                                onChange={(e) => setIntroTitleTa(e.target.value)}
+                                className="w-full border rounded-lg p-2.5"
+                                placeholder="e.g. நண்பர்கள் தினம்"
+                            />
+                        </div>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium mb-1">Content (English) *</label>
+                        <RichTextEditor value={introContentEn} onChange={setIntroContentEn} placeholder="Main introduction text..." />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium mb-1">Content (Tamil)</label>
+                        <RichTextEditor value={introContentTa} onChange={setIntroContentTa} placeholder="Tamil introduction text..." />
+                    </div>
+                </div>
+
+                {/* About Section */}
+                <div className="space-y-4 pt-4">
+                    <h3 className="text-xl font-bold text-gray-800 border-b pb-2">About Section</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium mb-1">About Title (English)</label>
+                            <input
+                                value={aboutTitleEn}
+                                onChange={(e) => setAboutTitleEn(e.target.value)}
+                                className="w-full border rounded-lg p-2.5"
+                                placeholder="e.g. About Friends Day"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1">About Title (Tamil)</label>
+                            <input
+                                value={aboutTitleTa}
+                                onChange={(e) => setAboutTitleTa(e.target.value)}
+                                className="w-full border rounded-lg p-2.5"
+                            />
+                        </div>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium mb-1">About Content (English)</label>
+                        <RichTextEditor value={aboutContentEn} onChange={setAboutContentEn} placeholder="About section text..." />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium mb-1">About Content (Tamil)</label>
+                        <RichTextEditor value={aboutContentTa} onChange={setAboutContentTa} placeholder="Tamil about section text..." />
+                    </div>
+                </div>
+
+                <div className="pt-4">
+                    <button type="submit" disabled={submitting}
+                        className="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 font-semibold transition disabled:opacity-50">
+                        {submitting ? 'Saving...' : 'Save Changes'}
+                    </button>
+                </div>
+            </form>
         </div>
     )
 }

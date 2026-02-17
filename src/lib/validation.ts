@@ -111,3 +111,23 @@ export const customLocationSchema = z.object({
     }).optional(),
     added_by: z.string().optional(),
 })
+
+export const friendsDaySchema = z.object({
+    intro_title_en: z.string().min(1, "Intro title (English) is required"),
+    intro_title_ta: z.string().optional(),
+    intro_content_en: z.string().min(1, "Intro content (English) is required"),
+    intro_content_ta: z.string().optional(),
+    about_title_en: z.string().optional(),
+    about_title_ta: z.string().optional(),
+    about_content_en: z.string().optional(),
+    about_content_ta: z.string().optional(),
+    id: z.string().optional(),
+})
+
+export const reminderSchema = z.object({
+    email: z.string().email("Invalid email address"),
+    eventId: z.string().min(1, "Event ID is required"),
+    eventTitle: z.string().min(1, "Event title is required"),
+    eventDate: z.string().min(1, "Event date is required"), // Keeping as string to matching API payload, will parse in route
+    eventLocation: z.string().optional(),
+})

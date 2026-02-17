@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react'
 import { useTranslation } from '@/contexts/TranslationContext'
-import { Calendar, MapPin, Search, Loader2, Clock, X, Sparkles } from 'lucide-react'
+import NotifyMeModal from '@/components/NotifyMeModal'
+import { Calendar, MapPin, Search, Loader2, Clock, X, Sparkles, Bell } from 'lucide-react'
 import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
 import { getNewsEvents } from '@/lib/api'
@@ -22,6 +23,8 @@ function NewsEventsContent() {
     const [loading, setLoading] = useState(true)
     const [searchQuery, setSearchQuery] = useState(urlSearch)
     const [selectedEvent, setSelectedEvent] = useState<NewsEvent | null>(null)
+    const [notifyEvent, setNotifyEvent] = useState<NewsEvent | null>(null)
+    const [isNotifyModalOpen, setIsNotifyModalOpen] = useState(false)
 
     const loadEvents = useCallback(async () => {
         try {
@@ -46,6 +49,12 @@ function NewsEventsContent() {
     useEffect(() => {
         setSearchQuery(urlSearch)
     }, [urlSearch])
+
+    const handleNotify = (e: React.MouseEvent, event: NewsEvent) => {
+        e.stopPropagation()
+        setNotifyEvent(event)
+        setIsNotifyModalOpen(true)
+    }
 
     return (
         <div className="min-h-screen bg-neutral-50">
@@ -115,10 +124,10 @@ function NewsEventsContent() {
                                         <article
                                             key={event.id}
                                             onClick={() => setSelectedEvent(event)}
-                                            className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-neutral-200 hover:border-neutral-300 transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+                                            className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-neutral-200 hover:border-neutral-300 transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col h-full"
                                         >
                                             {/* Image header */}
-                                            <div className="relative h-48">
+                                            <div className="relative h-48 shrink-0">
                                                 <Image
                                                     src={event.image_url}
                                                     alt={lang === 'ta' ? event.title_ta : event.title_en}
@@ -160,11 +169,11 @@ function NewsEventsContent() {
                                                     </span>
                                                 </div>
 
-                                                <p className="text-sm text-neutral-600 line-clamp-3 leading-relaxed">
+                                                <p className="text-sm text-neutral-600 line-clamp-3 leading-relaxed flex-grow mb-4">
                                                     {stripHtml((lang === 'ta' ? event.description_ta : event.description_en) || event.description_en)}
                                                 </p>
 
-                                                <div className="flex items-center gap-2 text-sm text-neutral-500 mt-3 pt-3 border-t border-neutral-100">
+                                                <div className="flex items-center gap-2 text-sm text-neutral-500 mt-auto pt-3 border-t border-neutral-100">
                                                     <Calendar className="w-4 h-4 text-emerald-600" />
                                                     <span className="font-medium text-neutral-700">
                                                         {new Date(event.date).toLocaleDateString(lang === 'ta' ? 'ta-IN' : 'en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
@@ -177,6 +186,14 @@ function NewsEventsContent() {
                                                         </>
                                                     )}
                                                 </div>
+
+                                                <button
+                                                    onClick={(e) => handleNotify(e, event)}
+                                                    className="w-full mt-4 flex items-center justify-center gap-2 py-2 rounded-lg bg-red-50 text-red-700 hover:bg-red-600 hover:text-white transition-all duration-300 font-semibold text-sm group/btn"
+                                                >
+                                                    <Bell className="w-4 h-4 group-hover/btn:animate-swing" />
+                                                    {t('humanitarian.notify_me', 'Notify Me')}
+                                                </button>
                                             </div>
                                         </article>
                                     ))}
@@ -371,6 +388,20 @@ function NewsEventsContent() {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* Notify Me Modal */}
+            {notifyEvent && (
+                <NotifyMeModal
+                    isOpen={isNotifyModalOpen}
+                    onClose={() => setIsNotifyModalOpen(false)}
+                    eventDetails={{
+                        id: String(notifyEvent.id),
+                        title: lang === 'ta' ? (notifyEvent.title_ta || notifyEvent.title_en) : notifyEvent.title_en,
+                        date: notifyEvent.date,
+                        location: [notifyEvent.city, notifyEvent.district].filter(Boolean).join(', ')
+                    }}
+                />
             )}
         </div>
     )

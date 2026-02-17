@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from '@/contexts/TranslationContext'
-import { HandHeart, MapPin, Loader2, Calendar } from 'lucide-react'
+import NotifyMeModal from '@/components/NotifyMeModal'
+import { HandHeart, MapPin, Loader2, Calendar, Bell } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { getServices } from '@/lib/api'
@@ -13,6 +14,8 @@ export default function HumanitarianServices() {
     const [upcomingServices, setUpcomingEvents] = useState<HumanitarianService[]>([])
     const [pastServices, setPastEvents] = useState<HumanitarianService[]>([])
     const [loading, setLoading] = useState(true)
+    const [selectedEvent, setSelectedEvent] = useState<{ id: string, title: string, date: string, location: string } | null>(null)
+    const [isModalOpen, setIsModalOpen] = useState(false)
 
     useEffect(() => {
         async function loadServices() {
@@ -50,13 +53,25 @@ export default function HumanitarianServices() {
         return Array.from(text).slice(0, 100).join('')
     }
 
+    const handleNotify = (e: React.MouseEvent, service: HumanitarianService) => {
+        e.preventDefault() // Prevent Link navigation
+        e.stopPropagation()
+        setSelectedEvent({
+            id: String(service.id),
+            title: lang === 'ta' ? (service.title_ta || service.title_en) : service.title_en,
+            date: service.date,
+            location: [service.city, service.district].filter(Boolean).join(', ')
+        })
+        setIsModalOpen(true)
+    }
+
     const renderServiceCard = (service: HumanitarianService, isUpcoming: boolean) => (
         <Link
             key={service.id}
             href={`/humanitarian-services/${service.id}`}
-            className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-neutral-200 hover:border-neutral-300 transition-all duration-300 hover:-translate-y-1 block"
+            className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-neutral-200 hover:border-neutral-300 transition-all duration-300 hover:-translate-y-1 block relative flex flex-col h-full"
         >
-            <div className="relative h-48">
+            <div className="relative h-48 shrink-0">
                 <Image
                     src={service.image_url}
                     alt={lang === 'ta' ? service.title_ta : service.title_en}
@@ -85,7 +100,7 @@ export default function HumanitarianServices() {
                 </div>
             </div>
 
-            <div className="p-6">
+            <div className="p-6 flex flex-col flex-grow">
                 <h3 className="text-lg font-bold text-neutral-900 mb-3 line-clamp-2 group-hover:text-red-700 transition-colors leading-tight">
                     {(lang === 'ta' ? service.title_ta : service.title_en) || service.title_en}
                 </h3>
@@ -102,9 +117,19 @@ export default function HumanitarianServices() {
                     <span className="line-clamp-1">{[service.city, service.district, service.state, service.country].filter(Boolean).join(', ')}</span>
                 </div>
 
-                <p className="text-sm text-neutral-600 line-clamp-3 leading-relaxed">
+                <p className="text-sm text-neutral-600 line-clamp-3 leading-relaxed mb-4 flex-grow">
                     {stripHtml((lang === 'ta' ? service.description_ta : service.description_en) || service.description_en)}...
                 </p>
+
+                {isUpcoming && (
+                    <button
+                        onClick={(e) => handleNotify(e, service)}
+                        className="w-full mt-auto flex items-center justify-center gap-2 py-2.5 rounded-lg bg-red-50 text-red-700 hover:bg-red-600 hover:text-white transition-all duration-300 font-semibold text-sm group/btn"
+                    >
+                        <Bell className="w-4 h-4 group-hover/btn:animate-swing" />
+                        {t('humanitarian.notify_me', 'Notify Me')}
+                    </button>
+                )}
             </div>
         </Link>
     )
@@ -186,6 +211,20 @@ export default function HumanitarianServices() {
                     </>
                 )}
             </section>
+
+            {/* Notify Me Modal */}
+            {selectedEvent && (
+                <NotifyMeModal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    eventDetails={{
+                        id: selectedEvent.id,
+                        title: selectedEvent.title,
+                        date: selectedEvent.date,
+                        location: selectedEvent.location
+                    }}
+                />
+            )}
         </div>
     )
 }

@@ -36,7 +36,7 @@ export default function FriendshipMeetPage() {
             if (filterState !== 'All') params.append('state', filterState)
             if (filterDistrict !== 'All') params.append('district', filterDistrict)
             if (filterYear !== 'All') params.append('year', filterYear)
-            
+
             const res = await fetch(`/api/friendship-meets?${params.toString()}`)
             const data = await res.json()
             if (data.success) {
@@ -55,7 +55,9 @@ export default function FriendshipMeetPage() {
 
     // Extract Unique Options for Filters
     const allMeets = useState<FriendshipMeet[]>([])
-    
+
+    const [friendsDayContent, setFriendsDayContent] = useState<any>(null)
+
     useEffect(() => {
         const loadAllForFilters = async () => {
             try {
@@ -69,6 +71,16 @@ export default function FriendshipMeetPage() {
             }
         }
         loadAllForFilters()
+
+        // Fetch Friends Day Content
+        fetch('/api/admin/friends-day')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    setFriendsDayContent(data.data)
+                }
+            })
+            .catch(err => console.error('Failed to load friends day content', err))
     }, [])
 
     const uniqueCountries = useMemo(() => {
@@ -144,24 +156,34 @@ export default function FriendshipMeetPage() {
                         <span className="text-xs font-semibold tracking-wider uppercase text-red-800">International Friendship Day</span>
                     </div>
                     <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-neutral-900 mb-4">
-                        Friends Day Celebrations
+                        {friendsDayContent ? (lang === 'ta' ? (friendsDayContent.intro_title_ta || 'Friends Day Celebrations') : (friendsDayContent.intro_title_en || 'Friends Day Celebrations')) : 'Friends Day Celebrations'}
                     </h2>
-                    <p className="text-lg text-neutral-600 max-w-3xl mx-auto">
-                        Celebrating the spirit of friendship every first Sunday of August. International Friendship Day is celebrated annually, bringing together pen friends from across the globe to honor the beautiful bonds of friendship.
-                    </p>
+                    <div className="text-lg text-neutral-600 max-w-3xl mx-auto">
+                        {friendsDayContent ? (
+                            <div dangerouslySetInnerHTML={{ __html: lang === 'ta' ? (friendsDayContent.intro_content_ta || friendsDayContent.intro_content_en) : (friendsDayContent.intro_content_en) }} />
+                        ) : (
+                            <p>Celebrating the spirit of friendship every first Sunday of August. International Friendship Day is celebrated annually, bringing together pen friends from across the globe to honor the beautiful bonds of friendship.</p>
+                        )}
+                    </div>
                 </div>
 
                 <div className="max-w-4xl mx-auto bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-10 md:p-12 shadow-lg border border-neutral-100">
                     <h3 className="text-xl sm:text-2xl font-bold text-neutral-900 mb-6">
-                        About International Friendship Day
+                        {friendsDayContent ? (lang === 'ta' ? (friendsDayContent.about_title_ta || 'About International Friendship Day') : (friendsDayContent.about_title_en || 'About International Friendship Day')) : 'About International Friendship Day'}
                     </h3>
                     <div className="prose prose-lg max-w-none text-neutral-600 space-y-4">
-                        <p>
-                            International Friendship Day is observed every year on the first Sunday of August, celebrating the bonds that bring people together from all walks of life. It's a day dedicated to honoring friendships and the positive impact they have on our lives.
-                        </p>
-                        <p>
-                            The celebration embodies IPL&apos;s core values of Love, Friendship, and Humanity, bringing people together regardless of geographical boundaries, cultures, or backgrounds.
-                        </p>
+                        {friendsDayContent ? (
+                            <div dangerouslySetInnerHTML={{ __html: lang === 'ta' ? (friendsDayContent.about_content_ta || friendsDayContent.about_content_en) : (friendsDayContent.about_content_en) }} />
+                        ) : (
+                            <>
+                                <p>
+                                    International Friendship Day is observed every year on the first Sunday of August, celebrating the bonds that bring people together from all walks of life. It's a day dedicated to honoring friendships and the positive impact they have on our lives.
+                                </p>
+                                <p>
+                                    The celebration embodies IPL&apos;s core values of Love, Friendship, and Humanity, bringing people together regardless of geographical boundaries, cultures, or backgrounds.
+                                </p>
+                            </>
+                        )}
                     </div>
                 </div>
             </section>
@@ -289,7 +311,7 @@ export default function FriendshipMeetPage() {
                                             </div>
                                         </div>
                                         <div className="p-6">
-                                            <h3 className="text-lg font-bold text-neutral-900 mb-2">
+                                            <h3 className="text-lg font-bold text-neutral-900 mb-2 mt-4">
                                                 {caption || `${meet.district}, ${meet.state}`}
                                             </h3>
                                             <p className="text-sm text-neutral-600 mb-3 flex items-center gap-1">
