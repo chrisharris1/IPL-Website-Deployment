@@ -114,19 +114,37 @@ export default function JoinNowPage() {
                                     </div>
 
                                     {item.google_form_url ? (
-                                        <div className="w-full h-[800px] md:h-[1000px] bg-neutral-50 rounded-xl overflow-hidden border border-neutral-200">
-                                            <iframe
-                                                src={item.google_form_url}
-                                                width="100%"
-                                                height="100%"
-                                                frameBorder="0"
-                                                marginHeight={0}
-                                                marginWidth={0}
-                                                title="Google Form"
-                                            >
-                                                Loading…
-                                            </iframe>
-                                        </div>
+                                        <>
+                                            {/* Check if URL is embeddable (contains viewform?embedded=true or is full docs.google.com URL) */}
+                                            {item.google_form_url.includes('viewform') ? (
+                                                <div className="w-full h-[800px] md:h-[1000px] bg-neutral-50 rounded-xl overflow-hidden border border-neutral-200">
+                                                    <iframe
+                                                        src={item.google_form_url}
+                                                        width="100%"
+                                                        height="100%"
+                                                        frameBorder="0"
+                                                        marginHeight={0}
+                                                        marginWidth={0}
+                                                        title="Google Form"
+                                                    >
+                                                        Loading…
+                                                    </iframe>
+                                                </div>
+                                            ) : (
+                                                <div className="w-full py-16 bg-gradient-to-br from-red-50 to-pink-50 rounded-xl border-2 border-red-200 text-center">
+                                                    <h3 className="text-2xl font-bold text-neutral-900 mb-4">Fill Out Our Membership Form</h3>
+                                                    <p className="text-neutral-600 mb-8 max-w-xl mx-auto">Click the button below to access our membership application form</p>
+                                                    <a
+                                                        href={item.google_form_url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="inline-block bg-gradient-to-r from-red-600 to-pink-600 text-white px-10 py-4 rounded-full text-lg font-bold hover:from-red-700 hover:to-pink-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                                                    >
+                                                        Open Application Form →
+                                                    </a>
+                                                </div>
+                                            )}
+                                        </>
                                     ) : (
                                         <div className="w-full py-16 bg-neutral-50 rounded-xl border border-neutral-200 text-center">
                                             <p className="text-neutral-500 font-medium">{t('joinnow.google_form_unavailable', 'Google form not available')}</p>
