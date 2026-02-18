@@ -26,7 +26,8 @@ import {
     Plus,
     X,
     Edit,
-    PartyPopper
+    PartyPopper,
+    Bell
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 
@@ -155,6 +156,7 @@ export default function AdminPage() {
 function DashboardSection({ onNavigate }: { onNavigate: (s: Section) => void }) {
     const [stats, setStats] = useState<DashboardStats>({ carousel: 0, services: 0, news: 0, about: 0, history: 0, team: 0, friendship: 0, presidentBlog: 0, joinNow: 0 })
     const [loading, setLoading] = useState(true)
+    const [sendingReminders, setSendingReminders] = useState(false)
 
     useEffect(() => {
         async function load() {
@@ -180,6 +182,25 @@ function DashboardSection({ onNavigate }: { onNavigate: (s: Section) => void }) 
         load()
     }, [])
 
+    const handleSendReminders = async () => {
+        if (!confirm('Are you sure you want to send event reminders now? This will email all subscribers for events happening in 24h or 6h.')) return
+
+        setSendingReminders(true)
+        try {
+            const res = await fetch('/api/admin/reminders', { method: 'POST' })
+            const data = await res.json()
+            if (data.success) {
+                alert(`Reminders sent!\n24h Reminders: ${data.processed['24h']}\n6h Reminders: ${data.processed['6h']}`)
+            } else {
+                alert('Failed to send reminders: ' + (data.error || 'Unknown error'))
+            }
+        } catch (error) {
+            console.error('Error sending reminders:', error)
+            alert('Error sending reminders')
+        }
+        setSendingReminders(false)
+    }
+
     const cards: { key: Exclude<Section, 'dashboard'>; label: string; gradient: string; icon: React.ReactNode; delay: string }[] = [
         { key: 'carousel', label: 'Carousel Images', gradient: 'from-orange-500 to-pink-500', icon: <ImageIcon size={40} />, delay: '0ms' },
         { key: 'services', label: 'Humanitarian', gradient: 'from-blue-500 to-cyan-500', icon: <HeartHandshake size={40} />, delay: '50ms' },
@@ -193,9 +214,19 @@ function DashboardSection({ onNavigate }: { onNavigate: (s: Section) => void }) 
     ]
     return (
         <div>
-            <div className="mb-10">
-                <h2 className="text-4xl font-extrabold text-slate-900 tracking-tight">Dashboard Overview</h2>
-                <p className="text-slate-500 mt-2 text-lg">Quick access to manage your website content.</p>
+            <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <h2 className="text-4xl font-extrabold text-slate-900 tracking-tight">Dashboard Overview</h2>
+                    <p className="text-slate-500 mt-2 text-lg">Quick access to manage your website content.</p>
+                </div>
+                <button
+                    onClick={handleSendReminders}
+                    disabled={sendingReminders}
+                    className="bg-fuchsia-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-fuchsia-700 transition flex items-center gap-2 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    <Bell size={20} />
+                    {sendingReminders ? 'Sending...' : 'Send Reminders Now'}
+                </button>
             </div>
 
             {loading ? <p className="text-slate-500 animate-pulse">Loading statistics...</p> : (

@@ -295,6 +295,13 @@ export default function Home() {
     { icon: Calendar, link: '/news-events', titleKey: 'home.feature3_title', descKey: 'home.feature3_desc', color: 'bg-amber-50 text-amber-600' },
   ] as const
 
+  // Lazy Cron Trigger
+  useEffect(() => {
+    // Fire and forget - trigger reminder processing when users visit home
+    // This replaces external cron jobs
+    fetch('/api/tasks/reminders').catch(err => console.error('Background task error:', err))
+  }, [])
+
   return (
     <div className="bg-neutral-50">
       {/* Hero Section */}
