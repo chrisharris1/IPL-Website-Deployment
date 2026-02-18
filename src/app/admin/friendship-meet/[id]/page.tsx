@@ -111,7 +111,11 @@ export default function GalleryManagementPage({ params }: { params: Promise<{ id
     }, [meetId])
 
     useEffect(() => {
-        fetchItems()
+        let isMounted = true
+        if (isMounted) {
+            fetchItems()
+        }
+        return () => { isMounted = false }
     }, [fetchItems])
 
     // Load custom locations from MongoDB
@@ -141,7 +145,11 @@ export default function GalleryManagementPage({ params }: { params: Promise<{ id
     }, [])
 
     useEffect(() => {
-        fetchCustomLocations()
+        let isMounted = true
+        if (isMounted) {
+            fetchCustomLocations()
+        }
+        return () => { isMounted = false }
     }, [fetchCustomLocations])
 
     const openAddModal = () => {
@@ -305,7 +313,20 @@ export default function GalleryManagementPage({ params }: { params: Promise<{ id
             })
         }
 
-        const submitData: any = {
+        const submitData: {
+            title_en: string
+            title_ta: string
+            country: string
+            state: string
+            district: string
+            city: string
+            date: string
+            description_en: string
+            description_ta: string
+            item_id?: string
+            new_image?: string
+            image?: string
+        } = {
             title_en: formData.title_en,
             title_ta: formData.title_ta,
             country: finalCountry,
@@ -437,9 +458,8 @@ export default function GalleryManagementPage({ params }: { params: Promise<{ id
 
                 {msg.text && (
                     <div
-                        className={`mb-6 p-4 rounded-lg ${
-                            msg.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                        }`}
+                        className={`mb-6 p-4 rounded-lg ${msg.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                            }`}
                     >
                         {msg.text}
                     </div>

@@ -299,7 +299,13 @@ function CarouselSection() {
         setLoading(false)
     }, [])
 
-    useEffect(() => { fetchImages() }, [fetchImages])
+    useEffect(() => {
+        let isMounted = true
+        if (isMounted) {
+            fetchImages()
+        }
+        return () => { isMounted = false }
+    }, [fetchImages])
 
     const handleUpload = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -531,7 +537,13 @@ function AboutSection_() {
         setLoading(false)
     }, [])
 
-    useEffect(() => { fetchSections() }, [fetchSections])
+    useEffect(() => {
+        let isMounted = true
+        if (isMounted) {
+            fetchSections()
+        }
+        return () => { isMounted = false }
+    }, [fetchSections])
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -710,7 +722,14 @@ function ServicesSection() {
         setLoading(false)
     }, [searchTerm, filterCountry, filterState, filterDate])
 
-    useEffect(() => { fetchItems() }, [fetchItems])
+    useEffect(() => {
+        let isMounted = true
+        if (isMounted) {
+            fetchItems()
+        }
+        return () => { isMounted = false }
+    }, [fetchItems])
+
 
     // Load custom locations from MongoDB (shared across all admins)
     const fetchCustomLocations = useCallback(async () => {
@@ -740,7 +759,11 @@ function ServicesSection() {
     }, [])
 
     useEffect(() => {
-        fetchCustomLocations()
+        let isMounted = true
+        if (isMounted) {
+            fetchCustomLocations()
+        }
+        return () => { isMounted = false }
     }, [])
 
     const openAddModal = () => {
@@ -1381,7 +1404,14 @@ function NewsSection() {
         setLoading(false)
     }, [])
 
-    useEffect(() => { fetchItems() }, [fetchItems])
+    useEffect(() => {
+        let isMounted = true
+        if (isMounted) {
+            fetchItems()
+        }
+        return () => { isMounted = false }
+    }, [fetchItems])
+
 
     // Load custom locations from MongoDB
     const fetchCustomLocations = useCallback(async () => {
@@ -1410,8 +1440,13 @@ function NewsSection() {
     }, [])
 
     useEffect(() => {
-        fetchCustomLocations()
+        let isMounted = true
+        if (isMounted) {
+            fetchCustomLocations()
+        }
+        return () => { isMounted = false }
     }, [fetchCustomLocations])
+
 
     const openAddModal = () => {
         setEditing(null)
@@ -2048,7 +2083,15 @@ function TeamSection() {
         setSubmitting(false)
     }
 
-    useEffect(() => { fetchRoles().then(() => fetchMembers()) }, [fetchMembers, fetchRoles])
+    useEffect(() => {
+        let isMounted = true
+        if (isMounted) {
+            fetchRoles().then(() => {
+                if (isMounted) fetchMembers()
+            })
+        }
+        return () => { isMounted = false }
+    }, [fetchMembers, fetchRoles])
 
     const openRoleModal = (role?: { id: string; name: string; level: number }) => {
         if (role) {
@@ -2658,7 +2701,13 @@ function FriendshipMeetsManager() {
         setLoading(false)
     }, [])
 
-    useEffect(() => { fetchMeets() }, [fetchMeets])
+    useEffect(() => {
+        let isMounted = true
+        if (isMounted) {
+            fetchMeets()
+        }
+        return () => { isMounted = false }
+    }, [fetchMeets])
 
     // Load custom locations
     const fetchCustomLocations = useCallback(async () => {
@@ -2684,8 +2733,13 @@ function FriendshipMeetsManager() {
     }, [])
 
     useEffect(() => {
-        fetchCustomLocations()
+        let isMounted = true
+        if (isMounted) {
+            fetchCustomLocations()
+        }
+        return () => { isMounted = false }
     }, [fetchCustomLocations])
+
 
     // Filter logic
     useEffect(() => {
@@ -3218,7 +3272,13 @@ function FriendshipContentManager() {
         setLoading(false)
     }, [])
 
-    useEffect(() => { fetchContent() }, [fetchContent])
+    useEffect(() => {
+        let isMounted = true
+        if (isMounted) {
+            fetchContent()
+        }
+        return () => { isMounted = false }
+    }, [fetchContent])
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -3357,13 +3417,19 @@ function JoinNowSection() {
         setLoading(false)
     }, [])
 
-    useEffect(() => { fetchItems() }, [fetchItems])
+    useEffect(() => {
+        let isMounted = true
+        if (isMounted) {
+            fetchItems()
+        }
+        return () => { isMounted = false }
+    }, [fetchItems])
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         const form = e.currentTarget
         const fd = new FormData(form)
-        const body: any = Object.fromEntries(fd)
+        const body: Record<string, unknown> = Object.fromEntries(fd)
         body.content_en = contentEn
         body.content_ta = contentTa
         if (editing) body.id = editing.id
@@ -3466,7 +3532,7 @@ function JoinNowSection() {
                     <div>
                         <label className="block text-sm font-medium mb-1">Google Form URL (Optional)</label>
                         <input name="google_form_url" defaultValue={editing?.google_form_url} placeholder="https://docs.google.com/forms/..." className="w-full border rounded-lg p-2" />
-                        <p className="text-xs text-gray-500 mt-1">Paste the full URL of the Google Form. <strong>Make sure the form is set to "Public" or "Anyone with the link" so users can see it without signing in.</strong></p>
+                        <p className="text-xs text-gray-500 mt-1">Paste the full URL of the Google Form. <strong>Make sure the form is set to &quot;Public&quot; or &quot;Anyone with the link&quot; so users can see it without signing in.</strong></p>
                     </div>
 
                     <div className="w-32">

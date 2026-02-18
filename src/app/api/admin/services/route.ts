@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
         const state = searchParams.get('state') || ''
         const date = searchParams.get('date') || ''
 
-        const filter: any = {}
+        const filter: Record<string, unknown> = {}
 
         if (search) {
             filter.$or = [
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
         const formData = await request.formData()
 
         // Parse form data to object for validation
-        const rawData: any = {}
+        const rawData: Record<string, unknown> = {}
         formData.forEach((value, key) => {
             if (key !== 'image') rawData[key] = value
         })
@@ -109,8 +109,8 @@ export async function POST(request: NextRequest) {
             district: rawData.district,
             city: rawData.city,
             date: rawData.date,
-            description_en: rawData.description_en ? DOMPurify.sanitize(rawData.description_en) : '',
-            description_ta: rawData.description_ta ? DOMPurify.sanitize(rawData.description_ta) : '',
+            description_en: rawData.description_en ? DOMPurify.sanitize(rawData.description_en as string) : '',
+            description_ta: rawData.description_ta ? DOMPurify.sanitize(rawData.description_ta as string) : '',
             image_url: uploadResult.url,
             created_at: new Date(),
         }
