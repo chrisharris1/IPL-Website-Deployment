@@ -213,11 +213,19 @@ export default function PresidentBlogSection() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium mb-1">Title (English)</label>
-                                        <input value={formData.title_en} onChange={(e) => setFormData({ ...formData, title_en: e.target.value })} placeholder="Enter title" className="w-full border rounded-lg p-2.5" />
+                                        <RichTextEditor
+                                            value={formData.title_en}
+                                            onChange={(value) => setFormData({ ...formData, title_en: value })}
+                                            placeholder="Enter title"
+                                        />
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium mb-1">Title (Tamil)</label>
-                                        <input value={formData.title_ta} onChange={(e) => setFormData({ ...formData, title_ta: e.target.value })} placeholder="Enter title (Tamil)" className="w-full border rounded-lg p-2.5" />
+                                        <RichTextEditor
+                                            value={formData.title_ta}
+                                            onChange={(value) => setFormData({ ...formData, title_ta: value })}
+                                            placeholder="Enter title (Tamil)"
+                                        />
                                     </div>
                                 </div>
 

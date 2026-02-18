@@ -14,10 +14,6 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({
                 success: true,
                 data: {
-                    intro_title_en: '',
-                    intro_title_ta: '',
-                    intro_content_en: '',
-                    intro_content_ta: '',
                     about_title_en: '',
                     about_title_ta: '',
                     about_content_en: '',

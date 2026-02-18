@@ -51,8 +51,8 @@ export default function HumanitarianServiceDetail() {
         return (
             <div className="min-h-screen bg-neutral-50 flex items-center justify-center px-4">
                 <div className="text-center">
-                    <h1 className="text-3xl font-bold text-neutral-900 mb-4">Service Not Found</h1>
-                    <p className="text-neutral-600 mb-6">The humanitarian service you're looking for doesn't exist.</p>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 mb-4">{t('service.not_found', 'Service Not Found')}</h1>
+                    <p className="text-sm sm:text-base text-neutral-600 mb-6">{t('service.not_found_desc', "The humanitarian service you're looking for doesn't exist.")}</p>
                     <Link
                         href="/humanitarian-services"
                         className="inline-flex items-center gap-2 bg-primary-700 text-white px-6 py-3 rounded-lg hover:bg-primary-800 transition"
@@ -83,7 +83,7 @@ export default function HumanitarianServiceDetail() {
             {/* Hero Image */}
             <section className="relative bg-white">
                 <div className="container-custom mx-auto px-4 py-8">
-                    <div className="relative aspect-[21/9] w-full rounded-2xl overflow-hidden shadow-2xl bg-neutral-100">
+                    <div className="relative aspect-21/9 w-full rounded-2xl overflow-hidden shadow-2xl bg-neutral-100">
                         <Image
                             src={service.image_url}
                             alt={lang === 'ta' ? service.title_ta : service.title_en}
@@ -104,11 +104,9 @@ export default function HumanitarianServiceDetail() {
                         <div className="mb-8">
                             <div className="inline-flex items-center gap-2 bg-primary-100 px-4 py-2 rounded-full mb-4">
                                 <HandHeart className="w-5 h-5 text-primary-700" />
-                                <span className="text-primary-700 font-medium text-sm">Humanitarian Service</span>
+                                <span className="text-primary-700 font-medium text-xs sm:text-sm">{t('service.humanitarian_service', 'Humanitarian Service')}</span>
                             </div>
-                            <h1 className="text-3xl md:text-4xl font-bold text-neutral-900 leading-tight">
-                                {lang === 'ta' && service.title_ta ? service.title_ta : service.title_en}
-                            </h1>
+                            <h1 className="text-3xl md:text-4xl font-bold text-neutral-900 leading-tight" dangerouslySetInnerHTML={{ __html: lang === 'ta' && service.title_ta ? service.title_ta : service.title_en }} />
                         </div>
 
                         {/* Meta Info */}
@@ -119,8 +117,8 @@ export default function HumanitarianServiceDetail() {
                                         <Calendar className="w-6 h-6 text-primary-700" />
                                     </div>
                                     <div>
-                                        <p className="text-xs text-neutral-500 uppercase tracking-wide mb-0.5">Date</p>
-                                        <p className="text-neutral-900 font-semibold">
+                                        <p className="text-xs text-neutral-500 uppercase tracking-wide mb-0.5">{t('service.date', 'Date')}</p>
+                                        <p className="text-sm sm:text-base text-neutral-900 font-semibold">
                                             {new Date(service.date).toLocaleDateString('en-US', {
                                                 month: 'long',
                                                 day: 'numeric',
@@ -135,8 +133,8 @@ export default function HumanitarianServiceDetail() {
                                         <MapPin className="w-6 h-6 text-primary-700" />
                                     </div>
                                     <div>
-                                        <p className="text-xs text-neutral-500 uppercase tracking-wide mb-0.5">Location</p>
-                                        <p className="text-neutral-900 font-semibold">
+                                        <p className="text-xs text-neutral-500 uppercase tracking-wide mb-0.5">{t('service.location', 'Location')}</p>
+                                        <p className="text-sm sm:text-base text-neutral-900 font-semibold">
                                             {[service.city, service.district, service.state, service.country].filter(Boolean).join(', ')}
                                         </p>
                                     </div>
@@ -145,8 +143,8 @@ export default function HumanitarianServiceDetail() {
                         </div>
 
                         {/* Description */}
-                        <div className="bg-white rounded-2xl shadow-md p-8 border border-neutral-200">
-                            <h2 className="text-2xl font-bold text-neutral-900 mb-6">About This Service</h2>
+                        <div className="bg-white rounded-2xl shadow-md p-6 sm:p-8 border border-neutral-200">
+                            <h2 className="text-xl sm:text-2xl font-bold text-neutral-900 mb-6">{t('service.about_service', 'About This Service')}</h2>
                             <div
                                 className="prose prose-lg max-w-none text-neutral-700 leading-relaxed"
                                 dangerouslySetInnerHTML={{

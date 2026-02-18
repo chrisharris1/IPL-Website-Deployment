@@ -101,9 +101,7 @@ export default function HumanitarianServices() {
             </div>
 
             <div className="p-6 flex flex-col grow">
-                <h3 className="text-lg font-bold text-neutral-900 mb-3 line-clamp-2 group-hover:text-red-700 transition-colors leading-tight">
-                    {(lang === 'ta' ? service.title_ta : service.title_en) || service.title_en}
-                </h3>
+                <h3 className="text-lg font-bold text-neutral-900 mb-3 line-clamp-2 group-hover:text-red-700 transition-colors leading-tight" dangerouslySetInnerHTML={{ __html: (lang === 'ta' ? service.title_ta : service.title_en) || service.title_en }} />
 
                 <div className="flex items-center gap-2 text-xs text-neutral-500 mb-3">
                     <Calendar className={`w-3.5 h-3.5 ${isUpcoming ? 'text-emerald-600' : 'text-neutral-400'}`} />

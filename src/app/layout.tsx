@@ -5,7 +5,7 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: {
-    default: "Indian Penpals' League",
+    default: "INDIAN PENPALS' LEAGUE",
     template: "%s",
   },
   description: "Love, Friendship & Humanity — A confederation of friends united to serve communities.",

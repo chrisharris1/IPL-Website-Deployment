@@ -36,7 +36,7 @@ interface CarouselImage { id: string; image_url: string; title?: string; subtitl
 interface ServiceItem { id: string; title_en: string; title_ta: string; country: string; state: string; district: string; city: string; date: string; description_en: string; description_ta: string; image_url: string }
 interface NewsItem { id: string; title_en: string; title_ta: string; country: string; state: string; district: string; city: string; date: string; time: string; description_en: string; description_ta: string; image_url: string }
 interface AboutSection { id: string; section_title_en: string; section_title_ta: string; content_en: string; content_ta: string; order_index: number; is_deletable: boolean }
-interface TeamMember { id: string; name: string; role: string; image_url: string; order_index: number; hierarchy_level?: number; email?: string; phone?: string }
+interface TeamMember { id: string; name: string; role: string; image_url: string; order_index: number; hierarchy_level?: number; email?: string; phone?: string; location?: string }
 interface FriendshipMeet {
     id: string;
     country: string;
@@ -104,7 +104,7 @@ export default function AdminPage() {
                         {NAV_ITEMS.map(item => (
                             <button key={item.key} onClick={() => setActiveSection(item.key)}
                                 className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-left transition-all duration-200 group relative overflow-hidden ${activeSection === item.key
-                                    ? 'bg-gradient-to-r from-fuchsia-600 to-pink-600 text-white shadow-lg shadow-fuchsia-500/30 font-medium'
+                                    ? 'bg-linear-to-r from-fuchsia-600 to-pink-600 text-white shadow-lg shadow-fuchsia-500/30 font-medium'
                                     : 'text-fuchsia-200/70 hover:bg-fuchsia-900 hover:text-white'
                                     }`}>
                                 <span className={`text-xl transition-transform duration-300 ${activeSection === item.key ? 'scale-110' : 'group-hover:scale-110'}`}>{item.icon}</span>
@@ -236,7 +236,7 @@ function DashboardSection({ onNavigate }: { onNavigate: (s: Section) => void }) 
                             // Removed opacity-0 to ensure visibility even if animation fails
                             className={`group relative bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 p-6 border border-slate-100 text-left overflow-hidden hover:-translate-y-1 animate-fade-in-up`}
                             style={{ animationDelay: card.delay }}>
-                            <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${card.gradient} opacity-10 rounded-bl-full group-hover:scale-110 transition-transform duration-500`} />
+                            <div className={`absolute top-0 right-0 w-24 h-24 bg-linear-to-br ${card.gradient} opacity-10 rounded-bl-full group-hover:scale-110 transition-transform duration-500`} />
 
                             <div className="relative z-10">
                                 <span className="text-4xl mb-4 block filter drop-shadow-sm">{card.icon}</span>
@@ -244,7 +244,7 @@ function DashboardSection({ onNavigate }: { onNavigate: (s: Section) => void }) 
                                 <p className="text-4xl font-black text-slate-800 mt-1 count-up">{stats[card.key]}</p>
                             </div>
 
-                            <div className={`absolute bottom-0 left-0 h-1 w-0 group-hover:w-full bg-gradient-to-r ${card.gradient} transition-all duration-500 ease-out`} />
+                            <div className={`absolute bottom-0 left-0 h-1 w-0 group-hover:w-full bg-linear-to-r ${card.gradient} transition-all duration-500 ease-out`} />
                         </button>
                     ))}
                 </div>
@@ -266,7 +266,7 @@ function Modal({ open, onClose, title, children }: { open: boolean; onClose: () 
             <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full my-8 max-h-[90vh] overflow-y-auto flex flex-col animate-scale-in border border-fuchsia-100">
                 <div className="flex justify-between items-center p-6 border-b border-fuchsia-100 bg-fuchsia-50/50 sticky top-0 z-10 backdrop-blur-md">
                     <h3 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-                        <span className="w-1.5 h-6 bg-gradient-to-b from-fuchsia-500 to-pink-600 rounded-full inline-block"></span>
+                        <span className="w-1.5 h-6 bg-linear-to-b from-fuchsia-500 to-pink-600 rounded-full inline-block"></span>
                         {title}
                     </h3>
                     <button onClick={onClose} className="text-slate-400 hover:text-fuchsia-600 hover:bg-fuchsia-100 p-2 rounded-full transition-all">
@@ -299,7 +299,7 @@ function SectionHeader({ title, onAdd, addLabel }: { title: string; onAdd?: () =
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div className="relative">
                 <h2 className="text-3xl font-bold text-slate-900 tracking-tight">{title}</h2>
-                <div className="h-1 w-20 bg-gradient-to-r from-fuchsia-500 to-pink-500 rounded-full mt-2"></div>
+                <div className="h-1 w-20 bg-linear-to-r from-fuchsia-500 to-pink-500 rounded-full mt-2"></div>
             </div>
             {onAdd && (
                 <button onClick={onAdd} className="bg-fuchsia-900 text-white px-6 py-3 rounded-xl hover:bg-fuchsia-800 transition-all shadow-lg shadow-fuchsia-200 hover:shadow-xl hover:-translate-y-0.5 flex items-center gap-2 font-medium">
@@ -460,7 +460,7 @@ function CarouselSection() {
                         <div key={img.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
                             <div className="relative h-56 overflow-hidden">
                                 <img src={img.image_url} alt="Carousel" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 pt-12">
+                                <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/80 via-black/40 to-transparent p-4 pt-12">
                                     {!img.hide_text && (
                                         <>
                                             <h4 className="font-bold text-white text-lg leading-tight line-clamp-1">{img.title || 'Untitled Slide'}</h4>
@@ -558,6 +558,8 @@ function AboutSection_() {
     const [msg, setMsg] = useState({ text: '', type: 'success' as 'success' | 'error' })
     const [contentEn, setContentEn] = useState('')
     const [contentTa, setContentTa] = useState('')
+    const [titleEn, setTitleEn] = useState('')
+    const [titleTa, setTitleTa] = useState('')
 
     const fetchSections = useCallback(async () => {
         try {
@@ -581,6 +583,8 @@ function AboutSection_() {
         const form = e.currentTarget
         const fd = new FormData(form)
         const body: any = Object.fromEntries(fd)
+        body.section_title_en = titleEn
+        body.section_title_ta = titleTa
         body.content_en = contentEn
         body.content_ta = contentTa
         if (editing) body.id = editing.id
@@ -623,7 +627,7 @@ function AboutSection_() {
 
     return (
         <div>
-            <SectionHeader title="About Us" onAdd={() => { setEditing(null); setContentEn(''); setContentTa(''); setShowModal(true) }} addLabel="Add Section" />
+            <SectionHeader title="About Us" onAdd={() => { setEditing(null); setTitleEn(''); setTitleTa(''); setContentEn(''); setContentTa(''); setShowModal(true) }} addLabel="Add Section" />
             <StatusMessage message={msg.text} type={msg.type} />
 
             {loading ? <p className="text-gray-500">Loading...</p> : (
@@ -640,7 +644,7 @@ function AboutSection_() {
                                     <p className="text-sm text-gray-600 line-clamp-2">{s.content_en?.replace(/<[^>]*>/g, '').substring(0, 200)}...</p>
                                 </div>
                                 <div className="flex gap-2 ml-4">
-                                    <button onClick={() => { setEditing(s); setContentEn(s.content_en || ''); setContentTa(s.content_ta || ''); setShowModal(true) }}
+                                    <button onClick={() => { setEditing(s); setTitleEn(s.section_title_en || ''); setTitleTa(s.section_title_ta || ''); setContentEn(s.content_en || ''); setContentTa(s.content_ta || ''); setShowModal(true) }}
                                         className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition">Edit</button>
                                     {s.is_deletable && (
                                         <button onClick={() => handleDelete(s.id)}
@@ -658,9 +662,9 @@ function AboutSection_() {
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                         <div><label className="block text-sm font-medium mb-1">Paragraph Title (English) - Optional</label>
-                            <input name="section_title_en" defaultValue={editing?.section_title_en} className="w-full border rounded-lg p-2.5" /></div>
+                            <RichTextEditor value={titleEn} onChange={setTitleEn} placeholder="Enter title" /></div>
                         <div><label className="block text-sm font-medium mb-1">Title (Tamil)</label>
-                            <input name="section_title_ta" defaultValue={editing?.section_title_ta} className="w-full border rounded-lg p-2.5" /></div>
+                            <RichTextEditor value={titleTa} onChange={setTitleTa} placeholder="Enter title (Tamil)" /></div>
                     </div>
                     <div>
                         <label className="block text-sm font-medium mb-2">Paragraph Content (English) *</label>
@@ -1076,19 +1080,18 @@ function ServicesSection() {
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium mb-1">Title (English) *</label>
-                            <input
+                            <RichTextEditor
                                 value={formData.title_en}
-                                onChange={(e) => setFormData({ ...formData, title_en: e.target.value })}
-                                required
-                                className="w-full border rounded-lg p-2.5"
+                                onChange={(value) => setFormData({ ...formData, title_en: value })}
+                                placeholder="Enter title"
                             />
                         </div>
                         <div>
                             <label className="block text-sm font-medium mb-1">Title (Tamil)</label>
-                            <input
+                            <RichTextEditor
                                 value={formData.title_ta}
-                                onChange={(e) => setFormData({ ...formData, title_ta: e.target.value })}
-                                className="w-full border rounded-lg p-2.5"
+                                onChange={(value) => setFormData({ ...formData, title_ta: value })}
+                                placeholder="Enter title (Tamil)"
                             />
                         </div>
                     </div>
@@ -1706,19 +1709,18 @@ function NewsSection() {
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium mb-1">Title (English) *</label>
-                            <input
+                            <RichTextEditor
                                 value={formData.title_en}
-                                onChange={(e) => setFormData({ ...formData, title_en: e.target.value })}
-                                required
-                                className="w-full border rounded-lg p-2.5"
+                                onChange={(value) => setFormData({ ...formData, title_en: value })}
+                                placeholder="Enter title"
                             />
                         </div>
                         <div>
                             <label className="block text-sm font-medium mb-1">Title (Tamil)</label>
-                            <input
+                            <RichTextEditor
                                 value={formData.title_ta}
-                                onChange={(e) => setFormData({ ...formData, title_ta: e.target.value })}
-                                className="w-full border rounded-lg p-2.5"
+                                onChange={(value) => setFormData({ ...formData, title_ta: value })}
+                                placeholder="Enter title (Tamil)"
                             />
                         </div>
                     </div>
@@ -2338,6 +2340,7 @@ function TeamSection() {
                                 <div className="flex items-center gap-2 mb-2">
                                     <p className="text-xs text-gray-500">{member.role}</p>
                                 </div>
+                                {member.location && <p className="text-xs text-purple-700 mb-1">{member.location}</p>}
                                 {member.email && <p className="text-xs text-blue-700 mb-1 break-all">{member.email}</p>}
                                 {member.phone && <p className="text-xs text-gray-700 mb-2">{member.phone}</p>}
                                 <div className="flex gap-1">
@@ -2374,7 +2377,7 @@ function TeamSection() {
             {loading ? <p className="text-gray-500">Loading...</p> : (
                 <>
                     {/* Role Hierarchy Overview — Drag to Reorder */}
-                    <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-6 mb-8 border border-purple-100">
+                    <div className="bg-linear-to-r from-purple-50 to-indigo-50 rounded-xl p-6 mb-8 border border-purple-100">
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-lg font-bold text-purple-800">Role Hierarchy</h3>
                             <span className="text-xs text-purple-500 font-medium">↕ Drag to reorder</span>
@@ -2490,6 +2493,18 @@ function TeamSection() {
                     </div>
 
                     <div>
+                        <label className="block text-sm font-medium mb-1">Location (Optional)</label>
+                        <input
+                            type="text"
+                            name="location"
+                            defaultValue={editing?.location || ''}
+                            placeholder="Chennai, Tamil Nadu"
+                            className="w-full border rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        />
+                        <p className="text-xs text-gray-600 mt-1">Location will be displayed below the role (e.g., city, state, or country)</p>
+                    </div>
+
+                    <div>
                         <label className="block text-sm font-medium mb-1">Photo {editing ? '(leave empty to keep current)' : '*'}</label>
                         <input
                             type="file"
@@ -2596,7 +2611,7 @@ function TeamSection() {
 
             {/* Conflict Resolution Popup */}
             {showConflictPopup && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-60 p-4">
                     <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in">
                         <div className="flex items-center gap-3 mb-4">
                             <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
@@ -2621,7 +2636,7 @@ function TeamSection() {
                                 onClick={() => submitRole(false)}
                                 className="w-full flex items-center gap-3 p-3 rounded-xl border-2 border-blue-200 hover:border-blue-400 hover:bg-blue-50 transition text-left"
                             >
-                                <div className="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                                <div className="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
                                     <span className="text-blue-600 text-sm">↕</span>
                                 </div>
                                 <div>
@@ -2633,7 +2648,7 @@ function TeamSection() {
                                 onClick={() => submitRole(true)}
                                 className="w-full flex items-center gap-3 p-3 rounded-xl border-2 border-purple-200 hover:border-purple-400 hover:bg-purple-50 transition text-left"
                             >
-                                <div className="w-9 h-9 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
+                                <div className="w-9 h-9 rounded-lg bg-purple-100 flex items-center justify-center shrink-0">
                                     <span className="text-purple-600 text-sm">⊕</span>
                                 </div>
                                 <div>
@@ -3275,10 +3290,6 @@ function FriendshipContentManager() {
     const [msg, setMsg] = useState({ text: '', type: 'success' as 'success' | 'error' })
 
     // Content state
-    const [introTitleEn, setIntroTitleEn] = useState('')
-    const [introTitleTa, setIntroTitleTa] = useState('')
-    const [introContentEn, setIntroContentEn] = useState('')
-    const [introContentTa, setIntroContentTa] = useState('')
     const [aboutTitleEn, setAboutTitleEn] = useState('')
     const [aboutTitleTa, setAboutTitleTa] = useState('')
     const [aboutContentEn, setAboutContentEn] = useState('')
@@ -3290,10 +3301,6 @@ function FriendshipContentManager() {
             const data = await res.json()
             if (data.success && data.data) {
                 const d = data.data
-                setIntroTitleEn(d.intro_title_en || '')
-                setIntroTitleTa(d.intro_title_ta || '')
-                setIntroContentEn(d.intro_content_en || '')
-                setIntroContentTa(d.intro_content_ta || '')
                 setAboutTitleEn(d.about_title_en || '')
                 setAboutTitleTa(d.about_title_ta || '')
                 setAboutContentEn(d.about_content_en || '')
@@ -3316,10 +3323,6 @@ function FriendshipContentManager() {
         setSubmitting(true)
 
         const body = {
-            intro_title_en: introTitleEn,
-            intro_title_ta: introTitleTa,
-            intro_content_en: introContentEn,
-            intro_content_ta: introContentTa,
             about_title_en: aboutTitleEn,
             about_title_ta: aboutTitleTa,
             about_content_en: aboutContentEn,
@@ -3350,59 +3353,24 @@ function FriendshipContentManager() {
             <StatusMessage message={msg.text} type={msg.type} />
 
             <form onSubmit={handleSubmit} className="space-y-8 bg-white p-8 rounded-xl shadow-sm border border-gray-200">
-                {/* Introduction Section */}
-                <div className="space-y-4">
-                    <h3 className="text-xl font-bold text-gray-800 border-b pb-2">Introduction Section</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium mb-1">Title (English) *</label>
-                            <input
-                                value={introTitleEn}
-                                onChange={(e) => setIntroTitleEn(e.target.value)}
-                                required
-                                className="w-full border rounded-lg p-2.5"
-                                placeholder="e.g. Friends Day"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1">Title (Tamil)</label>
-                            <input
-                                value={introTitleTa}
-                                onChange={(e) => setIntroTitleTa(e.target.value)}
-                                className="w-full border rounded-lg p-2.5"
-                                placeholder="e.g. நண்பர்கள் தினம்"
-                            />
-                        </div>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Content (English) *</label>
-                        <RichTextEditor value={introContentEn} onChange={setIntroContentEn} placeholder="Main introduction text..." />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Content (Tamil)</label>
-                        <RichTextEditor value={introContentTa} onChange={setIntroContentTa} placeholder="Tamil introduction text..." />
-                    </div>
-                </div>
-
                 {/* About Section */}
                 <div className="space-y-4 pt-4">
                     <h3 className="text-xl font-bold text-gray-800 border-b pb-2">About Section</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium mb-1">About Title (English)</label>
-                            <input
+                            <RichTextEditor
                                 value={aboutTitleEn}
-                                onChange={(e) => setAboutTitleEn(e.target.value)}
-                                className="w-full border rounded-lg p-2.5"
+                                onChange={setAboutTitleEn}
                                 placeholder="e.g. About Friends Day"
                             />
                         </div>
                         <div>
                             <label className="block text-sm font-medium mb-1">About Title (Tamil)</label>
-                            <input
+                            <RichTextEditor
                                 value={aboutTitleTa}
-                                onChange={(e) => setAboutTitleTa(e.target.value)}
-                                className="w-full border rounded-lg p-2.5"
+                                onChange={setAboutTitleTa}
+                                placeholder="Enter title (Tamil)"
                             />
                         </div>
                     </div>
@@ -3438,6 +3406,8 @@ function JoinNowSection() {
     const [msg, setMsg] = useState({ text: '', type: 'success' as 'success' | 'error' })
     const [contentEn, setContentEn] = useState('')
     const [contentTa, setContentTa] = useState('')
+    const [titleEn, setTitleEn] = useState('')
+    const [titleTa, setTitleTa] = useState('')
 
     const fetchItems = useCallback(async () => {
         try {
@@ -3461,6 +3431,8 @@ function JoinNowSection() {
         const form = e.currentTarget
         const fd = new FormData(form)
         const body: Record<string, unknown> = Object.fromEntries(fd)
+        body.title_en = titleEn
+        body.title_ta = titleTa
         body.content_en = contentEn
         body.content_ta = contentTa
         if (editing) body.id = editing.id
@@ -3503,7 +3475,7 @@ function JoinNowSection() {
 
     return (
         <div>
-            <SectionHeader title="Join Now Content" onAdd={() => { setEditing(null); setContentEn(''); setContentTa(''); setShowModal(true) }} addLabel="Add Content" />
+            <SectionHeader title="Join Now Content" onAdd={() => { setEditing(null); setTitleEn(''); setTitleTa(''); setContentEn(''); setContentTa(''); setShowModal(true) }} addLabel="Add Content" />
             <StatusMessage message={msg.text} type={msg.type} />
 
             {loading ? <p className="text-gray-500">Loading...</p> : (
@@ -3525,7 +3497,7 @@ function JoinNowSection() {
                                     )}
                                 </div>
                                 <div className="flex gap-2 ml-4">
-                                    <button onClick={() => { setEditing(item); setContentEn(item.content_en || ''); setContentTa(item.content_ta || ''); setShowModal(true) }}
+                                    <button onClick={() => { setEditing(item); setTitleEn(item.title_en || ''); setTitleTa(item.title_ta || ''); setContentEn(item.content_en || ''); setContentTa(item.content_ta || ''); setShowModal(true) }}
                                         className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition">Edit</button>
                                     <button onClick={() => handleDelete(item.id)}
                                         className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition">Delete</button>
@@ -3542,11 +3514,11 @@ function JoinNowSection() {
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium mb-1">Title (English)</label>
-                            <input name="title_en" defaultValue={editing?.title_en} required className="w-full border rounded-lg p-2" />
+                            <RichTextEditor value={titleEn} onChange={setTitleEn} placeholder="Enter title" />
                         </div>
                         <div>
                             <label className="block text-sm font-medium mb-1">Title (Tamil)</label>
-                            <input name="title_ta" defaultValue={editing?.title_ta} className="w-full border rounded-lg p-2" />
+                            <RichTextEditor value={titleTa} onChange={setTitleTa} placeholder="Enter title (Tamil)" />
                         </div>
                     </div>
 

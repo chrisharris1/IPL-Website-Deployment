@@ -74,7 +74,7 @@ const ImageCarousel: React.FC = () => {
     if (images.length === 0) return
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))
-    }, 3000)
+    }, 20000)
     return () => clearInterval(timer)
   }, [images.length])
 
@@ -338,8 +338,8 @@ export default function Home() {
                 </span>
               </div>
 
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-neutral-900 leading-tight mb-4 sm:mb-6 tracking-tight animate-slide-up px-2">
-                {String(t('home.hero_title', "Indian Penpals' League"))}
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-extrabold leading-tight mb-4 sm:mb-6 tracking-tight animate-slide-up px-2 text-[#e91e8c]" style={{ fontFamily: "'Britannic Bold', 'Impact', sans-serif" }}>
+                <span className="text-[1.5em]">I</span>NDIAN <span className="text-[1.5em]">P</span>ENPALS' <span className="text-[1.5em]">L</span>EAGUE
               </h1>
 
               <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-neutral-600 mb-6 sm:mb-8 leading-relaxed max-w-2xl mx-auto animate-slide-up px-4" style={{ animationDelay: '0.1s' }}>

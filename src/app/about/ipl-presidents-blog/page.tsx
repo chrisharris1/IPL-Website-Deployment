@@ -104,9 +104,7 @@ export default function PresidentBlogPage() {
                       </div>
 
                       <div className="p-4">
-                        <h3 className="font-bold text-neutral-900 mb-2 line-clamp-2 group-hover:text-red-700 transition-colors">
-                          {title}
-                        </h3>
+                        <h3 className="font-bold text-neutral-900 mb-2 line-clamp-2 group-hover:text-red-700 transition-colors" dangerouslySetInnerHTML={{ __html: title }} />
                         <p className="text-xs text-neutral-600 mb-3 line-clamp-2">
                           {description?.replace(/<[^>]*>/g, '')}
                         </p>
@@ -184,9 +182,7 @@ export default function PresidentBlogPage() {
               </div>
 
               <div className="p-6 md:p-8">
-                <h2 className="text-2xl sm:text-3xl font-bold text-neutral-900 mb-6">
-                  {lang === 'ta' && selectedPost.title_ta ? selectedPost.title_ta : selectedPost.title_en}
-                </h2>
+                <h2 className="text-2xl sm:text-3xl font-bold text-neutral-900 mb-6" dangerouslySetInnerHTML={{ __html: lang === 'ta' && selectedPost.title_ta ? selectedPost.title_ta : selectedPost.title_en }} />
 
                 <div
                   className="prose prose-lg max-w-none text-neutral-700 mb-8"

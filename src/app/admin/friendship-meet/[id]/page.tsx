@@ -537,21 +537,18 @@ export default function GalleryManagementPage({ params }: { params: Promise<{ id
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">Title (English) *</label>
-                                        <input
-                                            type="text"
+                                        <RichTextEditor
                                             value={formData.title_en}
-                                            onChange={(e) => setFormData({ ...formData, title_en: e.target.value })}
-                                            required
-                                            className="w-full border border-gray-300 rounded-lg p-2.5"
+                                            onChange={(value) => setFormData({ ...formData, title_en: value })}
+                                            placeholder="Enter title"
                                         />
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">Title (Tamil)</label>
-                                        <input
-                                            type="text"
+                                        <RichTextEditor
                                             value={formData.title_ta}
-                                            onChange={(e) => setFormData({ ...formData, title_ta: e.target.value })}
-                                            className="w-full border border-gray-300 rounded-lg p-2.5"
+                                            onChange={(value) => setFormData({ ...formData, title_ta: value })}
+                                            placeholder="Enter title (Tamil)"
                                         />
                                     </div>
                                 </div>

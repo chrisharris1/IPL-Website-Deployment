@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { useTranslation } from '@/contexts/TranslationContext'
-import { Users, Shield, Loader2, Mail, Linkedin, Phone } from 'lucide-react'
+import { Users, Shield, Loader2, Mail, Linkedin, Phone, MapPin } from 'lucide-react'
 import { getTeam } from '@/lib/api'
 import type { TeamMember } from '@/types/api'
 
@@ -15,6 +15,7 @@ type Person = {
     linkedin?: string
     link?: string
     phone?: string
+    location?: string
 }
 
 const Card: React.FC<{ person: Person }> = ({ person }) => {
@@ -44,7 +45,14 @@ const Card: React.FC<{ person: Person }> = ({ person }) => {
             </div>
 
             <h3 className="text-lg font-bold text-neutral-900 mb-1">{person.name}</h3>
-            <p className="text-red-700 font-medium mb-4 text-sm">{person.role}</p>
+            <p className="text-red-700 font-medium text-sm">{person.role}</p>
+            {person.location && (
+                <div className="flex items-center justify-center gap-1.5 mb-4 mt-1">
+                    <MapPin className="w-4 h-4 text-gray-600" />
+                    <p className="text-gray-700 text-sm font-bold">{person.location}</p>
+                </div>
+            )}
+            {!person.location && <div className="mb-4" />}
 
             <div className="flex items-center justify-center gap-3">
                 {(person.linkedin || person.email || ((person.role === 'President' || person.role === 'Founder, President') && person.phone)) ? (
@@ -134,6 +142,7 @@ export default function OurTeam() {
         img: member.image_url,
         email: member.email || '',
         phone: member.phone || '',
+        location: member.location || '',
     })
 
     return (
@@ -197,7 +206,11 @@ export default function OurTeam() {
 
                         // Helper for pluralization
                         const getRoleTitle = (role: string, count: number) => {
-                            if (count <= 1) return role === 'Coordinator' ? 'Co-ordinator' : role
+                            if (count <= 1) {
+                                if (role === 'Coordinator') return 'Co-ordinators'
+                                if (role === 'Organiser' || role === 'Overseas Organiser') return role + 's'
+                                return role
+                            }
                             if (role === 'Coordinator') return 'Co-ordinators'
                             if (role.endsWith('y')) return role.slice(0, -1) + 'ies'
                             return role + 's'
@@ -364,7 +377,7 @@ export default function OurTeam() {
                                         <div className="text-center mb-10">
                                             <div className="flex items-center justify-center gap-3 mb-3">
                                                 <Shield className="w-6 h-6 text-red-700" />
-                                                <h2 className="text-3xl font-bold text-neutral-900">Founder,President</h2>
+                                                <h2 className="text-2xl sm:text-3xl font-bold text-neutral-900">{t('ourteam.founder_president', 'Founder, President')}</h2>
                                             </div>
                                         </div>
 
@@ -386,7 +399,7 @@ export default function OurTeam() {
                                         <div className="text-center mb-10">
                                             <div className="flex items-center justify-center gap-3 mb-3">
                                                 <Shield className="w-6 h-6 text-red-700" />
-                                                <h2 className="text-3xl font-bold text-neutral-900">Board of Trustee</h2>
+                                                <h2 className="text-2xl sm:text-3xl font-bold text-neutral-900">{t('ourteam.board_of_trustee', 'Board of Trustee')}</h2>
                                             </div>
                                         </div>
 
@@ -405,10 +418,10 @@ export default function OurTeam() {
 
                     {/* Empty State */}
                     {membersByLevel.length === 0 && presidents.length === 0 && trustees.length === 0 && (
-                        <section className="py-20 text-center">
+                        <section className="py-20 text-center px-4">
                             <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                            <h3 className="text-xl font-semibold text-gray-600 mb-2">Team Coming Soon</h3>
-                            <p className="text-gray-500">We're assembling our team of dedicated volunteers.</p>
+                            <h3 className="text-lg sm:text-xl font-semibold text-gray-600 mb-2">{t('ourteam.team_coming_soon', 'Team Coming Soon')}</h3>
+                            <p className="text-sm sm:text-base text-gray-500">{t('ourteam.team_coming_soon_desc', "We're assembling our team of dedicated volunteers.")}</p>
                         </section>
                     )}
                 </>

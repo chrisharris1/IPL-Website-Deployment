@@ -132,9 +132,9 @@ export default function HistoryPage() {
 
             {/* Decorative line */}
             <div className="flex items-center justify-center gap-4">
-              <div className="h-px w-16 bg-gradient-to-r from-transparent to-red-300" />
+              <div className="h-px w-16 bg-linear-to-r from-transparent to-red-300" />
               <Heart className="w-5 h-5 text-red-600" />
-              <div className="h-px w-16 bg-gradient-to-l from-transparent to-red-300" />
+              <div className="h-px w-16 bg-linear-to-l from-transparent to-red-300" />
             </div>
           </div>
         </div>
@@ -158,7 +158,7 @@ export default function HistoryPage() {
                     const content = lang === 'ta' && section.content_ta ? section.content_ta : section.content_en
                     return (
                       <article key={section.id} className="bg-neutral-50 rounded-xl border border-neutral-100 p-5 sm:p-6">
-                        {title ? <h3 className="text-xl font-bold text-neutral-900 mb-3">{title}</h3> : null}
+                        {title ? <h3 className="text-xl font-bold text-neutral-900 mb-3" dangerouslySetInnerHTML={{ __html: title }} /> : null}
                         <div
                           className="prose max-w-none text-neutral-700"
                           dangerouslySetInnerHTML={{ __html: content || '' }}
@@ -182,14 +182,14 @@ export default function HistoryPage() {
                 {t('history.timeline.title', 'Major Milestones')}
               </h2>
               <p className="text-sm sm:text-base text-neutral-600 max-w-xl mx-auto">
-                Key moments that shaped our journey of love, friendship, and humanitarian service.
+                {t('history.timeline.subtitle', 'Key moments that shaped our journey of love, friendship, and humanitarian service.')}
               </p>
             </div>
 
             {/* Timeline */}
             <div className="relative">
               {/* Center Line */}
-              <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-red-200 via-red-400 to-red-200 md:-translate-x-px" />
+              <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-0.5 bg-linear-to-b from-red-200 via-red-400 to-red-200 md:-translate-x-px" />
 
               <div className="space-y-8">
                 {milestones.map((milestone, index) => {
@@ -210,7 +210,7 @@ export default function HistoryPage() {
                         <div className="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-neutral-100 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
                           {/* Year Badge */}
                           <div className="flex items-center gap-3 mb-3">
-                            <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${milestone.color} flex items-center justify-center shadow-md`}>
+                            <div className={`w-10 h-10 rounded-lg bg-linear-to-br ${milestone.color} flex items-center justify-center shadow-md`}>
                               <Icon className="w-5 h-5 text-white" />
                             </div>
                             <span className="text-xl sm:text-2xl font-bold text-neutral-900">
@@ -220,12 +220,12 @@ export default function HistoryPage() {
 
                           {/* Title */}
                           <h3 className="text-lg font-bold text-neutral-900 mb-2">
-                            {milestone.title}
+                            {lang === 'ta' ? milestone.titleTa : milestone.title}
                           </h3>
 
                           {/* Description */}
                           <p className="text-sm text-neutral-600 leading-relaxed">
-                            {milestone.description}
+                            {lang === 'ta' ? milestone.descriptionTa : milestone.description}
                           </p>
                         </div>
                       </div>

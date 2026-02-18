@@ -72,21 +72,46 @@ export default function JoinNowPage() {
             <div className="container-custom mx-auto px-4 pb-20">
                 {content.length === 0 ? (
                     <div className="text-center py-20 bg-white rounded-2xl shadow-sm border border-neutral-200">
-                        <p className="text-neutral-500 text-lg">Content coming soon...</p>
+                        <p className="text-neutral-500 text-lg">{t('joinnow.content_coming_soon', 'Content coming soon...')}</p>
                     </div>
                 ) : (
                     <div className="space-y-16">
                         {content.map((item) => (
                             <div key={item.id} className="bg-white rounded-3xl shadow-sm border border-neutral-200 overflow-hidden">
                                 <div className="p-8 md:p-12 lg:p-16 text-center max-w-4xl mx-auto">
-                                    <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-neutral-900 mb-8">
-                                        {lang === 'ta' ? item.title_ta : item.title_en}
-                                    </h2>
+                                    <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight mb-8 tracking-tight px-2 text-[#e91e8c]" style={{ fontFamily: "'Britannic Bold', 'Impact', sans-serif" }} dangerouslySetInnerHTML={{ __html: lang === 'ta' ? item.title_ta : item.title_en }} />
 
                                     <div
                                         className="prose prose-lg max-w-none text-neutral-600 leading-relaxed mb-12"
                                         dangerouslySetInnerHTML={{ __html: lang === 'ta' ? item.content_ta : item.content_en }}
                                     />
+
+                                    {/* Images Side by Side */}
+                                    <div className="grid md:grid-cols-2 gap-6 mb-8">
+                                        {/* Condition Image */}
+                                        <div className="w-full">
+                                            <h3 className="text-xl md:text-2xl font-bold text-neutral-900 mb-4">How to Join?</h3>
+                                            <Image
+                                                src="/1000187209.jpg"
+                                                alt="Membership Conditions"
+                                                width={1200}
+                                                height={800}
+                                                className="w-full h-auto rounded-xl border border-neutral-200 shadow-sm"
+                                            />
+                                        </div>
+
+                                        {/* Form Image */}
+                                        <div className="w-full">
+                                            <h3 className="text-xl md:text-2xl font-bold text-neutral-900 mb-4">Sample Form</h3>
+                                            <Image
+                                                src="/1000187212.jpg"
+                                                alt="Membership Form"
+                                                width={1200}
+                                                height={800}
+                                                className="w-full h-auto rounded-xl border border-neutral-200 shadow-sm"
+                                            />
+                                        </div>
+                                    </div>
 
                                     {item.google_form_url ? (
                                         <div className="w-full h-[800px] md:h-[1000px] bg-neutral-50 rounded-xl overflow-hidden border border-neutral-200">
@@ -104,7 +129,7 @@ export default function JoinNowPage() {
                                         </div>
                                     ) : (
                                         <div className="w-full py-16 bg-neutral-50 rounded-xl border border-neutral-200 text-center">
-                                            <p className="text-neutral-500 font-medium">Google form not available</p>
+                                            <p className="text-neutral-500 font-medium">{t('joinnow.google_form_unavailable', 'Google form not available')}</p>
                                         </div>
                                     )}
                                 </div>

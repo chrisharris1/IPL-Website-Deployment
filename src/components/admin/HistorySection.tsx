@@ -169,18 +169,18 @@ export default function HistorySection() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium mb-2">Paragraph Title (English) - Optional</label>
-                                        <input
+                                        <RichTextEditor
                                             value={formData.section_title_en}
-                                            onChange={(e) => setFormData({ ...formData, section_title_en: e.target.value })}
-                                            className="w-full border rounded-lg p-2.5"
+                                            onChange={(value) => setFormData({ ...formData, section_title_en: value })}
+                                            placeholder="Enter title"
                                         />
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium mb-2">Title (Tamil)</label>
-                                        <input
+                                        <RichTextEditor
                                             value={formData.section_title_ta}
-                                            onChange={(e) => setFormData({ ...formData, section_title_ta: e.target.value })}
-                                            className="w-full border rounded-lg p-2.5"
+                                            onChange={(value) => setFormData({ ...formData, section_title_ta: value })}
+                                            placeholder="Enter title (Tamil)"
                                         />
                                     </div>
                                 </div>

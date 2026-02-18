@@ -18,15 +18,29 @@ interface RichTextEditorProps {
 
 const COLORS = [
   { name: 'Black', value: '#000000' },
+  { name: 'Dark Gray', value: '#1F2937' },
+  { name: 'Charcoal', value: '#2D3748' },
+  { name: 'Dark Blue', value: '#1E3A8A' },
+  { name: 'Navy', value: '#1E40AF' },
+  { name: 'Dark Red', value: '#991B1B' },
+  { name: 'Crimson', value: '#DC143C' },
+  { name: 'Dark Green', value: '#14532D' },
+  { name: 'Forest Green', value: '#166534' },
+  { name: 'Dark Purple', value: '#581C87' },
+  { name: 'Indigo', value: '#4C1D95' },
+  { name: 'Dark Brown', value: '#78350F' },
   { name: 'Red', value: '#EF4444' },
   { name: 'Orange', value: '#F97316' },
   { name: 'Yellow', value: '#EAB308' },
   { name: 'Green', value: '#22C55E' },
   { name: 'Blue', value: '#3B82F6' },
-  { name: 'Indigo', value: '#6366F1' },
+  { name: 'Light Blue', value: '#0EA5E9' },
   { name: 'Purple', value: '#A855F7' },
   { name: 'Pink', value: '#EC4899' },
+  { name: 'Magenta', value: '#e91e8c' },
   { name: 'Gray', value: '#6B7280' },
+  { name: 'Light Gray', value: '#9CA3AF' },
+  { name: 'White', value: '#FFFFFF' },
 ]
 
 const FontSize = Extension.create({
@@ -285,9 +299,9 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
             <Palette size={16} />
           </button>
           {showColorPicker && (
-            <div className="absolute top-full left-0 mt-1 bg-white border rounded-lg shadow-xl p-3 z-100 min-w-[200px]">
+            <div className="absolute top-full left-0 mt-1 bg-white border rounded-lg shadow-xl p-3 z-100 min-w-60">
               <div className="text-xs font-semibold mb-2 text-gray-700">Text Color</div>
-              <div className="grid grid-cols-5 gap-2">
+              <div className="grid grid-cols-6 gap-2">
                 {COLORS.map((color) => (
                   <button
                     key={color.value}

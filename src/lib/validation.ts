@@ -113,10 +113,6 @@ export const customLocationSchema = z.object({
 })
 
 export const friendsDaySchema = z.object({
-    intro_title_en: z.string().min(1, "Intro title (English) is required"),
-    intro_title_ta: z.string().optional(),
-    intro_content_en: z.string().min(1, "Intro content (English) is required"),
-    intro_content_ta: z.string().optional(),
     about_title_en: z.string().optional(),
     about_title_ta: z.string().optional(),
     about_content_en: z.string().optional(),

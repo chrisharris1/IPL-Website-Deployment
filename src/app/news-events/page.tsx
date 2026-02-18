@@ -119,7 +119,7 @@ function NewsEventsContent() {
                                         <span className="ml-3 text-lg font-normal text-neutral-500">({upcomingEvents.length})</span>
                                     </h2>
                                 </div>
-                                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-6">
                                     {upcomingEvents.map((event) => (
                                         <article
                                             key={event.id}
@@ -127,12 +127,12 @@ function NewsEventsContent() {
                                             className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-neutral-200 hover:border-neutral-300 transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col h-full"
                                         >
                                             {/* Image header */}
-                                            <div className="relative h-48 shrink-0">
+                                            <div className="relative h-40 shrink-0">
                                                 <Image
                                                     src={event.image_url}
                                                     alt={lang === 'ta' ? event.title_ta : event.title_en}
                                                     fill
-                                                    sizes="(max-width:768px) 100vw, (max-width:1024px) 50vw, 33vw"
+                                                    sizes="(max-width:768px) 100vw, (max-width:1024px) 33vw, 20vw"
                                                     className="object-contain bg-neutral-100"
                                                 />
                                                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition" />
@@ -157,23 +157,21 @@ function NewsEventsContent() {
 
                                             </div>
 
-                                            <div className="p-6 flex flex-col flex-1">
-                                                <h3 className="text-lg font-bold text-neutral-900 mb-3 line-clamp-2 group-hover:text-red-700 transition-colors">
-                                                    {(lang === 'ta' ? event.title_ta : event.title_en) || event.title_en}
-                                                </h3>
+                                            <div className="p-4 flex flex-col flex-1">
+                                                <h3 className="text-base font-bold text-neutral-900 mb-2 line-clamp-2 group-hover:text-red-700 transition-colors" dangerouslySetInnerHTML={{ __html: (lang === 'ta' ? event.title_ta : event.title_en) || event.title_en }} />
 
-                                                <div className="flex items-start gap-2 text-xs text-neutral-600 mb-4">
+                                                <div className="flex items-start gap-2 text-xs text-neutral-600 mb-3">
                                                     <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-red-600" />
                                                     <span className="line-clamp-1">
                                                         {[event.city, event.district, event.state, event.country].filter(Boolean).join(', ')}
                                                     </span>
                                                 </div>
 
-                                                <p className="text-sm text-neutral-600 line-clamp-3 leading-relaxed flex-grow mb-4">
+                                                <p className="text-sm text-neutral-600 line-clamp-3 leading-relaxed grow mb-3">
                                                     {stripHtml((lang === 'ta' ? event.description_ta : event.description_en) || event.description_en)}
                                                 </p>
 
-                                                <div className="flex items-center gap-2 text-sm text-neutral-500 mt-auto pt-3 border-t border-neutral-100">
+                                                <div className="flex items-center gap-2 text-sm text-neutral-500 mt-auto pt-2 border-t border-neutral-100">
                                                     <Calendar className="w-4 h-4 text-emerald-600" />
                                                     <span className="font-medium text-neutral-700">
                                                         {new Date(event.date).toLocaleDateString(lang === 'ta' ? 'ta-IN' : 'en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
@@ -189,7 +187,7 @@ function NewsEventsContent() {
 
                                                 <button
                                                     onClick={(e) => handleNotify(e, event)}
-                                                    className="w-full mt-4 flex items-center justify-center gap-2 py-2 rounded-lg bg-red-50 text-red-700 hover:bg-red-600 hover:text-white transition-all duration-300 font-semibold text-sm group/btn"
+                                                    className="w-full mt-3 flex items-center justify-center gap-2 py-2 rounded-lg bg-red-50 text-red-700 hover:bg-red-600 hover:text-white transition-all duration-300 font-semibold text-sm group/btn"
                                                 >
                                                     <Bell className="w-4 h-4 group-hover/btn:animate-swing" />
                                                     {t('humanitarian.notify_me', 'Notify Me')}
@@ -211,7 +209,7 @@ function NewsEventsContent() {
                                         <span className="ml-3 text-lg font-normal text-neutral-500">({pastEvents.length})</span>
                                     </h2>
                                 </div>
-                                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-6">
                                     {pastEvents.map((event) => (
                                         <article
                                             key={event.id}
@@ -219,12 +217,12 @@ function NewsEventsContent() {
                                             className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-neutral-200 hover:border-neutral-300 transition-all duration-300 hover:-translate-y-1 cursor-pointer"
                                         >
                                             {/* Image header */}
-                                            <div className="relative h-48">
+                                            <div className="relative h-40">
                                                 <Image
                                                     src={event.image_url}
                                                     alt={lang === 'ta' ? event.title_ta : event.title_en}
                                                     fill
-                                                    sizes="(max-width:768px) 100vw, (max-width:1024px) 50vw, 33vw"
+                                                    sizes="(max-width:768px) 100vw, (max-width:1024px) 33vw, 20vw"
                                                     className="object-contain bg-neutral-100"
                                                 />
                                                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition" />
@@ -248,12 +246,10 @@ function NewsEventsContent() {
 
                                             </div>
 
-                                            <div className="p-6 flex flex-col flex-1">
-                                                <h3 className="text-lg font-bold text-neutral-900 mb-3 line-clamp-2 group-hover:text-red-700 transition-colors">
-                                                    {lang === 'ta' ? event.title_ta : event.title_en}
-                                                </h3>
+                                            <div className="p-4 flex flex-col flex-1">
+                                                <h3 className="text-base font-bold text-neutral-900 mb-2 line-clamp-2 group-hover:text-red-700 transition-colors" dangerouslySetInnerHTML={{ __html: lang === 'ta' ? event.title_ta : event.title_en }} />
 
-                                                <div className="flex items-start gap-2 text-xs text-neutral-600 mb-4">
+                                                <div className="flex items-start gap-2 text-xs text-neutral-600 mb-3">
                                                     <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-red-600" />
                                                     <span className="line-clamp-1">
                                                         {[event.city, event.district, event.state, event.country].filter(Boolean).join(', ')}
@@ -264,7 +260,7 @@ function NewsEventsContent() {
                                                     {stripHtml(lang === 'ta' ? event.description_ta : event.description_en)}
                                                 </p>
 
-                                                <div className="flex items-center gap-2 text-sm text-neutral-500 mt-3 pt-3 border-t border-neutral-100">
+                                                <div className="flex items-center gap-2 text-sm text-neutral-500 mt-2 pt-2 border-t border-neutral-100">
                                                     <Calendar className="w-4 h-4 text-neutral-400" />
                                                     <span className="font-medium text-neutral-600">
                                                         {new Date(event.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
@@ -341,9 +337,7 @@ function NewsEventsContent() {
                                         {new Date(selectedEvent.date) > new Date() ? 'Upcoming' : 'Past'}
                                     </span>
                                 </div>
-                                <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2 shadow-sm leading-tight">
-                                    {lang === 'ta' ? selectedEvent.title_ta : selectedEvent.title_en}
-                                </h2>
+                                <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2 shadow-sm leading-tight" dangerouslySetInnerHTML={{ __html: lang === 'ta' ? selectedEvent.title_ta : selectedEvent.title_en }} />
                             </div>
                         </div>
 

@@ -73,11 +73,11 @@ export default function About() {
                 <div className="container-custom mx-auto px-4">
                     <div className="max-w-4xl mx-auto">
                         <div className="text-center mb-10">
-                            <div className="inline-flex items-center justify-center w-16 h-16 bg-red-50 rounded-2xl mb-4">
-                                <BookOpen className="w-8 h-8 text-red-700" />
-                            </div>
+                            <h2 className="text-3xl sm:text-4xl font-bold text-[#e91e8c] mb-4" style={{ fontFamily: "'Britannic Bold', 'Impact', sans-serif" }}>
+                                <span className="text-[1.5em]">இ</span>ந்தியப் <span className="text-[1.5em]">பே</span>னாநண்பர் <span className="text-[1.5em]">பே</span>ரவை
+                            </h2>
                             <h2 className="text-3xl sm:text-4xl font-bold text-neutral-900">
-                                {t('home.welcome_title', "Welcome to Indian Penpals' League")}
+                                Welcome to <span className="text-[#e91e8c]" style={{ fontFamily: "'Britannic Bold', 'Impact', sans-serif" }}><span className="text-[1.5em]">I</span>NDIAN <span className="text-[1.5em]">P</span>ENPALS' <span className="text-[1.5em]">L</span>EAGUE</span>
                             </h2>
                         </div>
 
@@ -90,7 +90,7 @@ export default function About() {
                                 {t('about.no_content', lang === 'ta' ? 'எங்களைப் பற்றி உள்ளடக்கம் இல்லை.' : 'No about content available.')}
                             </div>
                         ) : (
-                            <div className="space-y-10">
+                            <div className="space-y-0">
                                 {sections
                                     .slice()
                                     .sort((a, b) => a.order_index - b.order_index)
@@ -101,7 +101,7 @@ export default function About() {
                                         return (
                                             <article key={section.id} className="bg-neutral-50 rounded-2xl border border-neutral-100 p-6 sm:p-8">
                                                 {title ? (
-                                                    <h3 className="text-2xl font-bold text-neutral-900 mb-5">{title}</h3>
+                                                    <h3 className="text-2xl font-bold text-neutral-900 mb-5" dangerouslySetInnerHTML={{ __html: title }} />
                                                 ) : null}
                                                 <div
                                                     className="prose prose-lg max-w-none text-neutral-700"

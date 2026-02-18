@@ -63,6 +63,7 @@ export async function GET() {
             order_index: m.order_index,
             email: m.email || '',
             phone: m.phone || '',
+            location: m.location || '',
         })
 
         // Organize members by role name

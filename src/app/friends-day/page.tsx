@@ -113,15 +113,8 @@ export default function FriendsDay() {
                         <span className="text-xs font-semibold tracking-wider uppercase text-neutral-600">{t('friendsday.badge', 'International Friendship Day')}</span>
                     </div>
                     <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold tracking-tight text-neutral-900 mb-4 sm:mb-6 animate-slide-up">
-                        {content ? (lang === 'ta' ? content.intro_title_ta : content.intro_title_en) : null}
+                        {t('friendsday.title', 'Friends Day')}
                     </h1>
-                    {/* <p className="text-base sm:text-lg md:text-xl text-neutral-600 font-medium mb-3 sm:mb-4 animate-slide-up" style={{ animationDelay: '0.1s' }}>{t('friendsday.subtitle_native', 'நட்பு தினம்')}</p> */}
-
-                    <div className="text-sm sm:text-base md:text-lg lg:text-xl text-neutral-600 leading-relaxed max-w-2xl mx-auto animate-slide-up px-2" style={{ animationDelay: '0.15s' }}>
-                        {content && (
-                            <div dangerouslySetInnerHTML={{ __html: lang === 'ta' ? (content.intro_content_ta || content.intro_content_en) : (content.intro_content_en) }} />
-                        )}
-                    </div>
                 </div>
             </section>
 
@@ -152,9 +145,7 @@ export default function FriendsDay() {
                             <span className="text-xs font-semibold tracking-wider uppercase text-red-800">{t('friendsday.about_badge', 'About the Celebration')}</span>
                         </div>
 
-                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-neutral-900 mb-6">
-                            {lang === 'ta' ? content.about_title_ta : content.about_title_en}
-                        </h2>
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-neutral-900 mb-6" dangerouslySetInnerHTML={{ __html: lang === 'ta' ? content.about_title_ta : content.about_title_en }} />
 
                         <div className="prose prose-lg max-w-none text-neutral-600 space-y-4">
                             <div dangerouslySetInnerHTML={{ __html: lang === 'ta' ? (content.about_content_ta || content.about_content_en) : (content.about_content_en) }} />
@@ -179,7 +170,7 @@ export default function FriendsDay() {
                         const Icon = highlight.icon
                         return (
                             <div key={index} className="bg-white rounded-2xl p-6 border border-neutral-100 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${highlight.color} flex items-center justify-center mb-4`}>
+                                <div className={`w-14 h-14 rounded-xl bg-linear-to-br ${highlight.color} flex items-center justify-center mb-4`}>
                                     <Icon className="w-7 h-7 text-white" />
                                 </div>
                                 <h3 className="text-lg font-bold text-neutral-900 mb-2">{highlight.title}</h3>
@@ -220,7 +211,7 @@ export default function FriendsDay() {
                                     className="object-cover transition-transform duration-500 group-hover:scale-110"
                                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                                <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent" />
                                 <div className="absolute bottom-4 left-4 right-4">
                                     <span className="inline-block px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full mb-2">
                                         {event.year}
@@ -275,7 +266,7 @@ export default function FriendsDay() {
 
             {/* Call to Action */}
             <section className="container-custom mx-auto px-4 mb-16 sm:mb-24">
-                <div className="bg-gradient-to-br from-red-600 to-red-800 rounded-2xl sm:rounded-3xl p-8 sm:p-12 text-center text-white shadow-xl">
+                <div className="bg-linear-to-br from-red-600 to-red-800 rounded-2xl sm:rounded-3xl p-8 sm:p-12 text-center text-white shadow-xl">
                     <Heart className="w-16 h-16 mx-auto mb-6 text-white/90" />
                     <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4">
                         {t('friendsday.cta_title', 'Join Our Next Friends Day Celebration')}

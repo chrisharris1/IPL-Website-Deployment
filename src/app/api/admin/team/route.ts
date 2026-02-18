@@ -64,6 +64,7 @@ export async function GET() {
             order_index: m.order_index,
             email: m.email || '',
             phone: m.phone || '',
+            location: m.location || '',
         }))
 
         return NextResponse.json({ success: true, data: mapped })
@@ -125,6 +126,7 @@ export async function POST(request: NextRequest) {
             order_index: nextOrder,
             email: ((formData.get('email') as string) || '').trim(),
             phone: ((formData.get('phone') as string) || '').trim(),
+            location: ((formData.get('location') as string) || '').trim(),
             created_at: new Date(),
         }
 
@@ -192,6 +194,7 @@ export async function PUT(request: NextRequest) {
             role,
             email: ((formData.get('email') as string) || '').trim(),
             phone: ((formData.get('phone') as string) || '').trim(),
+            location: ((formData.get('location') as string) || '').trim(),
         }
 
         // Update hierarchy level based on new role

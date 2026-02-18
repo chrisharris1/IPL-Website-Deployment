@@ -84,6 +84,7 @@ export interface TeamMember {
   order_index: number
   email?: string
   phone?: string
+  location?: string
 }
 
 export interface RoleHierarchy {
