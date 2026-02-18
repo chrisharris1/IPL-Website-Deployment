@@ -36,6 +36,18 @@ const Header: React.FC<Props> = () => {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  useEffect(() => {
+    if (!mobileMenuOpen) {
+      document.body.style.overflow = ''
+      return
+    }
+
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [mobileMenuOpen])
+
   const navLinks: NavLink[] = [
     { path: '/', label: 'nav.home' },
     {
@@ -67,9 +79,9 @@ const Header: React.FC<Props> = () => {
 
   return (
     <>
-      <div className="bg-white w-full py-3 border-b border-zinc-100">
-        <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="relative h-10 md:h-16 w-full md:w-auto flex justify-center md:justify-start">
+      <div className="bg-white w-full py-2 sm:py-3 border-b border-zinc-100">
+        <div className="container mx-auto px-3 sm:px-4 md:px-6 flex flex-col md:flex-row justify-between items-center gap-3 sm:gap-4">
+          <div className="relative h-8 sm:h-10 md:h-12 lg:h-16 w-full md:w-auto flex justify-center md:justify-start">
             <Image
               src="/Images/header/1.png"
               alt="Indian Penpals League Tamil"
@@ -78,7 +90,7 @@ const Header: React.FC<Props> = () => {
               className="h-full w-auto object-contain"
             />
           </div>
-          <div className="relative h-10 md:h-16 w-full md:w-auto flex justify-center">
+          <div className="relative h-8 sm:h-10 md:h-12 lg:h-16 w-full md:w-auto flex justify-center">
             <Image
               src="/Images/header/2.png"
               alt="Indian Penpals League English"
@@ -87,7 +99,7 @@ const Header: React.FC<Props> = () => {
               className="h-full w-auto object-contain"
             />
           </div>
-          <div className="relative h-10 md:h-16 w-full md:w-auto flex justify-center md:justify-end">
+          <div className="relative h-8 sm:h-10 md:h-12 lg:h-16 w-full md:w-auto flex justify-center md:justify-end">
             <Image
               src="/Images/header/3.png"
               alt="80G Certified"
@@ -98,20 +110,20 @@ const Header: React.FC<Props> = () => {
           </div>
         </div>
       </div>
+
       <header
-        className={`sticky top-0 z-50 transition-all duration-300 ${scrolled ? 'bg-red-900/95 backdrop-blur-md shadow-lg py-2' : 'bg-red-800 py-4'
-          }`}
+        className={`sticky top-0 z-50 transition-all duration-300 ${
+          scrolled && !mobileMenuOpen
+            ? 'bg-red-900/95 backdrop-blur-md shadow-lg py-1.5 sm:py-2'
+            : 'bg-red-800 py-2 sm:py-3 md:py-4'
+        }`}
       >
-        {/* Scroll Progress Bar */}
         <div
           className="absolute bottom-0 left-0 h-1 bg-yellow-400 transition-all duration-150 ease-out"
           style={{ width: `${scrollProgress}%` }}
         />
 
-        <div className="container mx-auto px-4 flex items-center justify-between gap-2 max-w-screen-2xl">
-
-
-          {/* Desktop Navigation */}
+        <div className="container mx-auto px-2 sm:px-3 md:px-4 lg:px-6 flex items-center justify-between gap-1 sm:gap-2 md:gap-3 lg:gap-4 max-w-screen-2xl min-h-12 sm:min-h-14">
           <nav className="hidden lg:flex items-center gap-1 flex-nowrap shrink min-w-0 flex-1 justify-center">
             {navLinks.map((link) => (
               link.hasDropdown ? (
@@ -124,16 +136,14 @@ const Header: React.FC<Props> = () => {
                         : 'text-white/80 hover:text-white'}
                   `}
                   >
-                    {/* Animated underline */}
                     <span
                       className={`
-                      absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-400 rounded-full transition-all duration-300 ease-out
+                      absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-linear-to-r from-yellow-400 via-yellow-300 to-yellow-400 rounded-full transition-all duration-300 ease-out
                       ${isActive(link.path)
                           ? 'w-4/5 opacity-100 shadow-sm shadow-yellow-400/50'
                           : 'w-0 opacity-0 group-hover/dropdown:w-4/5 group-hover/dropdown:opacity-100'}
                     `}
                     />
-                    {/* Glow effect on hover */}
                     <span
                       className={`
                       absolute inset-0 rounded-lg transition-all duration-300
@@ -147,7 +157,6 @@ const Header: React.FC<Props> = () => {
                       <ChevronDown className="w-3 h-3 transition-transform duration-300 group-hover/dropdown:rotate-180" />
                     </span>
                   </button>
-                  {/* Dropdown Menu */}
                   <div className="absolute top-full left-0 pt-2 opacity-0 scale-95 invisible group-hover/dropdown:opacity-100 group-hover/dropdown:scale-100 group-hover/dropdown:visible transition-all duration-200 ease-out">
                     <div className="bg-white rounded-lg shadow-2xl border border-neutral-200 py-1 min-w-[220px]">
                       {link.dropdownItems?.map((item) => (
@@ -171,24 +180,22 @@ const Header: React.FC<Props> = () => {
                   ${isActive(link.path)
                       ? 'text-white'
                       : link.path === '/contact'
-                        ? 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-red-900 hover:from-yellow-300 hover:to-yellow-400 hover:scale-105 hover:shadow-lg hover:shadow-yellow-400/30 rounded-full font-bold px-4'
+                        ? 'bg-linear-to-r from-yellow-400 to-yellow-500 text-red-900 hover:from-yellow-300 hover:to-yellow-400 hover:scale-105 hover:shadow-lg hover:shadow-yellow-400/30 rounded-full font-bold px-4'
                         : link.path === '/join-now'
                           ? 'bg-fuchsia-700 text-white hover:bg-fuchsia-600 hover:scale-110 hover:shadow-[0_0_15px_rgba(255,255,255,0.4)] rounded-full px-4 font-bold border border-fuchsia-500/50 animate-pop'
                           : 'text-white/80 hover:text-white'}
                 `}
                 >
-                  {/* Animated underline for non-contact links */}
                   {link.path !== '/contact' && (
                     <span
                       className={`
-                      absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-400 rounded-full transition-all duration-300 ease-out
+                      absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-linear-to-r from-yellow-400 via-yellow-300 to-yellow-400 rounded-full transition-all duration-300 ease-out
                       ${isActive(link.path)
                           ? 'w-4/5 opacity-100 shadow-sm shadow-yellow-400/50'
                           : 'w-0 opacity-0 group-hover:w-4/5 group-hover:opacity-100'}
                     `}
                     />
                   )}
-                  {/* Glow effect on hover */}
                   {link.path !== '/contact' && (
                     <span
                       className={`
@@ -205,9 +212,7 @@ const Header: React.FC<Props> = () => {
             ))}
           </nav>
 
-          {/* Actions */}
-          <div className="flex items-center gap-1.5 relative z-50 shrink-0">
-            {/* Desktop Search - Expandable */}
+          <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 lg:gap-4 relative z-50 shrink-0 ml-auto">
             <div className="hidden xl:flex items-center group relative shrink-0">
               <GlobalSearch
                 variant="default"
@@ -216,107 +221,133 @@ const Header: React.FC<Props> = () => {
               />
             </div>
 
-            {/* Language Toggle */}
             <button
               onClick={toggleLanguage}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-white transition-all duration-300 group shrink-0"
+              className="hidden lg:flex items-center justify-center gap-1 px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-white transition-all duration-300 group shrink-0 touch-manipulation active:scale-95 min-w-[70px]"
               title="Switch Language"
+              aria-label={`Switch language to ${lang === 'en' ? 'Tamil' : 'English'}`}
             >
-              <Globe className="w-3.5 h-3.5 text-white/80 group-hover:text-white group-hover:rotate-12 transition-all duration-300" />
-              <span className="text-xs font-bold uppercase min-w-6 text-center">
-                {lang}
-              </span>
+              <Globe className="w-4 h-4 text-white/80 group-hover:text-white group-hover:rotate-12 transition-all duration-300 shrink-0" />
+              <span className="text-xs font-bold uppercase text-center shrink-0">{lang}</span>
             </button>
 
-            {/* Mobile Menu Toggle */}
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-full text-white hover:bg-white/10 transition-colors active:scale-95"
-              aria-label="Toggle mobile menu"
+              onClick={toggleLanguage}
+              className={`lg:hidden flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-white transition-all duration-300 group shrink-0 touch-manipulation active:scale-95 min-w-[62px] ${mobileMenuOpen ? 'opacity-0 pointer-events-none' : ''}`}
+              title="Switch Language"
+              aria-label={`Switch language to ${lang === 'en' ? 'Tamil' : 'English'}`}
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              <Globe className="w-4 h-4 text-white/80 group-hover:text-white transition-all duration-300 shrink-0" />
+              <span className="text-xs font-bold uppercase text-center shrink-0">{lang}</span>
             </button>
-          </div>
-        </div>
 
-        {/* Mobile Navigation Menu - Enhanced styling */}
-        <div
-          className={`
-          lg:hidden fixed inset-0 z-40 bg-linear-to-b from-red-900 to-red-950 text-white backdrop-blur-xl transition-all duration-500 ease-in-out
-          ${mobileMenuOpen ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full pointer-events-none'}
-        `}
-        >
-          <div className="flex flex-col h-full pt-24 pb-10 px-6 overflow-y-auto">
-            {/* Mobile Search */}
-            <div className="mb-8">
-              <GlobalSearch
-                variant="mobile"
-                placeholder={t('header.search_placeholder', 'Search...')}
-                onSelect={() => setMobileMenuOpen(false)}
-              />
-            </div>
-
-            <nav className="flex flex-col gap-2 flex-1">
-              {navLinks.map((link, idx) => (
-                link.hasDropdown ? (
-                  <div key={link.path} className="animate-in slide-in-from-right-8 fade-in duration-500" style={{ animationDelay: `${idx * 50}ms` }}>
-                    <button
-                      onClick={() => setExpandedMobileMenu(expandedMobileMenu === link.path ? null : link.path)}
-                      className={`
-                      w-full flex items-center justify-between px-5 py-4 rounded-2xl text-lg font-medium transition-all
-                      ${isActive(link.path)
-                          ? 'bg-white text-red-900 shadow-lg'
-                          : 'text-white/90 hover:bg-white/5 border border-transparent hover:border-white/10'}
-                    `}
-                    >
-                      <span>{t(link.label as string)}</span>
-                      <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${expandedMobileMenu === link.path ? 'rotate-180' : ''}`} />
-                    </button>
-                    {expandedMobileMenu === link.path && (
-                      <div className="mt-2 ml-4 space-y-2">
-                        {link.dropdownItems?.map((item) => (
-                          <Link
-                            key={item.path}
-                            href={item.path}
-                            onClick={() => setMobileMenuOpen(false)}
-                            className={`
-                            block px-5 py-3 rounded-xl text-base font-medium transition-all
-                            ${isActive(item.path)
-                                ? 'bg-white/20 text-white'
-                                : 'text-white/80 hover:bg-white/10'}
-                          `}
-                          >
-                            {t(item.label as string)}
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <Link
-                    key={link.path}
-                    href={link.path}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`
-                    block px-5 py-4 rounded-2xl text-lg font-medium transition-all animate-in slide-in-from-right-8 fade-in duration-500
-                    ${isActive(link.path)
-                        ? 'bg-white text-red-900 shadow-lg scale-[1.02]'
-                        : 'text-white/90 hover:bg-white/5 border border-transparent hover:border-white/10'}
-                  `}
-                    style={{ animationDelay: `${idx * 50}ms` }}
-                  >
-                    {t(link.label as string)}
-                  </Link>
-                )
-              ))}
-            </nav>
-
-            <div className="mt-8 pt-8 border-t border-white/10 text-center text-white/40 text-sm">
-              © {new Date().getFullYear()} Indian Penpals&apos; League
-            </div>
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className={`lg:hidden p-1.5 sm:p-2 rounded-full text-white hover:bg-white/10 transition-all duration-300 active:scale-95 touch-manipulation border border-transparent hover:border-white/20 shrink-0 ${mobileMenuOpen ? 'opacity-0 pointer-events-none' : ''}`}
+              aria-label="Open menu"
+              aria-expanded={mobileMenuOpen}
+            >
+              <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
+            </button>
           </div>
         </div>
       </header>
+
+      <div
+        className={`
+          lg:hidden fixed inset-0 z-[60] bg-linear-to-b from-red-900 to-red-950 text-white backdrop-blur-xl transition-all duration-300 ease-out
+          ${mobileMenuOpen ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full pointer-events-none'}
+        `}
+      >
+        <div className="flex flex-col h-full overflow-y-auto px-4 sm:px-6 pt-4 pb-6">
+          <div className="sticky top-0 z-10 bg-linear-to-b from-red-900/95 to-red-900/80 backdrop-blur-md pb-4">
+            <div className="flex items-center gap-2">
+              <div className="min-w-0 flex-1">
+                <GlobalSearch
+                  variant="mobile"
+                  placeholder={t('header.search_placeholder', 'Search...')}
+                  onSelect={() => setMobileMenuOpen(false)}
+                />
+              </div>
+              <button
+                onClick={toggleLanguage}
+                className="flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-white transition-all duration-300 touch-manipulation active:scale-95 min-w-[62px]"
+                title="Switch Language"
+                aria-label={`Switch language to ${lang === 'en' ? 'Tamil' : 'English'}`}
+              >
+                <Globe className="w-4 h-4 text-white/80" />
+                <span className="text-xs font-bold uppercase">{lang}</span>
+              </button>
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-2 rounded-full text-white hover:bg-white/10 transition-all duration-300 active:scale-95 touch-manipulation border border-transparent hover:border-white/20 shrink-0"
+                aria-label="Close menu"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          <nav className="flex flex-col gap-1.5 sm:gap-2 flex-1 pt-3">
+            {navLinks.map((link, idx) => (
+              link.hasDropdown ? (
+                <div key={link.path} className="animate-in slide-in-from-right-8 fade-in duration-500" style={{ animationDelay: `${idx * 50}ms` }}>
+                  <button
+                    onClick={() => setExpandedMobileMenu(expandedMobileMenu === link.path ? null : link.path)}
+                    className={`
+                      w-full flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4 rounded-xl sm:rounded-2xl text-base sm:text-lg font-medium transition-all touch-manipulation
+                      ${isActive(link.path)
+                        ? 'bg-white text-red-900 shadow-lg'
+                        : 'text-white/90 hover:bg-white/5 active:bg-white/10 border border-transparent hover:border-white/10'}
+                    `}
+                  >
+                    <span>{t(link.label as string)}</span>
+                    <ChevronDown className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 ${expandedMobileMenu === link.path ? 'rotate-180' : ''}`} />
+                  </button>
+                  {expandedMobileMenu === link.path && (
+                    <div className="mt-1.5 sm:mt-2 ml-3 sm:ml-4 space-y-1.5 sm:space-y-2">
+                      {link.dropdownItems?.map((item) => (
+                        <Link
+                          key={item.path}
+                          href={item.path}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className={`
+                            block px-4 sm:px-5 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-sm sm:text-base font-medium transition-all touch-manipulation
+                            ${isActive(item.path)
+                              ? 'bg-white/20 text-white'
+                              : 'text-white/80 hover:bg-white/10 active:bg-white/15'}
+                          `}
+                        >
+                          {t(item.label as string)}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link
+                  key={link.path}
+                  href={link.path}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`
+                    block px-4 sm:px-5 py-3 sm:py-4 rounded-xl sm:rounded-2xl text-base sm:text-lg font-medium transition-all animate-in slide-in-from-right-8 fade-in duration-500 touch-manipulation
+                    ${isActive(link.path)
+                      ? 'bg-white text-red-900 shadow-lg scale-[1.02]'
+                      : 'text-white/90 hover:bg-white/5 active:bg-white/10 border border-transparent hover:border-white/10'}
+                  `}
+                  style={{ animationDelay: `${idx * 50}ms` }}
+                >
+                  {t(link.label as string)}
+                </Link>
+              )
+            ))}
+          </nav>
+
+          <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-white/10 text-center text-white/40 text-xs sm:text-sm">
+            &copy; {new Date().getFullYear()} Indian Penpals&apos; League
+          </div>
+        </div>
+      </div>
     </>
   )
 }

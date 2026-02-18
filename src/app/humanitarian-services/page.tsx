@@ -69,7 +69,7 @@ export default function HumanitarianServices() {
         <Link
             key={service.id}
             href={`/humanitarian-services/${service.id}`}
-            className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-neutral-200 hover:border-neutral-300 transition-all duration-300 hover:-translate-y-1 block relative flex flex-col h-full"
+            className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-neutral-200 hover:border-neutral-300 transition-all duration-300 hover:-translate-y-1 relative flex flex-col h-full"
         >
             <div className="relative h-48 shrink-0">
                 <Image
@@ -100,7 +100,7 @@ export default function HumanitarianServices() {
                 </div>
             </div>
 
-            <div className="p-6 flex flex-col flex-grow">
+            <div className="p-6 flex flex-col grow">
                 <h3 className="text-lg font-bold text-neutral-900 mb-3 line-clamp-2 group-hover:text-red-700 transition-colors leading-tight">
                     {(lang === 'ta' ? service.title_ta : service.title_en) || service.title_en}
                 </h3>
@@ -117,7 +117,7 @@ export default function HumanitarianServices() {
                     <span className="line-clamp-1">{[service.city, service.district, service.state, service.country].filter(Boolean).join(', ')}</span>
                 </div>
 
-                <p className="text-sm text-neutral-600 line-clamp-3 leading-relaxed mb-4 flex-grow">
+                <p className="text-sm text-neutral-600 line-clamp-3 leading-relaxed mb-4 grow">
                     {stripHtml((lang === 'ta' ? service.description_ta : service.description_en) || service.description_en)}...
                 </p>
 

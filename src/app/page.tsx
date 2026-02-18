@@ -74,7 +74,7 @@ const ImageCarousel: React.FC = () => {
     if (images.length === 0) return
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))
-    }, 2000)
+    }, 3000)
     return () => clearInterval(timer)
   }, [images.length])
 
@@ -157,7 +157,16 @@ const RecentActivitiesCarousel: React.FC = () => {
   // Helper to strip HTML tags for preview
   const stripHtml = (html: string) => {
     if (!html) return ''
-    return html.replace(/<[^>]*>/g, '').substring(0, 150)
+    const noTags = html.replace(/<[^>]*>/g, ' ')
+    const decoded = noTags
+      .replace(/&nbsp;/gi, ' ')
+      .replace(/&amp;/gi, '&')
+      .replace(/&lt;/gi, '<')
+      .replace(/&gt;/gi, '>')
+      .replace(/&quot;/gi, '"')
+      .replace(/&#39;/gi, "'")
+
+    return decoded.replace(/\s+/g, ' ').trim().substring(0, 150)
   }
 
   // Fetch latest services from API
@@ -196,7 +205,7 @@ const RecentActivitiesCarousel: React.FC = () => {
         const maxIndex = Math.max(0, services.length - itemsPerPage)
         return prev >= maxIndex ? 0 : prev + 1
       })
-    }, 5000)
+    }, 3000)
     return () => clearInterval(timer)
   }, [itemsPerPage, services.length])
 
@@ -234,51 +243,52 @@ const RecentActivitiesCarousel: React.FC = () => {
         <ChevronRight className="w-5 h-5" />
       </button>
 
-      <div className="overflow-hidden -mx-4 px-4 py-4">
+      <div className="overflow-hidden py-4">
         <div
-          className="flex gap-8 transition-transform duration-500 ease-out"
+          className="flex transition-transform duration-500 ease-out"
           style={{ transform: `translateX(-${currentIndex * (100 / itemsPerPage)}%)` }}
         >
           {services.map((service) => (
-            <Link
-              key={service.id}
-              href={`/humanitarian-services/${service.id}`}
-              className="flex-none w-full md:w-[calc(50%-16px)] lg:w-[calc(33.333%-21.33px)] group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 block"
-            >
-              <div className="h-48 overflow-hidden relative">
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10" />
-                <Image
-                  src={service.image_url}
-                  alt={lang === 'ta' ? service.title_ta : service.title_en}
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  className="object-contain bg-neutral-100"
-                />
-                <div className="absolute top-4 right-4 z-20 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-red-700 uppercase tracking-wider shadow-sm">
-                  {new Date(service.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+            <div key={service.id} className="flex-none w-full md:w-1/2 lg:w-1/3 px-2 md:px-3 lg:px-4">
+              <Link
+                href={`/humanitarian-services/${service.id}`}
+                className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 block h-full"
+              >
+                <div className="h-48 overflow-hidden relative">
+                  <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10" />
+                  <Image
+                    src={service.image_url}
+                    alt={lang === 'ta' ? service.title_ta : service.title_en}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="object-contain bg-neutral-100"
+                  />
+                  <div className="absolute top-4 right-4 z-20 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-red-700 uppercase tracking-wider shadow-sm">
+                    {new Date(service.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </div>
                 </div>
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-neutral-900 mb-2 group-hover:text-red-700 transition-colors line-clamp-2">
-                  {lang === 'ta' ? service.title_ta : service.title_en}
-                </h3>
-                <div className="flex items-center gap-1.5 text-neutral-500 text-sm mb-3">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  {[service.city, service.district, service.state, service.country].filter(Boolean).join(', ')}
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-neutral-900 mb-2 group-hover:text-red-700 transition-colors line-clamp-2">
+                    {lang === 'ta' ? service.title_ta : service.title_en}
+                  </h3>
+                  <div className="flex items-center gap-1.5 text-neutral-500 text-sm mb-3">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    {[service.city, service.district, service.state, service.country].filter(Boolean).join(', ')}
+                  </div>
+                  <p className="text-neutral-600 text-sm leading-relaxed line-clamp-3 mb-4">
+                    {stripHtml(lang === 'ta' ? service.description_ta : service.description_en)}
+                  </p>
+                  <div className="flex items-center justify-start mt-auto">
+                    <span className="text-red-700 text-sm font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
+                      {String(t('home.read_more', 'Read more'))} <ArrowRight className="w-4 h-4" />
+                    </span>
+                  </div>
                 </div>
-                <p className="text-neutral-600 text-sm leading-relaxed line-clamp-3 mb-4">
-                  {stripHtml(lang === 'ta' ? service.description_ta : service.description_en)}
-                </p>
-                <div className="flex items-center justify-start mt-auto">
-                  <span className="text-red-700 text-sm font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
-                    {String(t('home.read_more', 'Read more'))} <ArrowRight className="w-4 h-4" />
-                  </span>
-                </div>
-              </div>
-            </Link>
+              </Link>
+            </div>
           ))}
         </div>
       </div>
@@ -410,7 +420,7 @@ export default function Home() {
                   <Quote className="w-32 h-32" />
                 </div>
                 <blockquote className="text-3xl lg:text-4xl font-medium leading-tight mb-8 relative z-10">
-                  "{String(t('home.founder_quote', 'Our founder quote'))}"
+                  &ldquo;{String(t('home.founder_quote', 'Our founder quote'))}&rdquo;
                 </blockquote>
                 <cite className="text-lg text-red-400 font-style-normal block mb-12">
                   - {String(t('home.founder_name', 'Founder'))}
@@ -480,15 +490,17 @@ export default function Home() {
       </section>
 
       {/* Quote */}
-      <section className="py-20 bg-white border-t border-neutral-100">
+      <section className="py-20 bg-red-50 border-t border-red-100">
         <div className="container-custom mx-auto text-center max-w-4xl">
-          <Heart className="w-12 h-12 text-red-600 mx-auto mb-6 animate-pulse" />
-          <blockquote className="text-2xl md:text-4xl font-serif italic text-neutral-800 mb-8 leading-tight">
-            "{String(t('home.mother_teresa_quote', 'Spread love everywhere you go. Let no one ever come to you without leaving happier.'))}"
-          </blockquote>
-          <cite className="text-lg font-semibold text-neutral-500 not-italic">
-            - {String(t('home.mother_teresa', 'Mother Teresa'))}
-          </cite>
+          <div className="rounded-3xl bg-red-800 border border-red-700 px-6 py-10 md:px-12 md:py-14 shadow-sm">
+            <Heart className="w-12 h-12 text-red-200 mx-auto mb-6 animate-pulse" />
+            <blockquote className="text-2xl md:text-4xl font-serif italic text-white mb-8 leading-tight">
+              &ldquo;{String(t('home.mother_teresa_quote', 'Spread love everywhere you go. Let no one ever come to you without leaving happier.'))}&rdquo;
+            </blockquote>
+            <cite className="text-lg font-semibold text-red-100 not-italic">
+              - {String(t('home.mother_teresa', 'Mother Teresa'))}
+            </cite>
+          </div>
         </div>
       </section>
     </div>

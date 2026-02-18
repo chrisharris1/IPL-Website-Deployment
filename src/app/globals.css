@@ -160,7 +160,6 @@ button {
 /* Image responsive behavior */
 img {
   max-width: 100%;
-  height: auto;
 }
 
 /* Prevent tables from breaking layout */
@@ -473,4 +472,37 @@ html {
   hyphens: none;
   word-break: keep-all;
   overflow-wrap: normal;
+}
+
+/* =====================================
+   Touch & Mobile Optimizations
+   ===================================== */
+@media (hover: none) and (pointer: coarse) {
+  /* Enhanced touch targets for mobile */
+  button,
+  a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Prevent tap highlight on mobile */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Touch manipulation for better touch response */
+.touch-manipulation {
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Prevent horizontal overflow on mobile */
+@media (max-width: 768px) {
+  html, body {
+    overflow-x: hidden !important;
+    width: 100%;
+    position: relative;
+  }
 }

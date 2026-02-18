@@ -17,6 +17,17 @@ interface FriendshipMeet {
     banner_image: { url: string; public_id: string } | null
 }
 
+interface FriendsDayContent {
+    intro_title_en?: string
+    intro_title_ta?: string
+    intro_content_en?: string
+    intro_content_ta?: string
+    about_title_en?: string
+    about_title_ta?: string
+    about_content_en?: string
+    about_content_ta?: string
+}
+
 export default function FriendshipMeetPage() {
     const { t, lang } = useTranslation()
     const [meets, setMeets] = useState<FriendshipMeet[]>([])
@@ -27,6 +38,27 @@ export default function FriendshipMeetPage() {
     const [filterYear, setFilterYear] = useState('All')
     const [filterState, setFilterState] = useState('All')
     const [filterDistrict, setFilterDistrict] = useState('All')
+
+    const cleanText = (text?: string) => {
+        if (!text) return ''
+        return text
+            .replace(/<[^>]*>/g, ' ')
+            .replace(/&nbsp;/gi, ' ')
+            .replace(/&amp;/gi, '&')
+            .replace(/&lt;/gi, '<')
+            .replace(/&gt;/gi, '>')
+            .replace(/&quot;/gi, '"')
+            .replace(/&#39;/gi, "'")
+            .replace(/&#\d+;/g, ' ')
+            .replace(/[\u200B-\u200D\uFEFF]/g, '')
+            .replace(/\s+/g, ' ')
+            .trim()
+    }
+
+    const hasVisibleContent = (text?: string) => {
+        if (!text) return false
+        return /[A-Za-z0-9\u0B80-\u0BFF]/.test(text)
+    }
 
     const fetchMeets = useCallback(async () => {
         try {
@@ -56,7 +88,7 @@ export default function FriendshipMeetPage() {
     // Extract Unique Options for Filters
     const allMeets = useState<FriendshipMeet[]>([])
 
-    const [friendsDayContent, setFriendsDayContent] = useState<any>(null)
+    const [friendsDayContent, setFriendsDayContent] = useState<FriendsDayContent | null>(null)
 
     useEffect(() => {
         const loadAllForFilters = async () => {
@@ -122,7 +154,7 @@ export default function FriendshipMeetPage() {
     return (
         <div className="min-h-screen bg-neutral-50">
             {/* Hero Section */}
-            <section className="relative bg-transparent pt-8 sm:pt-12 md:pt-16 lg:pt-20 pb-6 sm:pb-8 overflow-hidden" style={{ minHeight: '280px' }}>
+            <section className="relative bg-transparent pt-12 sm:pt-14 md:pt-16 lg:pt-20 pb-6 sm:pb-8 overflow-hidden" style={{ minHeight: '280px' }}>
                 <div className="absolute inset-0 z-0 pointer-events-none">
                     <Image
                         src="/Images/iplbanner.png"
@@ -160,7 +192,7 @@ export default function FriendshipMeetPage() {
                     </h2>
                     <div className="text-lg text-neutral-600 max-w-3xl mx-auto">
                         {friendsDayContent ? (
-                            <div dangerouslySetInnerHTML={{ __html: lang === 'ta' ? (friendsDayContent.intro_content_ta || friendsDayContent.intro_content_en) : (friendsDayContent.intro_content_en) }} />
+                            <div dangerouslySetInnerHTML={{ __html: lang === 'ta' ? (friendsDayContent.intro_content_ta || friendsDayContent.intro_content_en || '') : (friendsDayContent.intro_content_en || '') }} />
                         ) : (
                             <p>Celebrating the spirit of friendship every first Sunday of August. International Friendship Day is celebrated annually, bringing together pen friends from across the globe to honor the beautiful bonds of friendship.</p>
                         )}
@@ -173,11 +205,11 @@ export default function FriendshipMeetPage() {
                     </h3>
                     <div className="prose prose-lg max-w-none text-neutral-600 space-y-4">
                         {friendsDayContent ? (
-                            <div dangerouslySetInnerHTML={{ __html: lang === 'ta' ? (friendsDayContent.about_content_ta || friendsDayContent.about_content_en) : (friendsDayContent.about_content_en) }} />
+                            <div dangerouslySetInnerHTML={{ __html: lang === 'ta' ? (friendsDayContent.about_content_ta || friendsDayContent.about_content_en || '') : (friendsDayContent.about_content_en || '') }} />
                         ) : (
                             <>
                                 <p>
-                                    International Friendship Day is observed every year on the first Sunday of August, celebrating the bonds that bring people together from all walks of life. It's a day dedicated to honoring friendships and the positive impact they have on our lives.
+                                    International Friendship Day is observed every year on the first Sunday of August, celebrating the bonds that bring people together from all walks of life. It&apos;s a day dedicated to honoring friendships and the positive impact they have on our lives.
                                 </p>
                                 <p>
                                     The celebration embodies IPL&apos;s core values of Love, Friendship, and Humanity, bringing people together regardless of geographical boundaries, cultures, or backgrounds.
@@ -287,18 +319,29 @@ export default function FriendshipMeetPage() {
                     ) : meets.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {meets.map((meet) => {
-                                const caption = lang === 'ta' && meet.caption_ta ? meet.caption_ta : meet.caption_en
+                                const captionEn = cleanText(meet.caption_en)
+                                const captionTa = cleanText(meet.caption_ta)
+                                const preferredCaption = lang === 'ta'
+                                    ? (captionTa || captionEn)
+                                    : (captionEn || captionTa)
+                                const locationParts = [meet.district, meet.state, meet.country]
+                                    .map(part => cleanText(part))
+                                    .filter(Boolean)
+                                const locationText = locationParts.join(', ')
+                                const safeFallbackTitle = `${meet.year} ${t('meet.title', 'Friendship Meet')}`
+                                const titleCandidates = [preferredCaption, captionEn, captionTa, locationText, safeFallbackTitle]
+                                const title = titleCandidates.find(candidate => hasVisibleContent(candidate)) || safeFallbackTitle
                                 return (
                                     <Link
                                         key={meet.id}
                                         href={`/friendship-meet/${meet.id}`}
                                         className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-neutral-200 transition-all duration-300 hover:-translate-y-1 block"
                                     >
-                                        <div className="relative h-48 bg-linear-to-br from-red-100 to-purple-100">
+                                        <div className="relative h-48 overflow-hidden bg-linear-to-br from-red-100 to-purple-100">
                                             {meet.banner_image ? (
                                                 <img
                                                     src={meet.banner_image.url}
-                                                    alt={caption || `${meet.district} ${meet.year}`}
+                                                    alt={title || `${meet.district} ${meet.year}`}
                                                     className="w-full h-full object-cover"
                                                 />
                                             ) : (
@@ -311,11 +354,11 @@ export default function FriendshipMeetPage() {
                                             </div>
                                         </div>
                                         <div className="p-6">
-                                            <h3 className="text-lg font-bold text-neutral-900 mb-2 mt-4">
-                                                {caption || `${meet.district}, ${meet.state}`}
+                                            <h3 className="text-lg font-bold text-neutral-900 mb-2 leading-snug break-words">
+                                                {title}
                                             </h3>
                                             <p className="text-sm text-neutral-600 mb-3 flex items-center gap-1">
-                                                <MapPin className="w-4 h-4" /> {meet.district}, {meet.state}, {meet.country}
+                                                <MapPin className="w-4 h-4" /> {locationText || '-'}
                                             </p>
                                             <div className="flex items-center justify-end">
                                                 <span className="text-red-600 font-medium text-sm">View Details →</span>
