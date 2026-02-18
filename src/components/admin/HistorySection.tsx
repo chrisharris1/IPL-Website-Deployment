@@ -125,18 +125,20 @@ export default function HistorySection() {
                 </div>
             )}
 
-            <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-xs text-blue-800 mb-5">
-                The "Major Milestones" timeline stays hardcoded on the website. These sections appear above it.
-            </div>
-
             {loading ? <p className="text-gray-500">Loading...</p> : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {items.map(item => (
                         <div key={item.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
                             <div className="flex items-start justify-between mb-3">
-                                <div>
-                                    <h3 className="text-lg font-bold text-gray-900">{item.section_title_en || 'Untitled Section'}</h3>
-                                    {item.section_title_ta && <p className="text-sm text-gray-500">{item.section_title_ta}</p>}
+                                <div className="flex-1">
+                                    {item.section_title_en ? (
+                                        <h3 className="text-lg font-bold text-gray-900" dangerouslySetInnerHTML={{ __html: item.section_title_en }} />
+                                    ) : (
+                                        <h3 className="text-lg font-bold text-gray-900">Untitled Section</h3>
+                                    )}
+                                    {item.section_title_ta && (
+                                        <div className="text-sm text-gray-500 mt-1" dangerouslySetInnerHTML={{ __html: item.section_title_ta }} />
+                                    )}
                                 </div>
                                 <span className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600">#{item.order_index}</span>
                             </div>

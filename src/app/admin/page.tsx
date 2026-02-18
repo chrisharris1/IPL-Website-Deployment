@@ -637,8 +637,17 @@ function AboutSection_() {
                             <div className="flex justify-between items-start">
                                 <div className="flex-1">
                                     <div className="flex items-center gap-3 mb-2">
-                                        <h3 className="text-lg font-bold text-gray-900">{s.section_title_en}</h3>
-                                        {s.section_title_ta && <span className="text-sm text-gray-500">| {s.section_title_ta}</span>}
+                                        {s.section_title_en ? (
+                                            <h3 className="text-lg font-bold text-gray-900" dangerouslySetInnerHTML={{ __html: s.section_title_en }} />
+                                        ) : (
+                                            <h3 className="text-lg font-bold text-gray-900">Untitled Section</h3>
+                                        )}
+                                        {s.section_title_ta && (
+                                            <>
+                                                <span className="text-sm text-gray-500">|</span>
+                                                <span className="text-sm text-gray-500" dangerouslySetInnerHTML={{ __html: s.section_title_ta }} />
+                                            </>
+                                        )}
                                         <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs">Order: {s.order_index}</span>
                                     </div>
                                     <p className="text-sm text-gray-600 line-clamp-2">{s.content_en?.replace(/<[^>]*>/g, '').substring(0, 200)}...</p>
@@ -1058,8 +1067,12 @@ function ServicesSection() {
                             )}
                             <img src={item.image_url} alt={item.title_en} className="w-full h-48 object-cover" />
                             <div className="p-4">
-                                <h3 className="font-bold text-gray-900 mb-1">{item.title_en}</h3>
-                                {item.title_ta && <p className="text-sm text-gray-500 mb-2">{item.title_ta}</p>}
+                                {item.title_en ? (
+                                    <h3 className="font-bold text-gray-900 mb-1" dangerouslySetInnerHTML={{ __html: item.title_en }} />
+                                ) : (
+                                    <h3 className="font-bold text-gray-900 mb-1">Untitled Service</h3>
+                                )}
+                                {item.title_ta && <div className="text-sm text-gray-500 mb-2" dangerouslySetInnerHTML={{ __html: item.title_ta }} />}
                                 <p className="text-xs text-gray-400 mb-1">📍 {[item.city, item.district, item.state, item.country].filter(Boolean).join(', ')}</p>
                                 <p className="text-xs text-gray-400 mb-3">📅 {item.date}</p>
                                 <div className="flex gap-2">
@@ -1684,8 +1697,12 @@ function NewsSection() {
                                 )}
                                 <img src={item.image_url} alt={item.title_en} className="w-full h-48 object-cover" />
                                 <div className="p-4">
-                                    <h3 className="font-bold text-gray-900 mb-1">{item.title_en}</h3>
-                                    {item.title_ta && <p className="text-sm text-gray-500 mb-2">{item.title_ta}</p>}
+                                    {item.title_en ? (
+                                        <h3 className="font-bold text-gray-900 mb-1" dangerouslySetInnerHTML={{ __html: item.title_en }} />
+                                    ) : (
+                                        <h3 className="font-bold text-gray-900 mb-1">Untitled Event</h3>
+                                    )}
+                                    {item.title_ta && <div className="text-sm text-gray-500 mb-2" dangerouslySetInnerHTML={{ __html: item.title_ta }} />}
                                     <p className="text-xs text-gray-400 mb-1">📍 {[item.city, item.district, item.state, item.country].filter(Boolean).join(', ')}</p>
                                     <p className="text-xs text-gray-400 mb-3">
                                         📅 {item.date} {item.time && `⏰ ${item.time}`}
@@ -2336,7 +2353,11 @@ function TeamSection() {
                         >
                             <img src={member.image_url} alt={member.name} className="w-full h-48 object-cover pointer-events-none" />
                             <div className="p-4">
-                                <h4 className="font-bold text-gray-900 text-sm">{member.name}</h4>
+                                {member.name ? (
+                                    <h4 className="font-bold text-gray-900 text-sm" dangerouslySetInnerHTML={{ __html: member.name }} />
+                                ) : (
+                                    <h4 className="font-bold text-gray-900 text-sm">Unnamed Member</h4>
+                                )}
                                 <div className="flex items-center gap-2 mb-2">
                                     <p className="text-xs text-gray-500">{member.role}</p>
                                 </div>
@@ -3485,8 +3506,17 @@ function JoinNowSection() {
                             <div className="flex justify-between items-start">
                                 <div className="flex-1">
                                     <div className="flex items-center gap-3 mb-2">
-                                        <h3 className="text-lg font-bold text-gray-900">{item.title_en}</h3>
-                                        {item.title_ta && <span className="text-sm text-gray-500">| {item.title_ta}</span>}
+                                        {item.title_en ? (
+                                            <h3 className="text-lg font-bold text-gray-900" dangerouslySetInnerHTML={{ __html: item.title_en }} />
+                                        ) : (
+                                            <h3 className="text-lg font-bold text-gray-900">Untitled</h3>
+                                        )}
+                                        {item.title_ta && (
+                                            <>
+                                                <span className="text-sm text-gray-500">|</span>
+                                                <span className="text-sm text-gray-500" dangerouslySetInnerHTML={{ __html: item.title_ta }} />
+                                            </>
+                                        )}
                                         <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs">Order: {item.order_index}</span>
                                     </div>
                                     <p className="text-sm text-gray-600 line-clamp-2">{item.content_en?.replace(/<[^>]*>/g, '').substring(0, 200)}...</p>

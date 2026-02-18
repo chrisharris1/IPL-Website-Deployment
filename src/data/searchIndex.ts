@@ -43,7 +43,6 @@ export function buildSearchIndex(): SearchEntry[] {
     { title: '28th Friendship Meet', subtitle: '2025 • Upcoming', href: '/friendship-meet', keywords: ['friendship', 'meet', 'upcoming', 'annual', '28th', 'நட்பு', 'சங்கமம்'] },
     { title: '27th Friendship Meet', subtitle: '2024 • Kuttalam', href: '/friendship-meet', keywords: ['friendship', 'meet', '2024', 'kuttalam', '27th'] },
     { title: '26th Friendship Meet', subtitle: '2023 • New Delhi', href: '/friendship-meet', keywords: ['friendship', 'meet', '2023', 'delhi', '26th'] },
-    { title: 'International Friendship Day', subtitle: 'Friends Day Celebrations', href: '/friendship-meet', keywords: ['friends', 'day', 'international', 'august', 'celebration', 'நட்பு தினம்'] },
   ]
 
   const humanitarian: SearchEntry[] = [

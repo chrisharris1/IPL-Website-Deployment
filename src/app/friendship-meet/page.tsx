@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Heart, MapPin, Sparkles, Filter, X, Loader2, ImageIcon } from 'lucide-react'
+import { MapPin, Sparkles, Filter, X, Loader2, ImageIcon } from 'lucide-react'
 import { useTranslation } from '@/contexts/TranslationContext'
 
 interface FriendshipMeet {
@@ -183,26 +183,18 @@ export default function FriendshipMeetPage() {
             {/* International Friendship Day Section */}
             <section className="container-custom mx-auto px-4 mb-16 sm:mb-24">
                 <div className="text-center mb-12">
-                    <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-red-50 border border-red-100 mb-6">
-                        <Heart className="w-4 h-4 text-red-700" />
-                        <span className="text-xs font-semibold tracking-wider uppercase text-red-800">{t('meet.friends_day_badge', isTamil ? 'சர்வதேச நண்பர்கள் தினம்' : 'International Friendship Day')}</span>
-                    </div>
                     <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-neutral-900 mb-4 break-words">
                         {friendsDayContent
                             ? (lang === 'ta'
-                                ? (friendsDayContent.intro_title_ta || 'நண்பர்கள் தினக் கொண்டாட்டங்கள்')
-                                : (friendsDayContent.intro_title_en || 'Friends Day Celebrations'))
-                            : (isTamil ? 'நண்பர்கள் தினக் கொண்டாட்டங்கள்' : 'Friends Day Celebrations')}
+                                ? (friendsDayContent.intro_title_ta || '')
+                                : (friendsDayContent.intro_title_en || ''))
+                            : ''}
                     </h2>
                     <div className="text-base sm:text-lg text-neutral-600 max-w-3xl mx-auto break-words">
                         {friendsDayContent ? (
                             <div dangerouslySetInnerHTML={{ __html: lang === 'ta' ? (friendsDayContent.intro_content_ta || friendsDayContent.intro_content_en || '') : (friendsDayContent.intro_content_en || '') }} />
                         ) : (
-                            <p>
-                                {isTamil
-                                    ? 'ஒவ்வோர் ஆண்டும் ஆகஸ்ட் முதல் ஞாயிற்றுக்கிழமை நண்பர்கள் தினமாகக் கொண்டாடப்படுகிறது. உலகம் முழுவதும் உள்ள பேனா நண்பர்களை ஒன்று சேர்த்து நட்பின் அழகான பந்தத்தை கொண்டாடும் நாளாக இது திகழ்கிறது.'
-                                    : 'Celebrating the spirit of friendship every first Sunday of August. International Friendship Day is celebrated annually, bringing together pen friends from across the globe to honor the beautiful bonds of friendship.'}
-                            </p>
+                            <></>
                         )}
                     </div>
                 </div>

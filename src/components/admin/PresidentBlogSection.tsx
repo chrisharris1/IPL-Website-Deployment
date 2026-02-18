@@ -183,7 +183,11 @@ export default function PresidentBlogSection() {
                         >
                             <img src={item.image_url} alt={item.title_en} className="w-full h-48 object-cover pointer-events-none" />
                             <div className="p-4">
-                                <h3 className="font-bold text-gray-900 mb-2 line-clamp-1">{item.title_en}</h3>
+                                {item.title_en ? (
+                                    <h3 className="font-bold text-gray-900 mb-2 line-clamp-1" dangerouslySetInnerHTML={{ __html: item.title_en }} />
+                                ) : (
+                                    <h3 className="font-bold text-gray-900 mb-2 line-clamp-1">Untitled Post</h3>
+                                )}
                                 <p className="text-sm text-gray-600 line-clamp-3 mb-4">{item.description_en?.replace(/<[^>]*>/g, '')}</p>
                                 <div className="flex gap-2">
                                     <button onClick={(e) => { e.stopPropagation(); openEditModal(item) }} className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm hover:bg-blue-700 transition">Edit</button>

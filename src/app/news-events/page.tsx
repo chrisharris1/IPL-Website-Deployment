@@ -171,17 +171,18 @@ function NewsEventsContent() {
                                                     {stripHtml((lang === 'ta' ? event.description_ta : event.description_en) || event.description_en)}
                                                 </p>
 
-                                                <div className="flex items-center gap-2 text-sm text-neutral-500 mt-auto pt-2 border-t border-neutral-100">
-                                                    <Calendar className="w-4 h-4 text-emerald-600" />
-                                                    <span className="font-medium text-neutral-700">
-                                                        {new Date(event.date).toLocaleDateString(lang === 'ta' ? 'ta-IN' : 'en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                                                    </span>
+                                                <div className="flex flex-col gap-1.5 text-xs text-neutral-500 mt-auto pt-2 border-t border-neutral-100">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <Calendar className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                                                        <span className="font-medium text-neutral-700">
+                                                            {new Date(event.date).toLocaleDateString(lang === 'ta' ? 'ta-IN' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                        </span>
+                                                    </div>
                                                     {event.time && (
-                                                        <>
-                                                            <span className="text-neutral-300">•</span>
-                                                            <Clock className="w-3.5 h-3.5 text-emerald-600" />
+                                                        <div className="flex items-center gap-1.5">
+                                                            <Clock className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                                                             <span className="font-medium text-neutral-700">{event.time}</span>
-                                                        </>
+                                                        </div>
                                                     )}
                                                 </div>
 
@@ -260,17 +261,18 @@ function NewsEventsContent() {
                                                     {stripHtml(lang === 'ta' ? event.description_ta : event.description_en)}
                                                 </p>
 
-                                                <div className="flex items-center gap-2 text-sm text-neutral-500 mt-2 pt-2 border-t border-neutral-100">
-                                                    <Calendar className="w-4 h-4 text-neutral-400" />
-                                                    <span className="font-medium text-neutral-600">
-                                                        {new Date(event.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                                                    </span>
+                                                <div className="flex flex-col gap-1.5 text-xs text-neutral-500 mt-2 pt-2 border-t border-neutral-100">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <Calendar className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+                                                        <span className="font-medium text-neutral-600">
+                                                            {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                        </span>
+                                                    </div>
                                                     {event.time && (
-                                                        <>
-                                                            <span className="text-neutral-300">•</span>
-                                                            <Clock className="w-3.5 h-3.5 text-neutral-400" />
+                                                        <div className="flex items-center gap-1.5">
+                                                            <Clock className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
                                                             <span className="font-medium text-neutral-600">{event.time}</span>
-                                                        </>
+                                                        </div>
                                                     )}
                                                 </div>
                                             </div>

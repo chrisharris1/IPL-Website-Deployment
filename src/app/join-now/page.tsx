@@ -90,7 +90,7 @@ export default function JoinNowPage() {
                                     <div className="grid md:grid-cols-2 gap-6 mb-8">
                                         {/* Condition Image */}
                                         <div className="w-full">
-                                            <h3 className="text-xl md:text-2xl font-bold text-neutral-900 mb-4">How to Join?</h3>
+                                            <h3 className="text-xl md:text-2xl font-bold text-neutral-900 mb-4">HOW TO JOIN?</h3>
                                             <Image
                                                 src="/1000187209.jpg"
                                                 alt="Membership Conditions"
@@ -102,7 +102,7 @@ export default function JoinNowPage() {
 
                                         {/* Form Image */}
                                         <div className="w-full">
-                                            <h3 className="text-xl md:text-2xl font-bold text-neutral-900 mb-4">Sample Form</h3>
+                                            <h3 className="text-xl md:text-2xl font-bold text-neutral-900 mb-4">SAMPLE FORM</h3>
                                             <Image
                                                 src="/1000187212.jpg"
                                                 alt="Membership Form"
