@@ -41,7 +41,7 @@ async function ensureUniqueSlug(db: any, baseSlug: string, excludeId?: ObjectId)
 // Helper to upload base64 image to Cloudinary
 async function uploadImageToCloudinary(base64Image: string): Promise<{ url: string; public_id: string }> {
     const result = await cloudinary.uploader.upload(base64Image, {
-        folder: 'friendship-meets',
+        folder: 'ipl/friendship-meets',
         resource_type: 'image',
     })
     return { url: result.secure_url, public_id: result.public_id }

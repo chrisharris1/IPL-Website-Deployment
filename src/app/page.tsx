@@ -74,7 +74,7 @@ const ImageCarousel: React.FC = () => {
     if (images.length === 0) return
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))
-    }, 20000)
+    }, 5000)
     return () => clearInterval(timer)
   }, [images.length])
 
@@ -268,9 +268,7 @@ const RecentActivitiesCarousel: React.FC = () => {
                   </div>
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-bold text-neutral-900 mb-2 group-hover:text-red-700 transition-colors line-clamp-2">
-                    {lang === 'ta' ? service.title_ta : service.title_en}
-                  </h3>
+                  <h3 className="text-xl font-bold text-neutral-900 mb-2 group-hover:text-red-700 transition-colors line-clamp-2" dangerouslySetInnerHTML={{ __html: lang === 'ta' ? service.title_ta : service.title_en }} />
                   <div className="flex items-center gap-1.5 text-neutral-500 text-sm mb-3">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />

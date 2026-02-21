@@ -97,7 +97,7 @@ export default function NotifyMeModal({ isOpen, onClose, eventDetails }: NotifyM
                                 <p className="text-gray-600 mb-4">
                                     Enter your email to receive reminders for:
                                     <br />
-                                    <strong className="text-gray-900">{eventDetails.title}</strong>
+                                    <strong className="text-gray-900" dangerouslySetInnerHTML={{ __html: eventDetails.title }} />
                                 </p>
                                 <p className="text-xs text-gray-500 mb-6">
                                     We'll notify you 1 day before and a few hours before the event starts.

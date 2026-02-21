@@ -16,7 +16,7 @@ export async function GET() {
         const images = await db
             .collection('home_carousel')
             .find({})
-            .sort({ created_at: -1 })
+            .sort({ order_index: 1, created_at: -1 })
             .toArray()
 
         const mapped = images.map((img) => ({
@@ -26,6 +26,7 @@ export async function GET() {
             subtitle: img.subtitle || '',
             hide_text: img.hide_text,
             active: img.active,
+            order_index: img.order_index || 0,
             created_at: img.created_at,
         }))
 
@@ -78,12 +79,21 @@ export async function POST(request: NextRequest) {
 
         // Save to MongoDB
         const db = await getDb()
+        // Get next order index
+        const last = await db.collection('home_carousel')
+            .find({})
+            .sort({ order_index: -1 })
+            .limit(1)
+            .toArray()
+        const nextOrder = last.length > 0 ? (last[0].order_index || 0) + 1 : 0
+
         const result = await db.collection('home_carousel').insertOne({
             image_url: uploadResult.url,
             title: title,
             subtitle: subtitle,
             hide_text: hide_text,
             active: active,
+            order_index: nextOrder,
             created_at: new Date(),
         })
 
@@ -104,7 +114,7 @@ export async function POST(request: NextRequest) {
     }
 }
 
-// PUT - Toggle hide_text or active
+// PUT - Toggle hide_text/active or reorder
 export async function PUT(request: NextRequest) {
     try {
         const session = await getAdminSession()
@@ -112,7 +122,23 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
         }
 
-        const { id, field } = await request.json()
+        const body = await request.json()
+
+        // Handle reorder (orderedIds array)
+        if (body.orderedIds && Array.isArray(body.orderedIds)) {
+            const db = await getDb()
+            const updates = body.orderedIds.map((id: string, index: number) =>
+                db.collection('home_carousel').updateOne(
+                    { _id: new ObjectId(id) },
+                    { $set: { order_index: index } }
+                )
+            )
+            await Promise.all(updates)
+            return NextResponse.json({ success: true })
+        }
+
+        // Handle toggle (id and field)
+        const { id, field } = body
 
         if (!id || !['hide_text', 'active'].includes(field)) {
             return NextResponse.json({ success: false, error: 'Invalid request' }, { status: 400 })

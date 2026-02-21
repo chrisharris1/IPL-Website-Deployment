@@ -26,6 +26,7 @@ export default function PresidentBlogSection() {
         description_en: '',
         description_ta: '',
     })
+    const [imagePreview, setImagePreview] = useState<string | null>(null)
 
     const fetchItems = useCallback(async () => {
         try {
@@ -43,6 +44,7 @@ export default function PresidentBlogSection() {
 
     const openAddModal = () => {
         setEditing(null)
+        setImagePreview(null)
         setFormData({
             title_en: '',
             title_ta: '',
@@ -54,6 +56,7 @@ export default function PresidentBlogSection() {
 
     const openEditModal = (item: PresidentBlogItem) => {
         setEditing(item)
+        setImagePreview(null)
         setFormData({
             title_en: item.title_en || '',
             title_ta: item.title_ta || '',
@@ -205,7 +208,7 @@ export default function PresidentBlogSection() {
                     <div className="bg-white rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
                         <div className="flex justify-between items-center p-6 pb-4 border-b">
                             <h3 className="text-xl font-bold text-gray-900">{editing ? 'Edit Blog Post' : 'Add Blog Post'}</h3>
-                            <button onClick={() => { setShowModal(false); setEditing(null) }} className="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+                            <button onClick={() => { setShowModal(false); setEditing(null); setImagePreview(null) }} className="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
                         </div>
                         <div className="p-6 pt-4">
                             <form onSubmit={handleSubmit} className="space-y-4">
@@ -238,8 +241,57 @@ export default function PresidentBlogSection() {
                                     <h4 className="font-semibold text-gray-900">Featured Image</h4>
                                     <p className="text-xs text-gray-600">Upload one image for this post.</p>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <input type="file" name="image" accept="image/*" {...(!editing && { required: true })} className="border rounded-lg p-2.5" />
+                                <div>
+                                    <input 
+                                        type="file" 
+                                        name="image" 
+                                        accept="image/*" 
+                                        {...(!editing && { required: true })} 
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0]
+                                            if (file) {
+                                                const reader = new FileReader()
+                                                reader.onloadend = () => {
+                                                    setImagePreview(reader.result as string)
+                                                }
+                                                reader.readAsDataURL(file)
+                                            }
+                                        }}
+                                        className="border rounded-lg p-2.5 w-full" 
+                                    />
+                                    {imagePreview && (
+                                        <div className="mt-3 relative inline-block">
+                                            <p className="text-sm text-gray-600 mb-2">New Image Preview:</p>
+                                            <div className="relative">
+                                                <img
+                                                    src={imagePreview}
+                                                    alt="Preview"
+                                                    className="w-full h-48 object-cover rounded-lg border shadow-sm"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setImagePreview(null)
+                                                        const fileInput = document.querySelector('input[name="image"]') as HTMLInputElement
+                                                        if (fileInput) fileInput.value = ''
+                                                    }}
+                                                    className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors shadow-lg"
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                    {editing?.image_url && !imagePreview && (
+                                        <div className="mt-3">
+                                            <p className="text-sm text-gray-600 mb-2">Current Image:</p>
+                                            <img
+                                                src={editing.image_url}
+                                                alt="Current"
+                                                className="w-full h-48 object-cover rounded-lg border shadow-sm"
+                                            />
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="rounded-lg border border-gray-200 p-3 bg-gray-50">

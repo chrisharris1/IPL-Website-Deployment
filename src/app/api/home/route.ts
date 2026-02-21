@@ -11,7 +11,7 @@ export async function GET() {
         const carousel = await db
             .collection('home_carousel')
             .find({ active: true })
-            .sort({ created_at: -1 })
+            .sort({ order_index: 1 })
             .project({ image_url: 1, title: 1, subtitle: 1, hide_text: 1, _id: 0 })
             .toArray()
 

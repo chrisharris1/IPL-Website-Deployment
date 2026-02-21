@@ -79,34 +79,34 @@ export async function GET(request: NextRequest) {
 
     const dynamicEntries: SearchItem[] = [
       ...news.map((n: any) => ({
-        title: n.title_en || n.title_ta || 'News Event',
+        title: stripHtml(n.title_en || n.title_ta || 'News Event'),
         subtitle: [n.city, n.district, n.date].filter(Boolean).join(', '),
-        href: `/news-events?search=${encodeURIComponent(n.title_en || n.title_ta || '')}`,
-        keywords: [n.title_ta || '', stripHtml(n.description_en || ''), stripHtml(n.description_ta || ''), n.city || '', n.district || '', n.date || ''],
+        href: `/news-events?search=${encodeURIComponent(stripHtml(n.title_en || n.title_ta || ''))}`,
+        keywords: [stripHtml(n.title_ta || ''), stripHtml(n.description_en || ''), stripHtml(n.description_ta || ''), n.city || '', n.district || '', n.date || ''],
       })),
       ...services.map((s: any) => ({
-        title: s.title_en || s.title_ta || 'Service',
+        title: stripHtml(s.title_en || s.title_ta || 'Service'),
         subtitle: [s.city, s.district, s.state].filter(Boolean).join(', '),
         href: `/humanitarian-services/${s._id.toString()}`,
-        keywords: [s.title_ta || '', stripHtml(s.description_en || ''), stripHtml(s.description_ta || ''), s.city || '', s.district || '', s.state || ''],
+        keywords: [stripHtml(s.title_ta || ''), stripHtml(s.description_en || ''), stripHtml(s.description_ta || ''), s.city || '', s.district || '', s.state || ''],
       })),
       ...meets.map((m: any) => ({
-        title: m.caption_en || m.caption_ta || `${m.district || ''} ${m.year || ''}`.trim(),
+        title: stripHtml(m.caption_en || m.caption_ta || `${m.district || ''} ${m.year || ''}`.trim()),
         subtitle: [m.district, m.state, m.country, m.year].filter(Boolean).join(', '),
         href: `/friendship-meet/${m.slug || ''}`,
-        keywords: [m.caption_ta || '', m.district || '', m.state || '', m.country || '', String(m.year || '')],
+        keywords: [stripHtml(m.caption_ta || ''), m.district || '', m.state || '', m.country || '', String(m.year || '')],
       })),
       ...blogs.map((b: any) => ({
-        title: b.title_en || b.title_ta || "President's Blog",
+        title: stripHtml(b.title_en || b.title_ta || "President's Blog"),
         subtitle: "IPL President's Blog",
         href: '/about/ipl-presidents-blog',
         keywords: [b.title_ta || '', stripHtml(b.description_en || ''), stripHtml(b.description_ta || ''), 'president', 'blog'],
       })),
       ...aboutSections.map((a: any) => ({
-        title: a.section_title_en || a.section_title_ta || 'About Section',
+        title: stripHtml(a.section_title_en || a.section_title_ta || 'About Section'),
         subtitle: 'About Us',
         href: '/about',
-        keywords: [a.section_title_ta || '', stripHtml(a.content_en || ''), stripHtml(a.content_ta || ''), 'about'],
+        keywords: [stripHtml(a.section_title_ta || ''), stripHtml(a.content_en || ''), stripHtml(a.content_ta || ''), 'about'],
       })),
       ...team.map((m: any) => ({
         title: m.name || 'Team Member',
@@ -115,10 +115,10 @@ export async function GET(request: NextRequest) {
         keywords: [m.name || '', m.role || '', 'team', 'leadership'],
       })),
       ...joinNow.map((j: any) => ({
-        title: j.title_en || j.title_ta || 'Join Now Content',
+        title: stripHtml(j.title_en || j.title_ta || 'Join Now Content'),
         subtitle: 'Join Now',
         href: '/join-now',
-        keywords: [j.title_ta || '', stripHtml(j.content_en || ''), stripHtml(j.content_ta || ''), 'join', 'membership'],
+        keywords: [stripHtml(j.title_ta || ''), stripHtml(j.content_en || ''), stripHtml(j.content_ta || ''), 'join', 'membership'],
       })),
     ]
 

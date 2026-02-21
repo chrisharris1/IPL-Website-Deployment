@@ -91,14 +91,22 @@ const GlobalSearchInner: React.FC<GlobalSearchProps> = ({
   }, [])
 
   const highlight = useCallback((text: string) => {
+    if (!query) return text
     const qLower = query.toLowerCase()
     const idx = text.toLowerCase().indexOf(qLower)
-    if (idx === -1 || !query) return text
+    if (idx === -1) return text
     return (
       <>
         {text.slice(0, idx)}<mark className="bg-red-100 text-red-700 rounded px-0.5">{text.slice(idx, idx + query.length)}</mark>{text.slice(idx + query.length)}
       </>
     )
+  }, [query])
+
+  const highlightHtml = useCallback((html: string) => {
+    if (!query) return html
+    // Escape special regex characters
+    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    return html.replace(new RegExp(`(${escapedQuery})`, 'gi'), '<mark class="bg-red-100 text-red-700 rounded px-0.5">$1</mark>')
   }, [query])
 
   const baseInputClasses = variant === 'mobile'
@@ -144,7 +152,7 @@ const GlobalSearchInner: React.FC<GlobalSearchProps> = ({
         autoComplete="off"
       />
       {open && query.trim().length > 0 && (
-        <ul className={`absolute left-0 right-0 ${variant === 'mobile' ? 'mt-3' : 'mt-2'} bg-white border border-neutral-200 rounded-xl shadow-2xl overflow-hidden z-[100] text-sm animate-fade-in max-h-96 overflow-y-auto`} role="listbox">
+        <ul className={`absolute left-0 right-0 ${variant === 'mobile' ? 'mt-3' : 'mt-2'} bg-white border border-neutral-200 rounded-xl shadow-2xl overflow-hidden z-50 text-sm animate-fade-in max-h-96 overflow-y-auto`} role="listbox">
           {suggestions.length > 0 ? (
             suggestions.map((s, i) => (
               <li
@@ -156,7 +164,7 @@ const GlobalSearchInner: React.FC<GlobalSearchProps> = ({
                 onClick={() => handleSelect(s.href, s.title)}
                 className={`px-4 py-3 cursor-pointer flex flex-col gap-0.5 ${activeIndex === i ? 'bg-red-50' : 'hover:bg-neutral-50'}`}
               >
-                <span className="font-semibold text-neutral-900 leading-tight">{highlight(s.title)}</span>
+                <span className="font-semibold text-neutral-900 leading-tight" dangerouslySetInnerHTML={{ __html: highlightHtml(s.title) }} />
                 {s.subtitle && (
                   <span className="text-neutral-500 text-xs flex items-center gap-1">
                     <MapPin className="w-3 h-3 text-red-600" /> {highlight(s.subtitle)}

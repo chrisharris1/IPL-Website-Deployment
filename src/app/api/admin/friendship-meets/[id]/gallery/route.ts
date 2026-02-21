@@ -13,7 +13,7 @@ cloudinary.config({
 // Helper to upload base64 image to Cloudinary
 async function uploadImageToCloudinary(base64Image: string): Promise<{ url: string; public_id: string }> {
     const result = await cloudinary.uploader.upload(base64Image, {
-        folder: 'friendship-meets/gallery',
+        folder: 'ipl/friendship-meets/gallery',
         resource_type: 'image',
     })
     return { url: result.secure_url, public_id: result.public_id }

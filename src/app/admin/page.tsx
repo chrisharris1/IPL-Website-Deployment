@@ -32,7 +32,7 @@ import {
 import { motion } from 'framer-motion'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
-interface CarouselImage { id: string; image_url: string; title?: string; subtitle?: string; hide_text: boolean; active: boolean; created_at: string }
+interface CarouselImage { id: string; image_url: string; title?: string; subtitle?: string; hide_text: boolean; active: boolean; order_index?: number; created_at: string }
 interface ServiceItem { id: string; title_en: string; title_ta: string; country: string; state: string; district: string; city: string; date: string; description_en: string; description_ta: string; image_url: string }
 interface NewsItem { id: string; title_en: string; title_ta: string; country: string; state: string; district: string; city: string; date: string; time: string; description_en: string; description_ta: string; image_url: string }
 interface AboutSection { id: string; section_title_en: string; section_title_ta: string; content_en: string; content_ta: string; order_index: number; is_deletable: boolean }
@@ -320,6 +320,8 @@ function CarouselSection() {
     const [msg, setMsg] = useState({ text: '', type: 'success' as 'success' | 'error' })
     const [editingId, setEditingId] = useState<string | null>(null)
     const [editForm, setEditForm] = useState({ title: '', subtitle: '' })
+    const [imagePreview, setImagePreview] = useState<string | null>(null)
+    const [draggedImageId, setDraggedImageId] = useState<string | null>(null)
 
     const fetchImages = useCallback(async () => {
         try {
@@ -349,6 +351,7 @@ function CarouselSection() {
             if (data.success) {
                 setMsg({ text: 'Image uploaded successfully!', type: 'success' })
                 form.reset()
+                setImagePreview(null)
                 fetchImages()
             } else {
                 setMsg({ text: data.error || 'Upload failed', type: 'error' })
@@ -409,6 +412,42 @@ function CarouselSection() {
         } catch { setMsg({ text: 'Update failed', type: 'error' }) }
     }
 
+    const handleImageDragStart = (id: string) => {
+        setDraggedImageId(id)
+    }
+
+    const handleImageDragEnter = (targetId: string) => {
+        if (!draggedImageId || draggedImageId === targetId) return
+        
+        const draggedIdx = images.findIndex(img => img.id === draggedImageId)
+        const targetIdx = images.findIndex(img => img.id === targetId)
+        
+        if (draggedIdx === -1 || targetIdx === -1) return
+        
+        const newImages = [...images]
+        const [draggedItem] = newImages.splice(draggedIdx, 1)
+        newImages.splice(targetIdx, 0, draggedItem)
+        setImages(newImages)
+    }
+
+    const handleImageDragEnd = async () => {
+        if (!draggedImageId) return
+        
+        try {
+            await fetch('/api/admin/carousel', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderedIds: images.map(img => img.id) }),
+            })
+            setMsg({ text: 'Order updated successfully!', type: 'success' })
+        } catch {
+            setMsg({ text: 'Failed to save order', type: 'error' })
+            fetchImages() // Revert on error
+        }
+        
+        setDraggedImageId(null)
+    }
+
     return (
         <div className="space-y-8">
             <SectionHeader title="Home Carousel" />
@@ -425,10 +464,49 @@ function CarouselSection() {
                 <form onSubmit={handleUpload} className="space-y-6">
                     <div className="p-6 border-2 border-dashed border-slate-300 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors">
                         <label className="block text-sm font-semibold text-slate-700 mb-2">Image File *</label>
-                        <input type="file" name="image" accept="image/*" required className="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition-all cursor-pointer" />
+                        <input 
+                            type="file" 
+                            name="image" 
+                            accept="image/*" 
+                            required 
+                            onChange={(e) => {
+                                const file = e.target.files?.[0]
+                                if (file) {
+                                    const reader = new FileReader()
+                                    reader.onloadend = () => {
+                                        setImagePreview(reader.result as string)
+                                    }
+                                    reader.readAsDataURL(file)
+                                }
+                            }}
+                            className="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition-all cursor-pointer" 
+                        />
                         <p className="text-xs text-slate-500 mt-2 flex items-center gap-1">
                             <Info size={16} /> Recommended: 1920x1080px (16:9 ratio) for best display.
                         </p>
+                        {imagePreview && (
+                            <div className="mt-4 relative">
+                                <p className="text-sm font-semibold text-slate-700 mb-2">Preview:</p>
+                                <div className="relative rounded-lg overflow-hidden border-2 border-slate-200 bg-slate-100">
+                                    <img
+                                        src={imagePreview}
+                                        alt="Preview"
+                                        className="w-full h-48 object-contain"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setImagePreview(null)
+                                            const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
+                                            if (fileInput) fileInput.value = ''
+                                        }}
+                                        className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors shadow-lg"
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
@@ -457,7 +535,17 @@ function CarouselSection() {
             {loading ? <div className="flex justify-center p-12"><div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div></div> : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {images.map(img => (
-                        <div key={img.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+                        <div 
+                            key={img.id}
+                            draggable
+                            onDragStart={() => handleImageDragStart(img.id)}
+                            onDragEnter={() => handleImageDragEnter(img.id)}
+                            onDragEnd={handleImageDragEnd}
+                            onDragOver={(e) => e.preventDefault()}
+                            className={`bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group cursor-move ${
+                                draggedImageId === img.id ? 'opacity-50 scale-95 ring-2 ring-indigo-500' : ''
+                            }`}
+                        >
                             <div className="relative h-56 overflow-hidden">
                                 <img src={img.image_url} alt="Carousel" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                                 <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/80 via-black/40 to-transparent p-4 pt-12">
@@ -2041,6 +2129,7 @@ function TeamSection() {
     const [roleHierarchy, setRoleHierarchy] = useState<any[]>([])
     const [migrationStatus, setMigrationStatus] = useState<any>(null)
     const [showMigrationModal, setShowMigrationModal] = useState(false)
+    const [imagePreview, setImagePreview] = useState<string | null>(null)
 
     // Dynamic roles from DB
     const [roles, setRoles] = useState<{ id: string; name: string; level: number }[]>([])
@@ -2532,14 +2621,47 @@ function TeamSection() {
                             name="image"
                             accept="image/jpeg,image/png,image/webp"
                             {...(!editing && { required: true })}
+                            onChange={(e) => {
+                                const file = e.target.files?.[0]
+                                if (file) {
+                                    const reader = new FileReader()
+                                    reader.onloadend = () => {
+                                        setImagePreview(reader.result as string)
+                                    }
+                                    reader.readAsDataURL(file)
+                                }
+                            }}
                             className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-red-500 focus:border-transparent"
                         />
                         <p className="text-xs text-gray-600 mt-1">
                             Recommended: Square aspect ratio (1:1), minimum 400x400px, max 5MB
                         </p>
+                        {imagePreview && (
+                            <div className="mt-3 relative inline-block">
+                                <p className="text-sm text-gray-600 mb-2">New Photo Preview:</p>
+                                <div className="relative">
+                                    <img
+                                        src={imagePreview}
+                                        alt="Preview"
+                                        className="h-32 w-32 rounded-lg object-cover border shadow-sm"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setImagePreview(null)
+                                            const fileInput = document.querySelector('input[name="image"]') as HTMLInputElement
+                                            if (fileInput) fileInput.value = ''
+                                        }}
+                                        className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 transition-colors shadow-lg"
+                                    >
+                                        <X size={14} />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
-                    {editing?.image_url && (
+                    {editing?.image_url && !imagePreview && (
                         <div className="mt-3">
                             <p className="text-sm text-gray-600 mb-2">Current Photo:</p>
                             <img

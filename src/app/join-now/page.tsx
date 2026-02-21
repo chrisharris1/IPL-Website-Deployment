@@ -131,14 +131,14 @@ export default function JoinNowPage() {
                                                     </iframe>
                                                 </div>
                                             ) : (
-                                                <div className="w-full py-16 bg-gradient-to-br from-red-50 to-pink-50 rounded-xl border-2 border-red-200 text-center">
+                                                <div className="w-full py-16 bg-linear-to-br from-red-50 to-pink-50 rounded-xl border-2 border-red-200 text-center">
                                                     <h3 className="text-2xl font-bold text-neutral-900 mb-4">Fill Out Our Membership Form</h3>
                                                     <p className="text-neutral-600 mb-8 max-w-xl mx-auto">Click the button below to access our membership application form</p>
                                                     <a
                                                         href={item.google_form_url}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
-                                                        className="inline-block bg-gradient-to-r from-red-600 to-pink-600 text-white px-10 py-4 rounded-full text-lg font-bold hover:from-red-700 hover:to-pink-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                                                        className="inline-block bg-linear-to-r from-red-600 to-pink-600 text-white px-10 py-4 rounded-full text-lg font-bold hover:from-red-700 hover:to-pink-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
                                                     >
                                                         Open Application Form →
                                                     </a>

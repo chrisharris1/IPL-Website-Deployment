@@ -16,9 +16,23 @@ export async function uploadImage(
     folder: string = 'carousel'
 ): Promise<{ success: boolean; url?: string; error?: string }> {
     try {
-        const base64 = `data:image/webp;base64,${fileBuffer.toString('base64')}`
+        // Detect image type from buffer signature
+        let mimeType = 'image/jpeg' // default
+        const signature = fileBuffer.toString('hex', 0, 4)
+        
+        if (signature.startsWith('89504e47')) {
+            mimeType = 'image/png'
+        } else if (signature.startsWith('47494638')) {
+            mimeType = 'image/gif'
+        } else if (signature.startsWith('52494646') && fileBuffer.toString('hex', 8, 12) === '57454250') {
+            mimeType = 'image/webp'
+        } else if (signature.startsWith('ffd8ff')) {
+            mimeType = 'image/jpeg'
+        }
+
+        const base64 = `data:${mimeType};base64,${fileBuffer.toString('base64')}`
         const result = await cloudinary.uploader.upload(base64, {
-            folder,
+            folder: `ipl/${folder}`,
             resource_type: 'image',
         })
         return { success: true, url: result.secure_url }
