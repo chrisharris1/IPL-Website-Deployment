@@ -1,10 +1,21 @@
 import { v2 as cloudinary } from 'cloudinary'
 
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-})
+let isConfigured = false
+
+function ensureCloudinaryConfig() {
+    if (!isConfigured) {
+        if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+            throw new Error('Cloudinary environment variables are not configured')
+        }
+        
+        cloudinary.config({
+            cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+            api_key: process.env.CLOUDINARY_API_KEY,
+            api_secret: process.env.CLOUDINARY_API_SECRET,
+        })
+        isConfigured = true
+    }
+}
 
 export default cloudinary
 
@@ -16,6 +27,8 @@ export async function uploadImage(
     folder: string = 'carousel'
 ): Promise<{ success: boolean; url?: string; error?: string }> {
     try {
+        ensureCloudinaryConfig()
+        
         // Detect image type from buffer signature
         let mimeType = 'image/jpeg' // default
         const signature = fileBuffer.toString('hex', 0, 4)
@@ -47,6 +60,8 @@ export async function uploadImage(
  */
 export async function deleteImage(imageUrl: string): Promise<boolean> {
     try {
+        ensureCloudinaryConfig()
+        
         // Extract public_id from URL
         const match = imageUrl.match(/\/v\d+\/(.+)\.\w+$/)
         if (!match) return false

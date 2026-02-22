@@ -4,14 +4,20 @@ import { ObjectId } from 'mongodb'
 import { v2 as cloudinary } from 'cloudinary'
 import { getAdminSession } from '@/lib/auth-edge'
 
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-})
+function ensureCloudinaryConfig() {
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+        throw new Error('Cloudinary environment variables are not configured')
+    }
+    cloudinary.config({
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET,
+    })
+}
 
 // Helper to upload base64 image to Cloudinary
 async function uploadImageToCloudinary(base64Image: string): Promise<{ url: string; public_id: string }> {
+    ensureCloudinaryConfig()
     const result = await cloudinary.uploader.upload(base64Image, {
         folder: 'ipl/friendship-meets/gallery',
         resource_type: 'image',
@@ -21,6 +27,7 @@ async function uploadImageToCloudinary(base64Image: string): Promise<{ url: stri
 
 // Helper to delete image from Cloudinary
 async function deleteImageFromCloudinary(publicId: string): Promise<void> {
+    ensureCloudinaryConfig()
     await cloudinary.uploader.destroy(publicId)
 }
 
