@@ -124,6 +124,10 @@ const Header: React.FC<Props> = () => {
         />
 
         <div className="container mx-auto px-2 sm:px-3 md:px-4 lg:px-6 flex items-center justify-between gap-1 sm:gap-2 md:gap-3 lg:gap-4 max-w-screen-2xl min-h-12 sm:min-h-14">
+          <div className="lg:hidden shrink-0">
+            <span className="text-white font-bold text-sm sm:text-base md:text-lg whitespace-nowrap">IPL</span>
+          </div>
+
           <nav className="hidden lg:flex items-center gap-1 flex-nowrap shrink min-w-0 flex-1 justify-center">
             {navLinks.map((link) => (
               link.hasDropdown ? (
@@ -255,7 +259,7 @@ const Header: React.FC<Props> = () => {
 
       <div
         className={`
-          lg:hidden fixed inset-0 z-[60] bg-linear-to-b from-red-900 to-red-950 text-white backdrop-blur-xl transition-all duration-300 ease-out
+          lg:hidden fixed inset-0 z-60 bg-linear-to-b from-red-900 to-red-950 text-white backdrop-blur-xl transition-all duration-300 ease-out
           ${mobileMenuOpen ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full pointer-events-none'}
         `}
       >

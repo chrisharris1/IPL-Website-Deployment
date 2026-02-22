@@ -2,10 +2,6 @@ import { MongoClient, Db } from 'mongodb'
 
 const MONGODB_URI = process.env.MONGODB_URI || ''
 
-if (!MONGODB_URI) {
-    throw new Error('Please define the MONGODB_URI environment variable in .env.local')
-}
-
 interface MongoClientCache {
     client: MongoClient | null
     promise: Promise<MongoClient> | null
@@ -23,6 +19,10 @@ if (!globalWithMongo._mongoClientPromise) {
 const cached = globalWithMongo._mongoClientPromise
 
 export async function getMongoClient(): Promise<MongoClient> {
+    if (!MONGODB_URI) {
+        throw new Error('Please define the MONGODB_URI environment variable in .env.local')
+    }
+
     if (cached.client) {
         return cached.client
     }
