@@ -105,6 +105,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
         heading: {
           levels: [1, 2, 3],
         },
+        strike: false, // Disable strike to avoid conflicts
       }),
       Underline,
       TextStyle,
