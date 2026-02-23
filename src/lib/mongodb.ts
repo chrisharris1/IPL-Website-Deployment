@@ -20,6 +20,7 @@ const cached = globalWithMongo._mongoClientPromise
 
 export async function getMongoClient(): Promise<MongoClient> {
     if (!MONGODB_URI) {
+        console.error('MongoDB connection error: MONGODB_URI environment variable is not defined')
         throw new Error('Please define the MONGODB_URI environment variable in .env.local')
     }
 
@@ -28,17 +29,30 @@ export async function getMongoClient(): Promise<MongoClient> {
     }
 
     if (!cached.promise) {
+        console.log('MongoDB: Establishing new connection...')
         const options = {
             tls: true,
             tlsAllowInvalidCertificates: false,
             serverSelectionTimeoutMS: 5000,
             socketTimeoutMS: 45000,
         }
-        cached.promise = MongoClient.connect(MONGODB_URI, options)
+        try {
+            cached.promise = MongoClient.connect(MONGODB_URI, options)
+        } catch (error) {
+            console.error('MongoDB connection error:', error)
+            throw error
+        }
     }
 
-    cached.client = await cached.promise
-    return cached.client
+    try {
+        cached.client = await cached.promise
+        console.log('MongoDB: Connection established successfully')
+        return cached.client
+    } catch (error) {
+        console.error('MongoDB: Failed to establish connection:', error)
+        cached.promise = null // Reset promise so it can retry
+        throw error
+    }
 }
 
 export async function getDb(): Promise<Db> {

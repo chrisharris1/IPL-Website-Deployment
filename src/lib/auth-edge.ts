@@ -23,8 +23,23 @@ export async function verifyToken(token: string): Promise<any | null> {
 }
 
 export async function getAdminSession() {
-    const cookieStore = await cookies()
-    const token = cookieStore.get('admin_token')?.value
-    if (!token) return null
-    return verifyToken(token)
+    try {
+        const cookieStore = await cookies()
+        const token = cookieStore.get('admin_token')?.value
+        if (!token) {
+            console.log('Auth: No admin token found in cookies')
+            return null
+        }
+        console.log('Auth: Admin token found, verifying...')
+        const result = await verifyToken(token)
+        if (result) {
+            console.log('Auth: Token verified successfully')
+        } else {
+            console.log('Auth: Token verification failed')
+        }
+        return result
+    } catch (error) {
+        console.error('Auth: Error getting admin session:', error)
+        return null
+    }
 }

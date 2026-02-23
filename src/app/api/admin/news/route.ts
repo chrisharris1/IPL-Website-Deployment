@@ -9,18 +9,25 @@ import DOMPurify from 'isomorphic-dompurify'
 // GET - List all news events
 export async function GET() {
     try {
+        console.log('Admin News GET: Starting request')
         const session = await getAdminSession()
         if (!session) {
             console.log('Admin News GET: No valid session')
             return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
         }
+        console.log('Admin News GET: Session validated')
 
+        console.log('Admin News GET: Connecting to database')
         const db = await getDb()
+        console.log('Admin News GET: Database connected, fetching events')
+        
         const events = await db
             .collection('news_events')
             .find({})
             .sort({ date: -1, time: -1 })
             .toArray()
+
+        console.log(`Admin News GET: Found ${events.length} events`)
 
         const mapped = events.map((e) => ({
             id: e._id.toString(),
@@ -37,11 +44,17 @@ export async function GET() {
             image_url: e.image_url,
         }))
 
+        console.log('Admin News GET: Returning success response')
         return NextResponse.json({ success: true, data: mapped })
     } catch (error) {
         console.error('Admin News GET error:', error)
         console.error('Error details:', error instanceof Error ? error.message : 'Unknown error')
-        return NextResponse.json({ success: false, error: 'Server error' }, { status: 500 })
+        console.error('Error stack:', error instanceof Error ? error.stack : 'No stack')
+        return NextResponse.json({ 
+            success: false, 
+            error: 'Server error',
+            details: error instanceof Error ? error.message : String(error)
+        }, { status: 500 })
     }
 }
 
