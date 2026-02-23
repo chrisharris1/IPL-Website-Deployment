@@ -4,7 +4,7 @@ import { uploadImage, deleteImage } from '@/lib/cloudinary'
 import { ObjectId } from 'mongodb'
 import { getAdminSession } from '@/lib/auth-edge'
 import { serviceSchema } from '@/lib/validation'
-import DOMPurify from 'isomorphic-dompurify'
+import sanitizeHtml from 'sanitize-html'
 
 // GET - List all humanitarian services with search/filter
 export async function GET(request: NextRequest) {
@@ -111,8 +111,8 @@ export async function POST(request: NextRequest) {
         let sanitizedDescEn = ''
         let sanitizedDescTa = ''
         try {
-            sanitizedDescEn = rawData.description_en ? DOMPurify.sanitize(rawData.description_en as string) : ''
-            sanitizedDescTa = rawData.description_ta ? DOMPurify.sanitize(rawData.description_ta as string) : ''
+            sanitizedDescEn = rawData.description_en ? sanitizeHtml(rawData.description_en as string) : ''
+            sanitizedDescTa = rawData.description_ta ? sanitizeHtml(rawData.description_ta as string) : ''
             console.log('Admin Services POST: HTML sanitized successfully')
         } catch (sanitizeError) {
             console.error('Admin Services POST: Sanitization error', sanitizeError)
@@ -181,8 +181,8 @@ export async function PUT(request: NextRequest) {
         try {
             const descEn = formData.get('description_en') as string
             const descTa = formData.get('description_ta') as string
-            sanitizedDescEn = descEn ? DOMPurify.sanitize(descEn) : ''
-            sanitizedDescTa = descTa ? DOMPurify.sanitize(descTa) : ''
+            sanitizedDescEn = descEn ? sanitizeHtml(descEn) : ''
+            sanitizedDescTa = descTa ? sanitizeHtml(descTa) : ''
         } catch (sanitizeError) {
             console.error('Admin Services PUT: Sanitization error', sanitizeError)
             sanitizedDescEn = (formData.get('description_en') as string) || ''

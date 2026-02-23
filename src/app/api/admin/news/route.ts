@@ -4,7 +4,7 @@ import { uploadImage, deleteImage } from '@/lib/cloudinary'
 import { ObjectId } from 'mongodb'
 import { getAdminSession } from '@/lib/auth-edge'
 import { newsSchema } from '@/lib/validation'
-import DOMPurify from 'isomorphic-dompurify'
+import sanitizeHtml from 'sanitize-html'
 
 // GET - List all news events
 export async function GET() {
@@ -114,8 +114,8 @@ export async function POST(request: NextRequest) {
         let sanitizedDescEn = ''
         let sanitizedDescTa = ''
         try {
-            sanitizedDescEn = data.description_en ? DOMPurify.sanitize(data.description_en) : ''
-            sanitizedDescTa = data.description_ta ? DOMPurify.sanitize(data.description_ta) : ''
+            sanitizedDescEn = data.description_en ? sanitizeHtml(data.description_en) : ''
+            sanitizedDescTa = data.description_ta ? sanitizeHtml(data.description_ta) : ''
             console.log('Admin News POST: HTML sanitized successfully')
         } catch (sanitizeError) {
             console.error('Admin News POST: Sanitization error', sanitizeError)
@@ -197,8 +197,8 @@ export async function PUT(request: NextRequest) {
         let sanitizedDescEn = ''
         let sanitizedDescTa = ''
         try {
-            sanitizedDescEn = data.description_en ? DOMPurify.sanitize(data.description_en) : ''
-            sanitizedDescTa = data.description_ta ? DOMPurify.sanitize(data.description_ta) : ''
+            sanitizedDescEn = data.description_en ? sanitizeHtml(data.description_en) : ''
+            sanitizedDescTa = data.description_ta ? sanitizeHtml(data.description_ta) : ''
         } catch (sanitizeError) {
             console.error('Admin News PUT: Sanitization error', sanitizeError)
             // Continue without sanitization if it fails

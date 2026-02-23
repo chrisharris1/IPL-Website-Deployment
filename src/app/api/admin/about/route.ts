@@ -3,7 +3,7 @@ import { getDb } from '@/lib/mongodb'
 import { ObjectId } from 'mongodb'
 import { getAdminSession } from '@/lib/auth-edge'
 import { aboutSchema } from '@/lib/validation'
-import DOMPurify from 'isomorphic-dompurify'
+import sanitizeHtml from 'sanitize-html'
 
 // GET - List all about sections
 export async function GET(request: NextRequest) {
@@ -62,8 +62,8 @@ export async function POST(request: NextRequest) {
         const doc = {
             section_title_en: section_title_en || '',
             section_title_ta: section_title_ta || '',
-            content_en: DOMPurify.sanitize(content_en || ''),
-            content_ta: content_ta ? DOMPurify.sanitize(content_ta) : '',
+            content_en: sanitizeHtml(content_en || ''),
+            content_ta: content_ta ? sanitizeHtml(content_ta) : '',
             order_index: nextOrder,
             is_deletable: true,
             created_at: new Date(),
@@ -102,8 +102,8 @@ export async function PUT(request: NextRequest) {
 
         if (section_title_en !== undefined) update.section_title_en = section_title_en
         if (section_title_ta !== undefined) update.section_title_ta = section_title_ta
-        if (content_en !== undefined) update.content_en = DOMPurify.sanitize(String(content_en))
-        if (content_ta !== undefined) update.content_ta = DOMPurify.sanitize(String(content_ta))
+        if (content_en !== undefined) update.content_en = sanitizeHtml(String(content_en))
+        if (content_ta !== undefined) update.content_ta = sanitizeHtml(String(content_ta))
         if (order_index !== undefined) update.order_index = order_index
 
         await db.collection('about_us').updateOne(

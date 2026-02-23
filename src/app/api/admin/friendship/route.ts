@@ -4,7 +4,7 @@ import { uploadImage, deleteImage } from '@/lib/cloudinary'
 import { ObjectId } from 'mongodb'
 import { getAdminSession } from '@/lib/auth-edge'
 import { friendshipLocationSchema, friendshipEventSchema } from '@/lib/validation'
-import DOMPurify from 'isomorphic-dompurify'
+import sanitizeHtml from 'sanitize-html'
 
 // GET - List all locations with their events
 export async function GET() {
@@ -124,8 +124,8 @@ export async function POST(request: NextRequest) {
 
         const doc = {
             location_id: locationId,
-            details_en: DOMPurify.sanitize(details_en || ''),
-            details_ta: DOMPurify.sanitize(details_ta || ''),
+            details_en: sanitizeHtml(details_en || ''),
+            details_ta: sanitizeHtml(details_ta || ''),
             image_url: uploadResult.url,
             created_at: new Date(),
         }
@@ -176,8 +176,8 @@ export async function PUT(request: NextRequest) {
             const { details_en, details_ta } = validation.data
 
             const update: Record<string, unknown> = {}
-            if (details_en !== undefined) update.details_en = DOMPurify.sanitize(details_en)
-            if (details_ta !== undefined) update.details_ta = DOMPurify.sanitize(details_ta)
+            if (details_en !== undefined) update.details_en = sanitizeHtml(details_en)
+            if (details_ta !== undefined) update.details_ta = sanitizeHtml(details_ta)
 
             await db.collection('friendship_meet_events').updateOne(
                 { _id: new ObjectId(id) },

@@ -4,7 +4,7 @@ import { uploadImage, deleteImage } from '@/lib/cloudinary'
 import { ObjectId } from 'mongodb'
 import { getAdminSession } from '@/lib/auth-edge'
 import { presidentBlogSchema } from '@/lib/validation'
-import DOMPurify from 'isomorphic-dompurify'
+import sanitizeHtml from 'sanitize-html'
 
 export async function GET(request: NextRequest) {
     try {
@@ -93,8 +93,8 @@ export async function POST(request: NextRequest) {
         const doc = {
             title_en: title_en || '',
             title_ta: title_ta || '',
-            description_en: description_en ? DOMPurify.sanitize(description_en) : '',
-            description_ta: description_ta ? DOMPurify.sanitize(description_ta) : '',
+            description_en: description_en ? sanitizeHtml(description_en) : '',
+            description_ta: description_ta ? sanitizeHtml(description_ta) : '',
             image_url: uploadResult.url,
             created_at: new Date(),
             order_index: count, // Assign new order index
@@ -174,8 +174,8 @@ export async function PUT(request: NextRequest) {
         const update: Record<string, unknown> = {
             title_en: title_en || '',
             title_ta: title_ta || '',
-            description_en: description_en ? DOMPurify.sanitize(description_en) : '',
-            description_ta: description_ta ? DOMPurify.sanitize(description_ta) : '',
+            description_en: description_en ? sanitizeHtml(description_en) : '',
+            description_ta: description_ta ? sanitizeHtml(description_ta) : '',
         }
 
         const file = formData.get('image') as File | null
