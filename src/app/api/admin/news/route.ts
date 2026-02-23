@@ -4,6 +4,7 @@ import { uploadImage, deleteImage } from '@/lib/cloudinary'
 import { ObjectId } from 'mongodb'
 import { getAdminSession } from '@/lib/auth-edge'
 import { newsSchema } from '@/lib/validation'
+import DOMPurify from 'isomorphic-dompurify'
 
 // GET - List all news events
 export async function GET() {
@@ -49,6 +50,7 @@ export async function POST(request: NextRequest) {
     try {
         const session = await getAdminSession()
         if (!session) {
+            console.log('Admin News POST: No valid session')
             return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
         }
 
@@ -56,6 +58,7 @@ export async function POST(request: NextRequest) {
         const file = formData.get('image') as File | null
 
         if (!file) {
+            console.log('Admin News POST: No image provided')
             return NextResponse.json({ success: false, error: 'No image provided' }, { status: 400 })
         }
 
@@ -74,31 +77,51 @@ export async function POST(request: NextRequest) {
 
         const validation = newsSchema.safeParse(body)
         if (!validation.success) {
+            console.log('Admin News POST: Validation failed', validation.error)
             return NextResponse.json({ success: false, error: 'Invalid input', details: validation.error.format() }, { status: 400 })
         }
         const data = validation.data
 
         const buffer = Buffer.from(await file.arrayBuffer())
+        console.log(`Admin News POST: Uploading image, size: ${buffer.length} bytes`)
         const uploadResult = await uploadImage(buffer, 'news')
 
         if (!uploadResult.success || !uploadResult.url) {
+            console.error('Admin News POST: Image upload failed', uploadResult.error)
             return NextResponse.json(
                 { success: false, error: uploadResult.error || 'Upload failed' },
                 { status: 500 }
             )
         }
 
-        const DOMPurify = (await import('isomorphic-dompurify')).default
+        console.log('Admin News POST: Image uploaded successfully')
         const db = await getDb()
+        
+        // Sanitize HTML content
+        let sanitizedDescEn = ''
+        let sanitizedDescTa = ''
+        try {
+            sanitizedDescEn = data.description_en ? DOMPurify.sanitize(data.description_en) : ''
+            sanitizedDescTa = data.description_ta ? DOMPurify.sanitize(data.description_ta) : ''
+            console.log('Admin News POST: HTML sanitized successfully')
+        } catch (sanitizeError) {
+            console.error('Admin News POST: Sanitization error', sanitizeError)
+            // Continue without sanitization if it fails
+            sanitizedDescEn = data.description_en || ''
+            sanitizedDescTa = data.description_ta || ''
+        }
+        
         const doc = {
             ...data,
-            description_en: data.description_en ? DOMPurify.sanitize(data.description_en) : '',
-            description_ta: data.description_ta ? DOMPurify.sanitize(data.description_ta) : '',
+            description_en: sanitizedDescEn,
+            description_ta: sanitizedDescTa,
             image_url: uploadResult.url,
             created_at: new Date(),
         }
 
+        console.log('Admin News POST: Inserting document to DB')
         const result = await db.collection('news_events').insertOne(doc)
+        console.log('Admin News POST: Document inserted successfully')
 
         return NextResponse.json({
             success: true,
@@ -106,7 +129,13 @@ export async function POST(request: NextRequest) {
         })
     } catch (error) {
         console.error('Admin News POST error:', error)
-        return NextResponse.json({ success: false, error: 'Server error' }, { status: 500 })
+        console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace')
+        console.error('Error message:', error instanceof Error ? error.message : String(error))
+        return NextResponse.json({ 
+            success: false, 
+            error: 'Server error',
+            details: error instanceof Error ? error.message : String(error)
+        }, { status: 500 })
     }
 }
 
@@ -151,11 +180,23 @@ export async function PUT(request: NextRequest) {
         }
         const data = validation.data
 
-        const DOMPurify = (await import('isomorphic-dompurify')).default
+        // Sanitize HTML content
+        let sanitizedDescEn = ''
+        let sanitizedDescTa = ''
+        try {
+            sanitizedDescEn = data.description_en ? DOMPurify.sanitize(data.description_en) : ''
+            sanitizedDescTa = data.description_ta ? DOMPurify.sanitize(data.description_ta) : ''
+        } catch (sanitizeError) {
+            console.error('Admin News PUT: Sanitization error', sanitizeError)
+            // Continue without sanitization if it fails
+            sanitizedDescEn = data.description_en || ''
+            sanitizedDescTa = data.description_ta || ''
+        }
+
         const update: Record<string, unknown> = {
             ...data,
-            description_en: data.description_en ? DOMPurify.sanitize(data.description_en) : '',
-            description_ta: data.description_ta ? DOMPurify.sanitize(data.description_ta) : '',
+            description_en: sanitizedDescEn,
+            description_ta: sanitizedDescTa,
         }
         // Remove id from update object
         delete update.id
