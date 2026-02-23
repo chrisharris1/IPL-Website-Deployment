@@ -4,6 +4,7 @@ import { uploadImage, deleteImage } from '@/lib/cloudinary'
 import { ObjectId } from 'mongodb'
 import { getAdminSession } from '@/lib/auth-edge'
 import { presidentBlogSchema } from '@/lib/validation'
+import DOMPurify from 'isomorphic-dompurify'
 
 export async function GET(request: NextRequest) {
     try {
@@ -84,7 +85,6 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        const DOMPurify = (await import('isomorphic-dompurify')).default
         const db = await getDb()
 
         // Get strict count for order_index
@@ -171,7 +171,6 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 })
         }
 
-        const DOMPurify = (await import('isomorphic-dompurify')).default
         const update: Record<string, unknown> = {
             title_en: title_en || '',
             title_ta: title_ta || '',

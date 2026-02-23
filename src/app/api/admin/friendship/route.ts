@@ -4,6 +4,7 @@ import { uploadImage, deleteImage } from '@/lib/cloudinary'
 import { ObjectId } from 'mongodb'
 import { getAdminSession } from '@/lib/auth-edge'
 import { friendshipLocationSchema, friendshipEventSchema } from '@/lib/validation'
+import DOMPurify from 'isomorphic-dompurify'
 
 // GET - List all locations with their events
 export async function GET() {
@@ -121,7 +122,6 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        const DOMPurify = (await import('isomorphic-dompurify')).default
         const doc = {
             location_id: locationId,
             details_en: DOMPurify.sanitize(details_en || ''),
@@ -175,7 +175,6 @@ export async function PUT(request: NextRequest) {
             if (!validation.success) return NextResponse.json({ success: false, error: 'Invalid input' }, { status: 400 })
             const { details_en, details_ta } = validation.data
 
-            const DOMPurify = (await import('isomorphic-dompurify')).default
             const update: Record<string, unknown> = {}
             if (details_en !== undefined) update.details_en = DOMPurify.sanitize(details_en)
             if (details_ta !== undefined) update.details_ta = DOMPurify.sanitize(details_ta)

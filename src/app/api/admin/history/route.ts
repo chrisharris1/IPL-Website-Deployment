@@ -3,6 +3,7 @@ import { getDb } from '@/lib/mongodb'
 import { ObjectId } from 'mongodb'
 import { getAdminSession } from '@/lib/auth-edge'
 import { historySchema } from '@/lib/validation'
+import DOMPurify from 'isomorphic-dompurify'
 
 export async function GET() {
     try {
@@ -50,7 +51,6 @@ export async function POST(request: NextRequest) {
 
         const { section_title_en, section_title_ta, content_en, content_ta } = validation.data
 
-        const DOMPurify = (await import('isomorphic-dompurify')).default
         const db = await getDb()
         const last = await db.collection('history_sections').find({}).sort({ order_index: -1 }).limit(1).toArray()
         const nextOrder = last.length > 0 ? (last[0].order_index || 0) + 1 : 0
@@ -96,7 +96,6 @@ export async function PUT(request: NextRequest) {
 
         const { section_title_en, section_title_ta, content_en, content_ta, order_index, id } = body
 
-        const DOMPurify = (await import('isomorphic-dompurify')).default
         const db = await getDb()
         const update: Record<string, unknown> = {}
 

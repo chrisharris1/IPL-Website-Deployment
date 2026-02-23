@@ -4,6 +4,7 @@ import { uploadImage, deleteImage } from '@/lib/cloudinary'
 import { ObjectId } from 'mongodb'
 import { getAdminSession } from '@/lib/auth-edge'
 import { serviceSchema } from '@/lib/validation'
+import DOMPurify from 'isomorphic-dompurify'
 
 // GET - List all humanitarian services with search/filter
 export async function GET(request: NextRequest) {
@@ -64,6 +65,7 @@ export async function POST(request: NextRequest) {
     try {
         const session = await getAdminSession()
         if (!session) {
+            console.log('Admin Services POST: No valid session')
             return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
         }
 
@@ -86,21 +88,38 @@ export async function POST(request: NextRequest) {
         const file = formData.get('image') as File | null
 
         if (!file) {
+            console.log('Admin Services POST: No image provided')
             return NextResponse.json({ success: false, error: 'No image provided' }, { status: 400 })
         }
 
         const buffer = Buffer.from(await file.arrayBuffer())
+        console.log(`Admin Services POST: Uploading image, size: ${buffer.length} bytes`)
         const uploadResult = await uploadImage(buffer, 'services')
 
         if (!uploadResult.success || !uploadResult.url) {
+            console.error('Admin Services POST: Image upload failed', uploadResult.error)
             return NextResponse.json(
                 { success: false, error: uploadResult.error || 'Upload failed' },
                 { status: 500 }
             )
         }
 
-        const DOMPurify = (await import('isomorphic-dompurify')).default
+        console.log('Admin Services POST: Image uploaded successfully')
         const db = await getDb()
+        
+        // Sanitize HTML content
+        let sanitizedDescEn = ''
+        let sanitizedDescTa = ''
+        try {
+            sanitizedDescEn = rawData.description_en ? DOMPurify.sanitize(rawData.description_en as string) : ''
+            sanitizedDescTa = rawData.description_ta ? DOMPurify.sanitize(rawData.description_ta as string) : ''
+            console.log('Admin Services POST: HTML sanitized successfully')
+        } catch (sanitizeError) {
+            console.error('Admin Services POST: Sanitization error', sanitizeError)
+            sanitizedDescEn = (rawData.description_en as string) || ''
+            sanitizedDescTa = (rawData.description_ta as string) || ''
+        }
+        
         const doc = {
             title_en: rawData.title_en,
             title_ta: rawData.title_ta,
@@ -109,13 +128,15 @@ export async function POST(request: NextRequest) {
             district: rawData.district,
             city: rawData.city,
             date: rawData.date,
-            description_en: rawData.description_en ? DOMPurify.sanitize(rawData.description_en as string) : '',
-            description_ta: rawData.description_ta ? DOMPurify.sanitize(rawData.description_ta as string) : '',
+            description_en: sanitizedDescEn,
+            description_ta: sanitizedDescTa,
             image_url: uploadResult.url,
             created_at: new Date(),
         }
 
+        console.log('Admin Services POST: Inserting document to DB')
         const result = await db.collection('humanitarian_services').insertOne(doc)
+        console.log('Admin Services POST: Document inserted successfully')
 
         return NextResponse.json({
             success: true,
@@ -123,7 +144,13 @@ export async function POST(request: NextRequest) {
         })
     } catch (error) {
         console.error('Admin Services POST error:', error)
-        return NextResponse.json({ success: false, error: 'Server error' }, { status: 500 })
+        console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace')
+        console.error('Error message:', error instanceof Error ? error.message : String(error))
+        return NextResponse.json({ 
+            success: false, 
+            error: 'Server error',
+            details: error instanceof Error ? error.message : String(error)
+        }, { status: 500 })
     }
 }
 
@@ -148,7 +175,20 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 })
         }
 
-        const DOMPurify = (await import('isomorphic-dompurify')).default
+        // Sanitize HTML content
+        let sanitizedDescEn = ''
+        let sanitizedDescTa = ''
+        try {
+            const descEn = formData.get('description_en') as string
+            const descTa = formData.get('description_ta') as string
+            sanitizedDescEn = descEn ? DOMPurify.sanitize(descEn) : ''
+            sanitizedDescTa = descTa ? DOMPurify.sanitize(descTa) : ''
+        } catch (sanitizeError) {
+            console.error('Admin Services PUT: Sanitization error', sanitizeError)
+            sanitizedDescEn = (formData.get('description_en') as string) || ''
+            sanitizedDescTa = (formData.get('description_ta') as string) || ''
+        }
+        
         const update: Record<string, unknown> = {
             title_en: formData.get('title_en') as string,
             title_ta: formData.get('title_ta') as string,
@@ -157,8 +197,8 @@ export async function PUT(request: NextRequest) {
             district: formData.get('district') as string,
             city: formData.get('city') as string,
             date: formData.get('date') as string,
-            description_en: formData.get('description_en') ? DOMPurify.sanitize(formData.get('description_en') as string) : '',
-            description_ta: formData.get('description_ta') ? DOMPurify.sanitize(formData.get('description_ta') as string) : '',
+            description_en: sanitizedDescEn,
+            description_ta: sanitizedDescTa,
         }
 
         // Handle optional new image
