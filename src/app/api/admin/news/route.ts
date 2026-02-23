@@ -10,6 +10,7 @@ export async function GET() {
     try {
         const session = await getAdminSession()
         if (!session) {
+            console.log('Admin News GET: No valid session')
             return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
         }
 
@@ -38,6 +39,7 @@ export async function GET() {
         return NextResponse.json({ success: true, data: mapped })
     } catch (error) {
         console.error('Admin News GET error:', error)
+        console.error('Error details:', error instanceof Error ? error.message : 'Unknown error')
         return NextResponse.json({ success: false, error: 'Server error' }, { status: 500 })
     }
 }

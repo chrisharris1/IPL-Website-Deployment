@@ -129,6 +129,13 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
     },
   })
 
+  // Cleanup editor on unmount
+  useEffect(() => {
+    return () => {
+      editor?.destroy()
+    }
+  }, [editor])
+
   if (!editor) return null
 
   // Get current heading level
