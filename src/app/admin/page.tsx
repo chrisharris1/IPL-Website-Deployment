@@ -2879,13 +2879,27 @@ function FriendshipMeetsManager() {
 
     const fetchMeets = useCallback(async () => {
         try {
-            const res = await fetch('/api/admin/friendship-meets')
-            const data = await res.json()
-            if (data.success) {
-                setMeets(data.data)
-                setFilteredMeets(data.data)
+            let allMeets: any[] = []
+            let offset = 0
+            const limit = 50
+            let hasMore = true
+
+            // Fetch all meets in batches to avoid payload size limits
+            while (hasMore) {
+                const res = await fetch(`/api/admin/friendship-meets?limit=${limit}&offset=${offset}&includeBanners=false`)
+                const data = await res.json()
+                
+                if (data.success && data.data) {
+                    allMeets = [...allMeets, ...data.data]
+                    hasMore = data.pagination?.hasMore || false
+                    offset += limit
+                } else {
+                    break
+                }
             }
 
+            setMeets(allMeets)
+            setFilteredMeets(allMeets)
         } catch { /* ignore */ }
         setLoading(false)
     }, [])
@@ -3024,25 +3038,36 @@ function FriendshipMeetsManager() {
             }
         }
 
-
-        const submitData = new FormData()
-        submitData.append('country', finalCountry)
-        submitData.append('state', finalState)
-        submitData.append('district', finalDistrict)
-        submitData.append('year', String(formData.year))
-        submitData.append('caption_en', formData.caption_en)
-        submitData.append('caption_ta', formData.caption_ta)
-
+        // Convert banner file to base64 if present
+        let bannerBase64 = null
         if (bannerFile) {
-            submitData.append('banner', bannerFile)
+            bannerBase64 = await new Promise<string>((resolve) => {
+                const reader = new FileReader()
+                reader.onloadend = () => resolve(reader.result as string)
+                reader.readAsDataURL(bannerFile)
+            })
         }
 
-        if (editing) submitData.append('id', editing.id)
+        const submitData = {
+            country: finalCountry,
+            state: finalState,
+            district: finalDistrict,
+            year: formData.year,
+            caption_en: formData.caption_en,
+            caption_ta: formData.caption_ta,
+            ...(editing ? { 
+                id: editing.id,
+                ...(bannerBase64 && { new_banner_image: bannerBase64 })
+            } : {
+                ...(bannerBase64 && { banner_image: bannerBase64 })
+            })
+        }
 
         try {
             const res = await fetch('/api/admin/friendship-meets', {
                 method: editing ? 'PUT' : 'POST',
-                body: submitData
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(submitData)
             })
             const data = await res.json()
             if (data.success) {

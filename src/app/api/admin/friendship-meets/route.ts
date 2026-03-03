@@ -66,6 +66,13 @@ export async function GET(request: Request) {
         const state = searchParams.get('state')
         const district = searchParams.get('district')
         const year = searchParams.get('year')
+        
+        // Pagination parameters
+        const limit = parseInt(searchParams.get('limit') || '50')
+        const offset = parseInt(searchParams.get('offset') || '0')
+        
+        // Option to exclude banner images to reduce payload size
+        const includeBanners = searchParams.get('includeBanners') !== 'false'
 
         const db = await getDb()
         const collection = db.collection('friendship_meets')
@@ -76,9 +83,14 @@ export async function GET(request: Request) {
         if (district) filter.district = district
         if (year) filter.year = parseInt(year)
 
+        // Get total count for pagination
+        const total = await collection.countDocuments(filter)
+
         const meets = await collection
             .find(filter)
             .sort({ year: -1, created_at: -1 })
+            .skip(offset)
+            .limit(limit)
             .toArray()
 
         // Auto-migrate: Add slugs to records that don't have them
@@ -110,12 +122,21 @@ export async function GET(request: Request) {
             year: meet.year,
             caption_en: meet.caption_en || '',
             caption_ta: meet.caption_ta || '',
-            banner_image: meet.banner_image || null,
+            banner_image: includeBanners ? meet.banner_image || null : (meet.banner_image?.url ? { url: meet.banner_image.url } : null),
             created_at: meet.created_at,
             updated_at: meet.updated_at,
         }))
 
-        return NextResponse.json({ success: true, data: formattedMeets })
+        return NextResponse.json({ 
+            success: true, 
+            data: formattedMeets,
+            pagination: {
+                total,
+                limit,
+                offset,
+                hasMore: offset + limit < total
+            }
+        })
     } catch (error) {
         console.error('GET friendship meets error:', error)
         return NextResponse.json({ success: false, error: 'Failed to fetch friendship meets' }, { status: 500 })

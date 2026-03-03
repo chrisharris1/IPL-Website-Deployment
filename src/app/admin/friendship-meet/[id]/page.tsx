@@ -88,8 +88,8 @@ export default function GalleryManagementPage({ params }: { params: Promise<{ id
 
     const fetchItems = useCallback(async () => {
         try {
-            // Fetch meet details
-            const meetRes = await fetch(`/api/admin/friendship-meets`)
+            // Fetch meet details - using pagination with small limit and includeBanners=true for full data
+            const meetRes = await fetch(`/api/admin/friendship-meets?limit=100&includeBanners=true`)
             const meetData = await meetRes.json()
             if (meetData.success) {
                 const foundMeet = meetData.data.find((m: FriendshipMeet) => m.id === meetId)
