@@ -156,7 +156,7 @@ export default function FriendshipMeetDetailPage() {
                                             </div>
                                         )}
                                         <div className="p-3 bg-white border-t border-gray-100 min-w-0">
-                                            <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 mb-1 wrap-break-word">{itemTitle}</h3>
+                                            <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 mb-1 wrap-break-word" dangerouslySetInnerHTML={{ __html: itemTitle }} />
                                             <p className="text-xs text-gray-600 line-clamp-2 wrap-break-word">
                                                 {item.city}, {item.district}
                                             </p>
