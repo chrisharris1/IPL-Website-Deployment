@@ -120,6 +120,14 @@ export const friendsDaySchema = z.object({
     id: z.string().optional(),
 })
 
+export const friendshipMeetsSchema = z.object({
+    intro_title_en: z.string().optional(),
+    intro_title_ta: z.string().optional(),
+    intro_content_en: z.string().optional(),
+    intro_content_ta: z.string().optional(),
+    id: z.string().optional(),
+})
+
 export const reminderSchema = z.object({
     email: z.string().email("Invalid email address"),
     eventId: z.string().min(1, "Event ID is required"),

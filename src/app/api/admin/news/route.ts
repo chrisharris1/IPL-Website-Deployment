@@ -136,6 +136,27 @@ export async function POST(request: NextRequest) {
         const result = await db.collection('news_events').insertOne(doc)
         console.log('Admin News POST: Document inserted successfully')
 
+        // Auto-create corresponding event entry
+        try {
+            const eventDoc = {
+                newsId: result.insertedId.toString(),
+                title_en: data.title_en || '',
+                title_ta: data.title_ta || '',
+                description_en: sanitizedDescEn || '',
+                description_ta: sanitizedDescTa || '',
+                posterImage: uploadResult.url,
+                photos: [],
+                date: data.date,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            }
+            await db.collection('events').insertOne(eventDoc)
+            console.log('Admin News POST: Auto-created event entry')
+        } catch (eventError) {
+            console.error('Failed to auto-create event:', eventError)
+            // Continue even if event creation fails
+        }
+
         return NextResponse.json({
             success: true,
             data: { id: result.insertedId.toString(), ...doc },

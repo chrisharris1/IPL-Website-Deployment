@@ -27,7 +27,8 @@ import {
     X,
     Edit,
     PartyPopper,
-    Bell
+    Bell,
+    Images
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 
@@ -48,9 +49,9 @@ interface FriendshipMeet {
     banner_image: { url: string; public_id: string } | null;
 }
 interface JoinNowItem { id: string; title_en: string; title_ta: string; content_en: string; content_ta: string; google_form_url: string; order_index: number }
-interface DashboardStats { carousel: number; services: number; news: number; about: number; history: number; team: number; friendship: number; presidentBlog: number; joinNow: number }
+interface DashboardStats { carousel: number; services: number; news: number; events: number; about: number; history: number; team: number; friendship: number; presidentBlog: number; joinNow: number }
 
-type Section = 'dashboard' | 'carousel' | 'about' | 'history' | 'services' | 'news' | 'team' | 'friendship' | 'presidentBlog' | 'joinNow'
+type Section = 'dashboard' | 'carousel' | 'about' | 'history' | 'services' | 'news' | 'events' | 'team' | 'friendship' | 'presidentBlog' | 'joinNow'
 
 // ─── Sidebar Config ──────────────────────────────────────────────────────────
 const NAV_ITEMS: { key: Section; label: string; icon: React.ReactNode }[] = [
@@ -60,6 +61,7 @@ const NAV_ITEMS: { key: Section; label: string; icon: React.ReactNode }[] = [
     { key: 'history', label: 'History', icon: <History size={20} /> },
     { key: 'services', label: 'Services', icon: <HeartHandshake size={20} /> },
     { key: 'news', label: 'News & Events', icon: <Newspaper size={20} /> },
+    { key: 'events', label: 'Events Gallery', icon: <Images size={20} /> },
     { key: 'presidentBlog', label: "President's Blog", icon: <PenTool size={20} /> },
     { key: 'team', label: 'Our Team', icon: <Users size={20} /> },
     { key: 'friendship', label: 'Friendship Meet', icon: <Globe size={20} /> },
@@ -139,6 +141,7 @@ export default function AdminPage() {
                         {activeSection === 'history' && <HistorySection />}
                         {activeSection === 'services' && <ServicesSection />}
                         {activeSection === 'news' && <NewsSection />}
+                        {activeSection === 'events' && <EventsSection />}
                         {activeSection === 'presidentBlog' && <PresidentBlogSection />}
                         {activeSection === 'team' && <TeamSection />}
                         {activeSection === 'friendship' && <FriendshipSection />}
@@ -154,14 +157,14 @@ export default function AdminPage() {
 // DASHBOARD
 // ═══════════════════════════════════════════════════════════════════════════════
 function DashboardSection({ onNavigate }: { onNavigate: (s: Section) => void }) {
-    const [stats, setStats] = useState<DashboardStats>({ carousel: 0, services: 0, news: 0, about: 0, history: 0, team: 0, friendship: 0, presidentBlog: 0, joinNow: 0 })
+    const [stats, setStats] = useState<DashboardStats>({ carousel: 0, services: 0, news: 0, events: 0, about: 0, history: 0, team: 0, friendship: 0, presidentBlog: 0, joinNow: 0 })
     const [loading, setLoading] = useState(true)
     const [sendingReminders, setSendingReminders] = useState(false)
 
     useEffect(() => {
         async function load() {
             try {
-                const endpoints = ['carousel', 'services', 'news', 'about', 'history', 'team', 'friendship', 'president-blog', 'join-now']
+                const endpoints = ['carousel', 'services', 'news', 'events', 'about', 'history', 'team', 'friendship', 'president-blog', 'join-now']
                 const results = await Promise.all(
                     endpoints.map(ep => fetch(`/api/admin/${ep}`).then(r => r.json()).catch(() => ({ data: [] })))
                 )
@@ -169,12 +172,13 @@ function DashboardSection({ onNavigate }: { onNavigate: (s: Section) => void }) 
                     carousel: Array.isArray(results[0]?.data) ? results[0].data.length : 0,
                     services: Array.isArray(results[1]?.data) ? results[1].data.length : 0,
                     news: Array.isArray(results[2]?.data) ? results[2].data.length : 0,
-                    about: Array.isArray(results[3]?.data) ? results[3].data.length : 0,
-                    history: Array.isArray(results[4]?.data) ? results[4].data.length : 0,
-                    team: Array.isArray(results[5]?.data) ? results[5].data.length : 0,
-                    friendship: Array.isArray(results[6]?.data) ? results[6].data.length : 0,
-                    presidentBlog: Array.isArray(results[7]?.data) ? results[7].data.length : 0,
-                    joinNow: Array.isArray(results[8]?.data) ? results[8].data.length : 0,
+                    events: Array.isArray(results[3]?.data) ? results[3].data.length : 0,
+                    about: Array.isArray(results[4]?.data) ? results[4].data.length : 0,
+                    history: Array.isArray(results[5]?.data) ? results[5].data.length : 0,
+                    team: Array.isArray(results[6]?.data) ? results[6].data.length : 0,
+                    friendship: Array.isArray(results[7]?.data) ? results[7].data.length : 0,
+                    presidentBlog: Array.isArray(results[8]?.data) ? results[8].data.length : 0,
+                    joinNow: Array.isArray(results[9]?.data) ? results[9].data.length : 0,
                 })
             } catch { /* ignore */ }
             setLoading(false)
@@ -205,6 +209,7 @@ function DashboardSection({ onNavigate }: { onNavigate: (s: Section) => void }) 
         { key: 'carousel', label: 'Carousel Images', gradient: 'from-orange-500 to-pink-500', icon: <ImageIcon size={40} />, delay: '0ms' },
         { key: 'services', label: 'Humanitarian', gradient: 'from-blue-500 to-cyan-500', icon: <HeartHandshake size={40} />, delay: '50ms' },
         { key: 'news', label: 'News & Events', gradient: 'from-green-500 to-emerald-500', icon: <Newspaper size={40} />, delay: '100ms' },
+        { key: 'events', label: 'Events Gallery', gradient: 'from-fuchsia-500 to-pink-500', icon: <Images size={40} />, delay: '125ms' },
         { key: 'presidentBlog', label: "President's Blog", gradient: 'from-violet-500 to-purple-500', icon: <PenTool size={40} />, delay: '150ms' },
         { key: 'about', label: 'About Pages', gradient: 'from-indigo-500 to-blue-600', icon: <Info size={40} />, delay: '200ms' },
         { key: 'history', label: 'History Events', gradient: 'from-amber-500 to-orange-600', icon: <History size={40} />, delay: '250ms' },
@@ -829,8 +834,6 @@ function ServicesSection() {
 
     // Filter state
     const [searchTerm, setSearchTerm] = useState('')
-    const [filterCountry, setFilterCountry] = useState('')
-    const [filterState, setFilterState] = useState('')
     const [filterDate, setFilterDate] = useState('')
 
     // Image preview state
@@ -840,8 +843,6 @@ function ServicesSection() {
         try {
             const params = new URLSearchParams()
             if (searchTerm) params.append('search', searchTerm)
-            if (filterCountry) params.append('country', filterCountry)
-            if (filterState) params.append('state', filterState)
             if (filterDate) params.append('date', filterDate)
 
             const res = await fetch(`/api/admin/services?${params.toString()}`)
@@ -852,7 +853,7 @@ function ServicesSection() {
             }
         } catch { /* ignore */ }
         setLoading(false)
-    }, [searchTerm, filterCountry, filterState, filterDate])
+    }, [searchTerm, filterDate])
 
     useEffect(() => {
         let isMounted = true
@@ -1109,7 +1110,7 @@ function ServicesSection() {
 
             {/* Search and Filters */}
             <div className="bg-white rounded-xl shadow p-4 mb-6">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <input
                         type="text"
                         placeholder="Search by title..."
@@ -1117,23 +1118,6 @@ function ServicesSection() {
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="border rounded-lg px-4 py-2"
                     />
-                    <select
-                        value={filterCountry}
-                        onChange={(e) => { setFilterCountry(e.target.value); setFilterState('') }}
-                        className="border rounded-lg px-4 py-2"
-                    >
-                        <option value="">All Countries</option>
-                        {availableCountries.map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
-                    <select
-                        value={filterState}
-                        onChange={(e) => setFilterState(e.target.value)}
-                        className="border rounded-lg px-4 py-2"
-                        disabled={!filterCountry}
-                    >
-                        <option value="">All States</option>
-                        {filterCountry && getStates(filterCountry).map(s => <option key={s} value={s}>{s}</option>)}
-                    </select>
                     <input
                         type="month"
                         value={filterDate}
@@ -2117,6 +2101,401 @@ function NewsSection() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// EVENTS GALLERY SECTION
+// ═══════════════════════════════════════════════════════════════════════════════
+function EventsSection() {
+    interface EventItem {
+        id: string
+        newsId: string | null
+        title_en: string
+        title_ta: string
+        description_en: string
+        description_ta: string
+        posterImage: string
+        photos: { url: string; public_id: string; uploadedAt: string }[]
+        date: string
+        createdAt: string
+    }
+
+    const [events, setEvents] = useState<EventItem[]>([])
+    const [loading, setLoading] = useState(true)
+    const [showModal, setShowModal] = useState(false)
+    const [editing, setEditing] = useState<EventItem | null>(null)
+    const [submitting, setSubmitting] = useState(false)
+    const [msg, setMsg] = useState({ text: '', type: 'success' as 'success' | 'error' })
+    const [uploadingPhoto, setUploadingPhoto] = useState(false)
+    const [migrating, setMigrating] = useState(false)
+
+    const [formData, setFormData] = useState({
+        title_en: '',
+        title_ta: '',
+        description_en: '',
+        description_ta: '',
+        date: '',
+    })
+
+    useEffect(() => {
+        loadEvents()
+    }, [])
+
+    const loadEvents = async () => {
+        try {
+            setLoading(true)
+            const res = await fetch('/api/admin/events')
+            const data = await res.json()
+            if (data.success) {
+                setEvents(data.data)
+            }
+        } catch (error) {
+            console.error('Failed to load events:', error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const openAddModal = () => {
+        setEditing(null)
+        setFormData({
+            title_en: '',
+            title_ta: '',
+            description_en: '',
+            description_ta: '',
+            date: new Date().toISOString().split('T')[0],
+        })
+        setShowModal(true)
+    }
+
+    const openEditModal = (event: EventItem) => {
+        setEditing(event)
+        setFormData({
+            title_en: event.title_en,
+            title_ta: event.title_ta,
+            description_en: event.description_en,
+            description_ta: event.description_ta,
+            date: event.date,
+        })
+        setShowModal(true)
+    }
+
+    const handleSubmit = async (e: FormEvent) => {
+        e.preventDefault()
+        setSubmitting(true)
+        setMsg({ text: '', type: 'success' })
+
+        try {
+            const payload = {
+                ...formData,
+                id: editing?.id,
+                newsId: editing?.newsId || null,
+                photos: editing?.photos || [],
+            }
+
+            const res = await fetch('/api/admin/events', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            })
+
+            const data = await res.json()
+
+            if (data.success) {
+                setMsg({ text: editing ? 'Event updated successfully!' : 'Event created successfully!', type: 'success' })
+                await loadEvents()
+                setTimeout(() => {
+                    setShowModal(false)
+                    setMsg({ text: '', type: 'success' })
+                }, 1500)
+            } else {
+                setMsg({ text: data.error || 'Failed to save event', type: 'error' })
+            }
+        } catch (error) {
+            console.error('Error saving event:', error)
+            setMsg({ text: 'Failed to save event', type: 'error' })
+        } finally {
+            setSubmitting(false)
+        }
+    }
+
+    const handlePhotoUpload = async (eventId: string, file: File) => {
+        if (!file) return
+
+        setUploadingPhoto(true)
+        try {
+            const reader = new FileReader()
+            reader.readAsDataURL(file)
+            reader.onloadend = async () => {
+                const base64 = reader.result as string
+
+                const res = await fetch('/api/admin/events', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: eventId, photoBase64: base64 }),
+                })
+
+                const data = await res.json()
+
+                if (data.success) {
+                    await loadEvents()
+                    setMsg({ text: 'Photo uploaded successfully!', type: 'success' })
+                    setTimeout(() => setMsg({ text: '', type: 'success' }), 3000)
+                } else {
+                    setMsg({ text: data.error || 'Failed to upload photo', type: 'error' })
+                }
+            }
+        } catch (error) {
+            console.error('Error uploading photo:', error)
+            setMsg({ text: 'Failed to upload photo', type: 'error' })
+        } finally {
+            setUploadingPhoto(false)
+        }
+    }
+
+    const deletePhoto = async (eventId: string, photoPublicId: string) => {
+        if (!confirm('Delete this photo?')) return
+
+        try {
+            const res = await fetch(`/api/admin/events?id=${eventId}&photoPublicId=${photoPublicId}`, {
+                method: 'DELETE',
+            })
+
+            const data = await res.json()
+
+            if (data.success) {
+                await loadEvents()
+                setMsg({ text: 'Photo deleted successfully!', type: 'success' })
+                setTimeout(() => setMsg({ text: '', type: 'success' }), 3000)
+            } else {
+                setMsg({ text: data.error || 'Failed to delete photo', type: 'error' })
+            }
+        } catch (error) {
+            console.error('Error deleting photo:', error)
+            setMsg({ text: 'Failed to delete photo', type: 'error' })
+        }
+    }
+
+    const deleteEvent = async (id: string) => {
+        if (!confirm('Delete this entire event and all its photos?')) return
+
+        try {
+            const res = await fetch(`/api/admin/events?id=${id}`, { method: 'DELETE' })
+            const data = await res.json()
+
+            if (data.success) {
+                await loadEvents()
+                setMsg({ text: 'Event deleted successfully!', type: 'success' })
+                setTimeout(() => setMsg({ text: '', type: 'success' }), 3000)
+            } else {
+                setMsg({ text: data.error || 'Failed to delete event', type: 'error' })
+            }
+        } catch (error) {
+            console.error('Error deleting event:', error)
+            setMsg({ text: 'Failed to delete event', type: 'error' })
+        }
+    }
+
+    const migrateFromNews = async () => {
+        if (!confirm('This will create event entries for all existing news items. Continue?')) return
+
+        setMigrating(true)
+        try {
+            const res = await fetch('/api/admin/events/migrate', { method: 'POST' })
+            const data = await res.json()
+
+            if (data.success) {
+                setMsg({ text: data.message, type: 'success' })
+                await loadEvents()
+                setTimeout(() => setMsg({ text: '', type: 'success' }), 5000)
+            } else {
+                setMsg({ text: data.error || 'Migration failed', type: 'error' })
+            }
+        } catch (error) {
+            console.error('Error migrating events:', error)
+            setMsg({ text: 'Migration failed', type: 'error' })
+        } finally {
+            setMigrating(false)
+        }
+    }
+
+    const stripHtml = (html: string): string => {
+        return html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim()
+    }
+
+    return (
+        <div>
+            <SectionHeader title="Events Gallery" onAdd={openAddModal} addLabel="Add Event" />
+
+            {!loading && (
+                <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-sm text-blue-800 mb-2">
+                        <strong>Sync Poster Images:</strong> Click the button below to sync advertisement posters from News items to Events.
+                    </p>
+                    <button
+                        onClick={migrateFromNews}
+                        disabled={migrating}
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition disabled:opacity-50"
+                    >
+                        {migrating ? 'Syncing...' : '🔄 Sync Posters from News'}
+                    </button>
+                </div>
+            )}
+
+            {msg.text && (
+                <div className={`mb-4 p-3 rounded ${msg.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                    {msg.text}
+                </div>
+            )}
+
+            {loading ? (
+                <div className="flex justify-center py-10"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>
+            ) : (
+                <div className="space-y-6">
+                    {events.map((event) => {
+                        const validPhotos = event.photos?.filter(p => p && p.url) || []
+                        return (
+                        <div key={event.id} className="bg-white rounded-xl p-6 shadow-md border border-gray-200">
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="flex-1">
+                                    <h3 className="text-xl font-bold text-gray-900 mb-2" dangerouslySetInnerHTML={{ __html: event.title_en || 'Untitled Event' }} />
+                                    <p className="text-sm text-gray-600">{new Date(event.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                                    {event.description_en && (
+                                        <p className="text-sm text-gray-600 mt-2 line-clamp-2">{stripHtml(event.description_en)}</p>
+                                    )}
+                                    <p className="text-xs text-gray-500 mt-1">{validPhotos.length} photo{validPhotos.length !== 1 ? 's' : ''}</p>
+                                </div>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => openEditModal(event)}
+                                        className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                        title="Edit Event"
+                                    >
+                                        <Edit size={18} />
+                                    </button>
+                                    <button
+                                        onClick={() => deleteEvent(event.id)}
+                                        className="p-2 bg-red-500 text-white rounded hover:bg-red-600"
+                                        title="Delete Event"
+                                    >
+                                        <Trash2 size={18} />
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Photo Upload */}
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium mb-2">Add Photos</label>
+                                <input
+                                    key={`upload-${event.id}-${event.photos?.length || 0}`}
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0]
+                                        if (file) handlePhotoUpload(event.id, file)
+                                    }}
+                                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                    disabled={uploadingPhoto}
+                                />
+                                {uploadingPhoto && <p className="text-sm text-gray-500 mt-1">Uploading...</p>}
+                            </div>
+
+                            {/* Photo Gallery */}
+                            {(event.posterImage || (event.photos && event.photos.length > 0)) && (
+                                <div>
+                                    <label className="block text-sm font-medium mb-2">Photo Gallery</label>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        {/* Event Poster/Advertisement */}
+                                        {event.posterImage && (
+                                            <div className="relative aspect-square rounded-lg overflow-hidden group">
+                                                <img src={event.posterImage} alt="Event Poster" className="w-full h-full object-cover" />
+                                                <div className="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-1 rounded font-semibold">
+                                                    Advertisement
+                                                </div>
+                                            </div>
+                                        )}
+                                        {/* Uploaded Photos */}
+                                        {event.photos && event.photos.filter(photo => photo && photo.url).map((photo, idx) => (
+                                            <div key={idx} className="relative aspect-square rounded-lg overflow-hidden group">
+                                                <img src={photo.url} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover" />
+                                                <button
+                                                    onClick={() => deletePhoto(event.id, photo.public_id)}
+                                                    className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    title="Delete Photo"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )})}
+
+                    {events.length === 0 && (
+                        <p className="text-gray-500 text-center py-8">No events found. Add your first event!</p>
+                    )}
+                </div>
+            )}
+
+            {/* Add/Edit Modal */}
+            <Modal open={showModal} onClose={() => setShowModal(false)} title={editing ? 'Edit Event' : 'Add Event'}>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium mb-1">Title (English) *</label>
+                        <input
+                            type="text"
+                            value={formData.title_en}
+                            onChange={(e) => setFormData({ ...formData, title_en: e.target.value })}
+                            required
+                            className="w-full border rounded-lg p-2.5"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium mb-1">Title (Tamil)</label>
+                        <input
+                            type="text"
+                            value={formData.title_ta}
+                            onChange={(e) => setFormData({ ...formData, title_ta: e.target.value })}
+                            className="w-full border rounded-lg p-2.5"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium mb-1">Description (English)</label>
+                        <RichTextEditor
+                            value={formData.description_en}
+                            onChange={(val) => setFormData({ ...formData, description_en: val })}
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium mb-1">Description (Tamil)</label>
+                        <RichTextEditor
+                            value={formData.description_ta}
+                            onChange={(val) => setFormData({ ...formData, description_ta: val })}
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium mb-1">Date *</label>
+                        <input
+                            type="date"
+                            value={formData.date}
+                            onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                            required
+                            className="w-full border rounded-lg p-2.5"
+                        />
+                    </div>
+                    <button
+                        type="submit"
+                        disabled={submitting}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition disabled:opacity-50"
+                    >
+                        {submitting ? 'Saving...' : editing ? 'Update Event' : 'Create Event'}
+                    </button>
+                </form>
+            </Modal>
+        </div>
+    )
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // TEAM SECTION
 // ═══════════════════════════════════════════════════════════════════════════════
 function TeamSection() {
@@ -2815,7 +3194,7 @@ function TeamSection() {
 
 
 function FriendshipSection() {
-    const [activeTab, setActiveTab] = useState<'meets' | 'content'>('meets')
+    const [activeTab, setActiveTab] = useState<'meets' | 'content' | 'meetsContent'>('meets')
 
     return (
         <div>
@@ -2827,6 +3206,12 @@ function FriendshipSection() {
                     Friendship Meets
                 </button>
                 <button
+                    onClick={() => setActiveTab('meetsContent')}
+                    className={`pb-2 px-4 font-semibold transition-colors ${activeTab === 'meetsContent' ? 'text-fuchsia-700 border-b-2 border-fuchsia-700' : 'text-gray-500 hover:text-gray-700'}`}
+                >
+                    Friendship Meet Content
+                </button>
+                <button
                     onClick={() => setActiveTab('content')}
                     className={`pb-2 px-4 font-semibold transition-colors ${activeTab === 'content' ? 'text-fuchsia-700 border-b-2 border-fuchsia-700' : 'text-gray-500 hover:text-gray-700'}`}
                 >
@@ -2834,7 +3219,7 @@ function FriendshipSection() {
                 </button>
             </div>
 
-            {activeTab === 'meets' ? <FriendshipMeetsManager /> : <FriendshipContentManager />}
+            {activeTab === 'meets' ? <FriendshipMeetsManager /> : activeTab === 'meetsContent' ? <FriendshipMeetsContentManager /> : <FriendshipContentManager />}
         </div>
     )
 }
@@ -2870,11 +3255,9 @@ function FriendshipMeetsManager() {
 
     const [bannerFile, setBannerFile] = useState<File | null>(null)
     const [bannerPreview, setBannerPreview] = useState<string>('')
+    const [shouldDeleteBanner, setShouldDeleteBanner] = useState(false)
 
     // Filters
-    const [filterCountry, setFilterCountry] = useState('All')
-    const [filterState, setFilterState] = useState('All')
-    const [filterDistrict, setFilterDistrict] = useState('All')
     const [filterYear, setFilterYear] = useState('All')
 
     const fetchMeets = useCallback(async () => {
@@ -2947,18 +3330,16 @@ function FriendshipMeetsManager() {
     // Filter logic
     useEffect(() => {
         let temp = [...meets]
-        if (filterCountry !== 'All') temp = temp.filter(m => m.country === filterCountry)
-        if (filterState !== 'All') temp = temp.filter(m => m.state === filterState)
-        if (filterDistrict !== 'All') temp = temp.filter(m => m.district === filterDistrict)
         if (filterYear !== 'All') temp = temp.filter(m => String(m.year) === filterYear)
         setFilteredMeets(temp)
-    }, [meets, filterCountry, filterState, filterDistrict, filterYear])
+    }, [meets, filterYear])
 
     const openAddModal = () => {
         setEditing(null)
         setFormData({ country: '', state: '', district: '', year: '', caption_en: '', caption_ta: '' })
         setBannerFile(null)
         setBannerPreview('')
+        setShouldDeleteBanner(false)
         setShowCountryInput(false)
         setShowStateInput(false)
         setShowDistrictInput(false)
@@ -2980,6 +3361,7 @@ function FriendshipMeetsManager() {
         })
         setBannerFile(null)
         setBannerPreview('')
+        setShouldDeleteBanner(false)
         setShowCountryInput(false)
         setShowStateInput(false)
         setShowDistrictInput(false)
@@ -3000,10 +3382,7 @@ function FriendshipMeetsManager() {
     const removeBannerImage = () => {
         setBannerFile(null)
         setBannerPreview('')
-        if (editing) {
-            // Logic to mark image for deletion if needed, but for now just UI
-            // In a real app we might need a separate flag or API call
-        }
+        setShouldDeleteBanner(true)
     }
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -3057,7 +3436,8 @@ function FriendshipMeetsManager() {
             caption_ta: formData.caption_ta,
             ...(editing ? { 
                 id: editing.id,
-                ...(bannerBase64 && { new_banner_image: bannerBase64 })
+                ...(bannerBase64 && { new_banner_image: bannerBase64 }),
+                ...(shouldDeleteBanner && !bannerBase64 && { delete_banner: true })
             } : {
                 ...(bannerBase64 && { banner_image: bannerBase64 })
             })
@@ -3107,9 +3487,6 @@ function FriendshipMeetsManager() {
     ])].filter(Boolean).sort()
 
     // Filter Lists
-    const uniqueCountries = [...new Set(meets.map(m => m.country).filter(Boolean))].sort()
-    const uniqueStates = [...new Set(meets.map(m => m.state).filter(Boolean))].sort()
-    const uniqueDistricts = [...new Set(meets.map(m => m.district).filter(Boolean))].sort()
     const uniqueYears = [...new Set(meets.map(m => m.year).filter(Boolean))].sort((a, b) => Number(b) - Number(a))
 
     // Generate year options (1996 to current year)
@@ -3131,31 +3508,7 @@ function FriendshipMeetsManager() {
             {/* Filters */}
             <div className="bg-white rounded-xl shadow p-6 mb-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Filters</h3>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
-                        <select value={filterCountry} onChange={(e) => setFilterCountry(e.target.value)}
-                            className="w-full border border-gray-300 rounded-lg p-2.5">
-                            <option value="All">All Countries</option>
-                            {uniqueCountries.map(c => <option key={c} value={c}>{c}</option>)}
-                        </select>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
-                        <select value={filterState} onChange={(e) => setFilterState(e.target.value)}
-                            className="w-full border border-gray-300 rounded-lg p-2.5">
-                            <option value="All">All States</option>
-                            {uniqueStates.map(s => <option key={s} value={s}>{s}</option>)}
-                        </select>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">District</label>
-                        <select value={filterDistrict} onChange={(e) => setFilterDistrict(e.target.value)}
-                            className="w-full border border-gray-300 rounded-lg p-2.5">
-                            <option value="All">All Districts</option>
-                            {uniqueDistricts.map(d => <option key={d} value={d}>{d}</option>)}
-                        </select>
-                    </div>
+                <div className="grid grid-cols-1 gap-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Year</label>
                         <select value={filterYear} onChange={(e) => setFilterYear(e.target.value)}
@@ -3165,9 +3518,9 @@ function FriendshipMeetsManager() {
                         </select>
                     </div>
                 </div>
-                {(filterCountry !== 'All' || filterState !== 'All' || filterDistrict !== 'All' || filterYear !== 'All') && (
+                {filterYear !== 'All' && (
                     <button
-                        onClick={() => { setFilterCountry('All'); setFilterState('All'); setFilterDistrict('All'); setFilterYear('All') }}
+                        onClick={() => { setFilterYear('All') }}
                         className="mt-4 text-sm text-red-600 hover:text-red-700 font-medium">
                         Clear all filters
                     </button>
@@ -3179,26 +3532,26 @@ function FriendshipMeetsManager() {
                     {filteredMeets.map(meet => (
                         <div key={meet.id} className="bg-white rounded-xl shadow overflow-hidden">
                             <div className="p-6">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div>
-                                        <h3 className="text-xl font-bold text-gray-900 mb-2">
+                                <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 mb-4">
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="text-xl font-bold text-gray-900 mb-2 wrap-break-word">
                                             {meet.caption_en || 'No Caption'} - {meet.district}, {meet.state}, {meet.country}
                                         </h3>
                                         <span className="inline-block bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-semibold">
                                             Year: {meet.year}
                                         </span>
                                     </div>
-                                    <div className="flex gap-2">
+                                    <div className="flex flex-wrap gap-2 lg:flex-nowrap lg:shrink-0">
                                         <button onClick={() => window.location.href = `/admin/friendship-meet/${meet.id}`}
-                                            className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700 transition">
+                                            className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700 transition whitespace-nowrap">
                                             📷 Manage Gallery
                                         </button>
                                         <button onClick={() => openEditModal(meet)}
-                                            className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition">
+                                            className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition whitespace-nowrap">
                                             Edit
                                         </button>
                                         <button onClick={() => handleDelete(meet.id)}
-                                            className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition">
+                                            className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition whitespace-nowrap">
                                             Delete
                                         </button>
                                     </div>
@@ -3230,7 +3583,7 @@ function FriendshipMeetsManager() {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium mb-1">Country *</label>
+                                <label className="block text-sm font-medium mb-1">Country</label>
                                 {!showCountryInput ? (
                                     <select
                                         value={formData.country}
@@ -3242,7 +3595,6 @@ function FriendshipMeetsManager() {
                                                 setFormData({ ...formData, country: e.target.value, state: '', district: '' })
                                             }
                                         }}
-                                        required
                                         className="w-full border rounded-lg p-2.5"
                                     >
                                         <option value="">Select Country</option>
@@ -3257,7 +3609,6 @@ function FriendshipMeetsManager() {
                                             onChange={(e) => setCustomCountryInput(e.target.value)}
                                             placeholder="Enter country name"
                                             className="flex-1 border rounded-lg p-2.5"
-                                            required
                                         />
                                         <button
                                             type="button"
@@ -3273,7 +3624,7 @@ function FriendshipMeetsManager() {
                                 )}
                             </div>
                             <div>
-                                <label className="block text-sm font-medium mb-1">State *</label>
+                                <label className="block text-sm font-medium mb-1">State</label>
                                 {!showStateInput ? (
                                     <select
                                         value={formData.state}
@@ -3285,7 +3636,6 @@ function FriendshipMeetsManager() {
                                                 setFormData({ ...formData, state: e.target.value, district: '' })
                                             }
                                         }}
-                                        required
                                         disabled={!formData.country && !showCountryInput}
                                         className="w-full border rounded-lg p-2.5 disabled:bg-gray-100"
                                     >
@@ -3301,7 +3651,6 @@ function FriendshipMeetsManager() {
                                             onChange={(e) => setCustomStateInput(e.target.value)}
                                             placeholder="Enter state/province name"
                                             className="flex-1 border rounded-lg p-2.5"
-                                            required
                                         />
                                         <button
                                             type="button"
@@ -3320,7 +3669,7 @@ function FriendshipMeetsManager() {
 
                         <div className="grid grid-cols-2 gap-4 mt-4">
                             <div>
-                                <label className="block text-sm font-medium mb-1">District *</label>
+                                <label className="block text-sm font-medium mb-1">District</label>
                                 {!showDistrictInput ? (
                                     <select
                                         value={formData.district}
@@ -3332,7 +3681,6 @@ function FriendshipMeetsManager() {
                                                 setFormData({ ...formData, district: e.target.value })
                                             }
                                         }}
-                                        required
                                         disabled={!formData.state && !showStateInput}
                                         className="w-full border rounded-lg p-2.5 disabled:bg-gray-100"
                                     >
@@ -3348,7 +3696,6 @@ function FriendshipMeetsManager() {
                                             onChange={(e) => setCustomDistrictInput(e.target.value)}
                                             placeholder="Enter district name"
                                             className="flex-1 border rounded-lg p-2.5"
-                                            required
                                         />
                                         <button
                                             type="button"
@@ -3414,7 +3761,7 @@ function FriendshipMeetsManager() {
                                     onChange={handleBannerSelect}
                                     className="w-full border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-yellow-400 transition cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100"
                                 />
-                            ) : (
+                            ) : (!shouldDeleteBanner && (bannerPreview || editing?.banner_image?.url)) ? (
                                 <div className="relative inline-block">
                                     <img
                                         src={bannerPreview || editing?.banner_image?.url}
@@ -3432,6 +3779,13 @@ function FriendshipMeetsManager() {
                                         <p className="text-xs text-gray-500 mt-1">Existing banner (upload new to replace)</p>
                                     )}
                                 </div>
+                            ) : (
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleBannerSelect}
+                                    className="w-full border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-yellow-400 transition cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100"
+                                />
                             )}
                         </div>
                     </div>
@@ -3452,6 +3806,117 @@ function FriendshipMeetsManager() {
 // ═══════════════════════════════════════════════════════════════════════════════
 // FRIENDS DAY CONTENT MANAGER (Sub-component)
 // ═══════════════════════════════════════════════════════════════════════════════
+function FriendshipMeetsContentManager() {
+    const [loading, setLoading] = useState(true)
+    const [submitting, setSubmitting] = useState(false)
+    const [msg, setMsg] = useState({ text: '', type: 'success' as 'success' | 'error' })
+
+    // Content state
+    const [introTitleEn, setIntroTitleEn] = useState('')
+    const [introTitleTa, setIntroTitleTa] = useState('')
+    const [introContentEn, setIntroContentEn] = useState('')
+    const [introContentTa, setIntroContentTa] = useState('')
+
+    const fetchContent = useCallback(async () => {
+        try {
+            const res = await fetch('/api/admin/friendship-meets-content')
+            const data = await res.json()
+            if (data.success && data.data) {
+                const d = data.data
+                setIntroTitleEn(d.intro_title_en || '')
+                setIntroTitleTa(d.intro_title_ta || '')
+                setIntroContentEn(d.intro_content_en || '')
+                setIntroContentTa(d.intro_content_ta || '')
+            }
+        } catch { /* ignore */ }
+        setLoading(false)
+    }, [])
+
+    useEffect(() => {
+        let isMounted = true
+        if (isMounted) {
+            fetchContent()
+        }
+        return () => { isMounted = false }
+    }, [fetchContent])
+
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        setSubmitting(true)
+
+        const body = {
+            intro_title_en: introTitleEn,
+            intro_title_ta: introTitleTa,
+            intro_content_en: introContentEn,
+            intro_content_ta: introContentTa,
+        }
+
+        try {
+            const res = await fetch('/api/admin/friendship-meets-content', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
+            })
+            const data = await res.json()
+            if (data.success) {
+                setMsg({ text: 'Content updated successfully!', type: 'success' })
+            } else {
+                setMsg({ text: data.error || 'Failed to update', type: 'error' })
+            }
+        } catch { setMsg({ text: 'Failed to update', type: 'error' }) }
+        setSubmitting(false)
+    }
+
+    if (loading) return <p className="text-gray-500">Loading...</p>
+
+    return (
+        <div>
+            <SectionHeader title="Friendship Meet Content" />
+            <StatusMessage message={msg.text} type={msg.type} />
+
+            <form onSubmit={handleSubmit} className="space-y-8 bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+                {/* Intro Section */}
+                <div className="space-y-4 pt-4">
+                    <h3 className="text-xl font-bold text-gray-800 border-b pb-2">Intro Section</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Intro Title (English)</label>
+                            <RichTextEditor
+                                value={introTitleEn}
+                                onChange={setIntroTitleEn}
+                                placeholder="e.g. About Friendship Meets"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Intro Title (Tamil)</label>
+                            <RichTextEditor
+                                value={introTitleTa}
+                                onChange={setIntroTitleTa}
+                                placeholder="Enter title (Tamil)"
+                            />
+                        </div>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium mb-1">Intro Content (English)</label>
+                        <RichTextEditor value={introContentEn} onChange={setIntroContentEn} placeholder="Intro section text..." />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium mb-1">Intro Content (Tamil)</label>
+                        <RichTextEditor value={introContentTa} onChange={setIntroContentTa} placeholder="Tamil intro section text..." />
+                    </div>
+                </div>
+
+                <div className="pt-4">
+                    <button type="submit" disabled={submitting}
+                        className="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 font-semibold transition disabled:opacity-50">
+                        {submitting ? 'Saving...' : 'Save Changes'}
+                    </button>
+                </div>
+            </form>
+        </div>
+    )
+}
+
 function FriendshipContentManager() {
     const [loading, setLoading] = useState(true)
     const [submitting, setSubmitting] = useState(false)

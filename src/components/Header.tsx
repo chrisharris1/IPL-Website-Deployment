@@ -68,7 +68,9 @@ const Header: React.FC<Props> = () => {
       hasDropdown: true,
       dropdownItems: [
         { path: '/news-events', label: 'nav.iplNews' },
-        { path: '/friendship-meet', label: 'nav.meet' },
+        { path: '/events', label: 'nav.events' },
+        { path: '/friendship-meets', label: 'nav.friendshipMeets' },
+        { path: '/friendship-meet', label: 'nav.friendsDay' },
       ],
     },
     { path: '/join-now', label: 'nav.joinNow' },

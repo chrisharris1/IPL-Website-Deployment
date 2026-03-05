@@ -156,8 +156,10 @@ export default function GalleryManagementPage({ params }: { params: Promise<{ id
         setEditing(null)
         setImageFile(null)
         setImagePreview('')
+        setMsg({ text: '', type: 'success' }) // Clear any previous error messages
         // Pre-fill location from meet if available
-        setFormData({
+        console.log('Opening add modal - Meet data:', meet)
+        const newFormData = {
             title_en: '',
             title_ta: '',
             country: meet?.country || '',
@@ -167,7 +169,9 @@ export default function GalleryManagementPage({ params }: { params: Promise<{ id
             date: '',
             description_en: '',
             description_ta: '',
-        })
+        }
+        console.log('Pre-filled form data:', newFormData)
+        setFormData(newFormData)
         setShowCountryInput(false)
         setShowStateInput(false)
         setShowDistrictInput(false)
@@ -183,6 +187,7 @@ export default function GalleryManagementPage({ params }: { params: Promise<{ id
         setEditing(item)
         setImageFile(null)
         setImagePreview('')
+        setMsg({ text: '', type: 'success' }) // Clear any previous error messages
         setFormData({
             title_en: item.title_en,
             title_ta: item.title_ta,
@@ -225,6 +230,35 @@ export default function GalleryManagementPage({ params }: { params: Promise<{ id
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         setSubmitting(true)
+
+        // Client-side validation
+        const cleanValue = (val: string) => val?.replace(/<[^>]*>/g, '').trim() || ''
+        
+        if (!cleanValue(formData.title_en)) {
+            setMsg({ text: '⚠️ Title (English) is required', type: 'error' })
+            setSubmitting(false)
+            return
+        }
+        if (!formData.country && !showCountryInput) {
+            setMsg({ text: '⚠️ Country is required', type: 'error' })
+            setSubmitting(false)
+            return
+        }
+        if (!formData.state && !showStateInput) {
+            setMsg({ text: '⚠️ State is required', type: 'error' })
+            setSubmitting(false)
+            return
+        }
+        if (!formData.date) {
+            setMsg({ text: '⚠️ Event Date is required', type: 'error' })
+            setSubmitting(false)
+            return
+        }
+        if (!editing && !imageFile) {
+            setMsg({ text: '⚠️ Image is required', type: 'error' })
+            setSubmitting(false)
+            return
+        }
 
         // Handle custom locations
         let finalCountry = formData.country
@@ -350,6 +384,12 @@ export default function GalleryManagementPage({ params }: { params: Promise<{ id
             submitData.image = imageBase64
         }
 
+        console.log('Submitting gallery item:', {
+            ...submitData,
+            image: submitData.image ? 'Base64 image data present' : 'No image',
+            new_image: submitData.new_image ? 'Base64 image data present' : 'No new image'
+        })
+
         try {
             const res = await fetch(`/api/admin/friendship-meets/${meetId}/gallery`, {
                 method: editing ? 'PUT' : 'POST',
@@ -357,6 +397,7 @@ export default function GalleryManagementPage({ params }: { params: Promise<{ id
                 body: JSON.stringify(submitData),
             })
             const data = await res.json()
+            console.log('Gallery API response:', data)
             if (data.success) {
                 setMsg({ text: editing ? 'Item updated!' : 'Item added!', type: 'success' })
                 setShowModal(false)
@@ -365,7 +406,8 @@ export default function GalleryManagementPage({ params }: { params: Promise<{ id
             } else {
                 setMsg({ text: data.error || 'Failed', type: 'error' })
             }
-        } catch {
+        } catch (error) {
+            console.error('Gallery submission error:', error)
             setMsg({ text: 'Failed', type: 'error' })
         }
         setSubmitting(false)
@@ -533,14 +575,24 @@ export default function GalleryManagementPage({ params }: { params: Promise<{ id
                             </div>
 
                             <form onSubmit={handleSubmit} className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+                                {/* Error Message within Modal */}
+                                {msg.text && msg.type === 'error' && (
+                                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                                        <p className="text-red-700 font-medium">{msg.text}</p>
+                                    </div>
+                                )}
+
                                 {/* Titles */}
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Title (English) *</label>
+                                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Title (English) *
+                                            <span className="text-xs text-blue-700 ml-2">(Required)</span>
+                                        </label>
                                         <RichTextEditor
                                             value={formData.title_en}
                                             onChange={(value) => setFormData({ ...formData, title_en: value })}
-                                            placeholder="Enter title"
+                                            placeholder="Enter title (This field is required)"
                                         />
                                     </div>
                                     <div>
@@ -659,7 +711,7 @@ export default function GalleryManagementPage({ params }: { params: Promise<{ id
                                 {/* Location - Row 2: District, City */}
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">District *</label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">District</label>
                                         {!showDistrictInput ? (
                                             <select
                                                 value={formData.district}
@@ -671,7 +723,6 @@ export default function GalleryManagementPage({ params }: { params: Promise<{ id
                                                         setFormData({ ...formData, district: e.target.value, city: '' })
                                                     }
                                                 }}
-                                                required
                                                 disabled={!formData.state && !showStateInput}
                                                 className="w-full border border-gray-300 rounded-lg p-2.5 disabled:bg-gray-100"
                                             >
@@ -693,7 +744,6 @@ export default function GalleryManagementPage({ params }: { params: Promise<{ id
                                                     onChange={(e) => setCustomDistrictInput(e.target.value)}
                                                     placeholder="Enter district name"
                                                     className="flex-1 border border-gray-300 rounded-lg p-2.5"
-                                                    required
                                                 />
                                                 <button
                                                     type="button"
@@ -709,7 +759,7 @@ export default function GalleryManagementPage({ params }: { params: Promise<{ id
                                         )}
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">City *</label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
                                         {!showCityInput ? (
                                             <select
                                                 value={formData.city}
@@ -721,7 +771,6 @@ export default function GalleryManagementPage({ params }: { params: Promise<{ id
                                                         setFormData({ ...formData, city: e.target.value })
                                                     }
                                                 }}
-                                                required
                                                 disabled={!formData.district && !showDistrictInput}
                                                 className="w-full border border-gray-300 rounded-lg p-2.5 disabled:bg-gray-100"
                                             >
@@ -743,7 +792,6 @@ export default function GalleryManagementPage({ params }: { params: Promise<{ id
                                                     onChange={(e) => setCustomCityInput(e.target.value)}
                                                     placeholder="Enter city name"
                                                     className="flex-1 border border-gray-300 rounded-lg p-2.5"
-                                                    required
                                                 />
                                                 <button
                                                     type="button"
@@ -774,7 +822,9 @@ export default function GalleryManagementPage({ params }: { params: Promise<{ id
 
                                 {/* Descriptions */}
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Description (English) *</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Description (English)
+                                    </label>
                                     <RichTextEditor
                                         value={formData.description_en}
                                         onChange={(value) => setFormData({ ...formData, description_en: value })}

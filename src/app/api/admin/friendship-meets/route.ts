@@ -148,9 +148,9 @@ export async function POST(request: Request) {
         const data = await request.json()
 
         // Validate required fields
-        if (!data.country || !data.state || !data.district || !data.year) {
+        if (!data.year) {
             return NextResponse.json(
-                { success: false, error: 'Country, state, district, and year are required' },
+                { success: false, error: 'Year is required' },
                 { status: 400 }
             )
         }

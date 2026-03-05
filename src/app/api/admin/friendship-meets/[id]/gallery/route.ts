@@ -112,21 +112,33 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         const { id } = await params
         const data = await request.json()
 
-        // Validate required fields
-        if (
-            !data.title_en ||
-            !data.country ||
-            !data.state ||
-            !data.district ||
-            !data.city ||
-            !data.date ||
-            !data.description_en ||
-            !data.image
-        ) {
+        console.log('Gallery POST - Received data:', {
+            has_title_en: !!data.title_en,
+            has_country: !!data.country,
+            has_state: !!data.state,
+            has_date: !!data.date,
+            has_description_en: !!data.description_en,
+            has_image: !!data.image,
+            title_en: data.title_en,
+            country: data.country,
+            state: data.state,
+            date: data.date,
+        })
+
+        // Validate required fields with detailed error messages
+        const missingFields: string[] = []
+        if (!data.title_en || data.title_en.trim() === '' || data.title_en === '<p></p>' || data.title_en === '<p><br></p>') missingFields.push('Title (English)')
+        if (!data.country || data.country.trim() === '') missingFields.push('Country')
+        if (!data.state || data.state.trim() === '') missingFields.push('State')
+        if (!data.date || data.date.trim() === '') missingFields.push('Date')
+        if (!data.image || data.image.trim() === '') missingFields.push('Image')
+
+        if (missingFields.length > 0) {
+            console.log('Gallery POST - Validation failed. Missing fields:', missingFields)
             return NextResponse.json(
                 {
                     success: false,
-                    error: 'Title (English), country, state, district, city, date, description (English), and image are required',
+                    error: `Missing required fields: ${missingFields.join(', ')}`,
                 },
                 { status: 400 }
             )
@@ -173,8 +185,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
             title_ta: data.title_ta || '',
             country: data.country,
             state: data.state,
-            district: data.district,
-            city: data.city,
+            district: data.district || '',
+            city: data.city || '',
             date: new Date(data.date),
             description_en: data.description_en,
             description_ta: data.description_ta || '',
@@ -274,8 +286,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
             title_ta: data.title_ta !== undefined ? data.title_ta : existingItem.title_ta,
             country: data.country || existingItem.country,
             state: data.state || existingItem.state,
-            district: data.district || existingItem.district,
-            city: data.city || existingItem.city,
+            district: data.district !== undefined ? data.district : existingItem.district,
+            city: data.city !== undefined ? data.city : existingItem.city,
             date: data.date ? new Date(data.date) : existingItem.date,
             description_en: data.description_en !== undefined ? data.description_en : existingItem.description_en,
             description_ta: data.description_ta !== undefined ? data.description_ta : existingItem.description_ta,
