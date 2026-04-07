@@ -26,6 +26,29 @@ export async function POST(request: NextRequest) {
         }
 
         const { username, password } = validation.data
+
+        const envUsername = process.env.ADMIN_USERNAME
+        const envPassword = process.env.ADMIN_PASSWORD
+
+        if (envUsername && envPassword && username === envUsername && password === envPassword) {
+            const token = await signToken({
+                sub: 'env-admin',
+                username: envUsername,
+                role: 'owner',
+            })
+
+            const cookieStore = await cookies()
+            cookieStore.set('admin_token', token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
+                maxAge: 4 * 60 * 60,
+                path: '/',
+            })
+
+            return NextResponse.json({ success: true })
+        }
+
         const db = await getDb()
 
         // 3. User Lookup

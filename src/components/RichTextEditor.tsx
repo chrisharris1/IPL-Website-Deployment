@@ -17,17 +17,46 @@ interface RichTextEditorProps {
 
 const COLORS = [
   { name: 'Black', value: '#000000' },
+  { name: 'Rich Black', value: '#0B0F14' },
+  { name: 'Onyx', value: '#111827' },
+  { name: 'Gunmetal', value: '#1F2937' },
+  { name: 'Slate Dark', value: '#334155' },
+  { name: 'Blue Gray', value: '#374151' },
+  { name: 'Ash Gray', value: '#4B5563' },
   { name: 'Dark Gray', value: '#1F2937' },
   { name: 'Charcoal', value: '#2D3748' },
+  { name: 'Midnight Blue', value: '#0F172A' },
+  { name: 'Oxford Blue', value: '#14213D' },
+  { name: 'Prussian Blue', value: '#1D3557' },
   { name: 'Dark Blue', value: '#1E3A8A' },
   { name: 'Navy', value: '#1E40AF' },
+  { name: 'Cobalt Deep', value: '#1E3A8A' },
+  { name: 'Indigo Night', value: '#312E81' },
+  { name: 'Royal Purple Dark', value: '#4C1D95' },
   { name: 'Dark Red', value: '#991B1B' },
+  { name: 'Maroon', value: '#7F1D1D' },
+  { name: 'Burgundy', value: '#7C2D12' },
+  { name: 'Wine', value: '#6B1324' },
   { name: 'Crimson', value: '#DC143C' },
   { name: 'Dark Green', value: '#14532D' },
-  { name: 'Forest Green', value: '#166534' },
+  { name: 'Pine Green', value: '#064E3B' },
+  { name: 'Forest Deep', value: '#166534' },
+  { name: 'Olive Dark', value: '#3F6212' },
+  { name: 'Teal Deep', value: '#0F766E' },
+  { name: 'Petrol Blue', value: '#164E63' },
   { name: 'Dark Purple', value: '#581C87' },
-  { name: 'Indigo', value: '#4C1D95' },
+  { name: 'Eggplant', value: '#3B0764' },
+  { name: 'Plum Deep', value: '#5B214A' },
   { name: 'Dark Brown', value: '#78350F' },
+  { name: 'Coffee', value: '#5C4033' },
+  { name: 'Chocolate', value: '#4E342E' },
+  { name: 'Walnut', value: '#3B2F2F' },
+  { name: 'Graphite', value: '#374151' },
+  { name: 'Steel Gray', value: '#475569' },
+  { name: 'Smoke', value: '#6B7280' },
+  { name: 'Stone', value: '#78716C' },
+  { name: 'Indigo', value: '#4C1D95' },
+  { name: 'Forest Green', value: '#166534' },
   { name: 'Red', value: '#EF4444' },
   { name: 'Orange', value: '#F97316' },
   { name: 'Yellow', value: '#EAB308' },
@@ -239,10 +268,28 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
               editor.chain().focus().setFontFamily(e.target.value).run()
             }
           }}
-          className="px-2 py-1 rounded border bg-white text-sm max-w-[120px]"
+          className="px-2 py-1 rounded border bg-white text-sm max-w-[220px]"
           title="Font Family"
         >
           <option value="default">Default</option>
+          <option value="Noto Sans Tamil, sans-serif">Noto Sans Tamil</option>
+          <option value="Noto Serif Tamil, serif">Noto Serif Tamil</option>
+          <option value="Hind Madurai, sans-serif">Hind Madurai</option>
+          <option value="Tiro Tamil, serif">Tiro Tamil</option>
+          <option value="Mukta Malar, sans-serif">Mukta Malar</option>
+          <option value="Baloo Thambi 2, cursive">Baloo Thambi 2</option>
+          <option value="Noto Sans, sans-serif">Noto Sans</option>
+          <option value="Poppins, sans-serif">Poppins</option>
+          <option value="Montserrat, sans-serif">Montserrat</option>
+          <option value="Nunito, sans-serif">Nunito</option>
+          <option value="Source Sans 3, sans-serif">Source Sans 3</option>
+          <option value="IBM Plex Sans, sans-serif">IBM Plex Sans</option>
+          <option value="Merriweather, serif">Merriweather</option>
+          <option value="Lora, serif">Lora</option>
+          <option value="Crimson Pro, serif">Crimson Pro</option>
+          <option value="Libre Baskerville, serif">Libre Baskerville</option>
+          <option value="Playfair Display, serif">Playfair Display</option>
+          <option value="Roboto Slab, serif">Roboto Slab</option>
           <option value="Arial">Arial</option>
           <option value="Georgia">Georgia</option>
           <option value="Times New Roman">Times</option>
@@ -320,7 +367,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
               <div className="grid grid-cols-6 gap-2">
                 {COLORS.map((color) => (
                   <button
-                    key={color.value}
+                    key={`${color.name}-${color.value}`}
                     type="button"
                     onClick={(e) => {
                       e.preventDefault()

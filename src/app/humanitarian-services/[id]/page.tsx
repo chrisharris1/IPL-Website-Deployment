@@ -83,7 +83,7 @@ export default function HumanitarianServiceDetail() {
             {/* Hero Image */}
             <section className="relative bg-white">
                 <div className="container-custom mx-auto px-4 py-8">
-                    <div className="relative aspect-21/9 w-full rounded-2xl overflow-hidden shadow-2xl bg-neutral-100">
+                    <div className="relative aspect-21/9 w-full rounded-2xl overflow-hidden shadow-2xl bg-neutral-100 group">
                         <Image
                             src={service.image_url}
                             alt={lang === 'ta' ? service.title_ta : service.title_en}
@@ -92,33 +92,13 @@ export default function HumanitarianServiceDetail() {
                             className="object-contain bg-neutral-100"
                             priority
                         />
-                    </div>
-                </div>
-            </section>
-
-            {/* Content */}
-            <section className="py-12">
-                <div className="container-custom mx-auto px-4">
-                    <div className="max-w-4xl mx-auto">
-                        {/* Title */}
-                        <div className="mb-8">
-                            <div className="inline-flex items-center gap-2 bg-primary-100 px-4 py-2 rounded-full mb-4">
-                                <HandHeart className="w-5 h-5 text-primary-700" />
-                                <span className="text-primary-700 font-medium text-xs sm:text-sm">{t('service.humanitarian_service', 'Humanitarian Service')}</span>
-                            </div>
-                            <h1 className="text-3xl md:text-4xl font-bold uppercase text-neutral-900 leading-tight" dangerouslySetInnerHTML={{ __html: lang === 'ta' && service.title_ta ? service.title_ta : service.title_en }} />
-                        </div>
-
-                        {/* Meta Info */}
-                        <div className="bg-white rounded-2xl shadow-md p-6 mb-8 border border-neutral-200">
-                            <div className="flex flex-wrap gap-6">
-                                <div className="flex items-center gap-3">
-                                    <div className="bg-primary-100 p-3 rounded-xl">
-                                        <Calendar className="w-6 h-6 text-primary-700" />
-                                    </div>
+                        <div className="absolute left-4 top-8 sm:left-6 sm:top-10 z-10 max-w-[220px] rounded-xl bg-white/60 backdrop-blur-md border border-white/50 shadow-lg px-3 py-2 opacity-90 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-1">
+                            <div className="space-y-2">
+                                <div className="flex items-start gap-2">
+                                    <Calendar className="w-4 h-4 text-primary-700 mt-0.5 shrink-0" />
                                     <div>
-                                        <p className="text-xs text-neutral-500 uppercase tracking-wide mb-0.5">{t('service.date', 'Date')}</p>
-                                        <p className="text-sm sm:text-base text-neutral-900 font-semibold">
+                                        <p className="text-[9px] uppercase tracking-wide text-neutral-500 mb-0.5">{t('service.date', 'Date')}</p>
+                                        <p className="text-[11px] sm:text-xs font-semibold text-neutral-900 leading-tight">
                                             {new Date(service.date).toLocaleDateString('en-US', {
                                                 month: 'long',
                                                 day: 'numeric',
@@ -127,24 +107,36 @@ export default function HumanitarianServiceDetail() {
                                         </p>
                                     </div>
                                 </div>
-
-                                <div className="flex items-center gap-3">
-                                    <div className="bg-primary-100 p-3 rounded-xl">
-                                        <MapPin className="w-6 h-6 text-primary-700" />
-                                    </div>
+                                <div className="flex items-start gap-2">
+                                    <MapPin className="w-4 h-4 text-primary-700 mt-0.5 shrink-0" />
                                     <div>
-                                        <p className="text-xs text-neutral-500 uppercase tracking-wide mb-0.5">{t('service.location', 'Location')}</p>
-                                        <p className="text-sm sm:text-base text-neutral-900 font-semibold">
+                                        <p className="text-[9px] uppercase tracking-wide text-neutral-500 mb-0.5">{t('service.location', 'Location')}</p>
+                                        <p className="text-[11px] sm:text-xs font-semibold text-neutral-900 leading-tight">
                                             {[service.city, service.district, service.state, service.country].filter(Boolean).join(', ')}
                                         </p>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Content */}
+            <section className="py-12">
+                <div className="container-custom mx-auto px-4">
+                    <div className="max-w-4xl mx-auto">
+                        <div className="inline-flex items-center gap-2 bg-primary-100 px-4 py-2 rounded-full mb-4">
+                            <HandHeart className="w-4 h-4 text-primary-700" />
+                            <span className="text-primary-700 font-medium text-xs sm:text-sm">{t('service.humanitarian_service', 'Humanitarian Service')}</span>
+                        </div>
 
                         {/* Description */}
                         <div className="bg-white rounded-2xl shadow-md p-6 sm:p-8 border border-neutral-200">
-                            <h2 className="text-xl sm:text-2xl font-bold text-neutral-900 mb-6">{t('service.about_service', 'About This Service')}</h2>
+                            <h1
+                                className="text-base sm:text-lg md:text-xl font-semibold uppercase text-neutral-900 leading-tight mb-4"
+                                dangerouslySetInnerHTML={{ __html: lang === 'ta' && service.title_ta ? service.title_ta : service.title_en }}
+                            />
                             <div
                                 className="prose prose-lg max-w-none text-neutral-700 leading-relaxed"
                                 dangerouslySetInnerHTML={{

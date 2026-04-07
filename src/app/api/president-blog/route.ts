@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
             db
                 .collection('president_blog')
                 .find(mongoFilter)
-                .sort({ created_at: -1 })
+                .sort({ order_index: 1, created_at: -1 })
                 .skip(offset)
                 .limit(limit)
                 .toArray(),

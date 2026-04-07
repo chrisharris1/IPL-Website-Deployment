@@ -89,26 +89,16 @@ export default function HumanitarianServices() {
                     </span>
                 </div>
 
-                {/* Date Badge */}
-                <div className="absolute top-3 left-3 bg-white rounded-md shadow-md overflow-hidden">
-                    <div className={`${isUpcoming ? 'bg-red-700' : 'bg-neutral-500'} text-white text-[10px] font-bold px-2 py-0.5 text-center`}>
-                        {new Date(service.date).toLocaleDateString(lang === 'ta' ? 'ta-IN' : 'en-US', { month: 'short' }).toUpperCase()}
-                    </div>
-                    <div className="px-2 py-1 text-lg font-bold text-neutral-900 text-center">
-                        {new Date(service.date).getDate()}
-                    </div>
-                </div>
             </div>
 
             <div className="p-6 flex flex-col grow">
-                <h3 className="text-lg font-bold text-neutral-900 mb-3 line-clamp-2 group-hover:text-red-700 transition-colors leading-tight" dangerouslySetInnerHTML={{ __html: (lang === 'ta' ? service.title_ta : service.title_en) || service.title_en }} />
-
-                <div className="flex items-center gap-2 text-xs text-neutral-500 mb-3">
-                    <Calendar className={`w-3.5 h-3.5 ${isUpcoming ? 'text-emerald-600' : 'text-neutral-400'}`} />
-                    <span className="font-medium">
+                <div className="flex items-center text-lg sm:text-xl text-neutral-800 mb-3">
+                    <span className="font-extrabold">
                         {new Date(service.date).toLocaleDateString(lang === 'ta' ? 'ta-IN' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                     </span>
                 </div>
+
+                <h3 className="text-lg font-bold text-neutral-900 mb-3 line-clamp-2 group-hover:text-red-700 transition-colors leading-tight" dangerouslySetInnerHTML={{ __html: (lang === 'ta' ? service.title_ta : service.title_en) || service.title_en }} />
 
                 <div className="flex items-start gap-2 text-xs text-neutral-600 mb-4">
                     <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-red-600" />

@@ -63,7 +63,7 @@ function NewsEventsContent() {
                 <div className="absolute inset-0 z-0 pointer-events-none">
                     <Image
                         src="/Images/iplbanner.png"
-                        alt="News & Events background"
+                        alt="News background"
                         fill
                         className="opacity-40 object-contain"
                         style={{ objectPosition: 'center' }}
@@ -79,7 +79,7 @@ function NewsEventsContent() {
                         </span>
                     </div>
                     <h1 className="text-5xl md:text-6xl font-extrabold uppercase tracking-tight text-neutral-900 mb-6 animate-slide-up">
-                        {t('news.title', 'News & Events')}
+                        {t('news.title', 'News')}
                     </h1>
                     <p className="text-lg md:text-xl text-neutral-600 leading-relaxed max-w-3xl mx-auto animate-slide-up" style={{ animationDelay: '0.1s' }}>
                         {t('news.subtitle', "Discover the latest happenings, milestones, and celebrations from the Indian Penpals' League community")}

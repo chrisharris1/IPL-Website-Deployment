@@ -5,9 +5,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import {
   Heart,
-  Users,
-  HandHeart,
-  Calendar,
   ArrowRight,
   Mail,
   ChevronLeft,
@@ -297,12 +294,6 @@ const RecentActivitiesCarousel: React.FC = () => {
 export default function Home() {
   const { t, lang } = useTranslation()
 
-  const features = [
-    { icon: HandHeart, link: '/humanitarian-services', titleKey: 'home.feature1_title', descKey: 'home.feature1_desc', color: 'bg-rose-50 text-rose-600' },
-    { icon: Users, link: '/friendship-meet', titleKey: 'home.feature2_title', descKey: 'home.feature2_desc', color: 'bg-blue-50 text-blue-600' },
-    { icon: Calendar, link: '/news-events', titleKey: 'home.feature3_title', descKey: 'home.feature3_desc', color: 'bg-amber-50 text-amber-600' },
-  ] as const
-
   // Lazy Cron Trigger
   useEffect(() => {
     // Fire and forget - trigger reminder processing when users visit home
@@ -361,47 +352,6 @@ export default function Home() {
                 </Link>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-20 bg-white">
-        <div className="container-custom mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-neutral-900 mb-4">
-              {String(t('home.our_activities', 'Our Activities'))}
-            </h2>
-            <p className="text-lg text-neutral-600">
-              {String(t('home.activities_subtitle', 'We bring people together through various initiatives aimed at fostering friendship and serving society.'))}
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {features.map((feature, index) => {
-              const Icon = feature.icon
-              return (
-                <Link
-                  href={feature.link}
-                  key={index}
-                  className="group relative bg-red-800 rounded-2xl p-8 hover:bg-red-900 hover:shadow-xl transition-all duration-300 border border-red-700/50"
-                >
-                  <div className="w-14 h-14 rounded-xl bg-white/15 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 text-white">
-                    <Icon className="w-7 h-7" />
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-3 transition-colors">
-                    {String(t(feature.titleKey))}
-                  </h3>
-                  <p className="text-white/70 mb-6 leading-relaxed">
-                    {String(t(feature.descKey))}
-                  </p>
-                  <div className="flex items-center text-yellow-400 font-semibold group-hover:gap-2 transition-all">
-                    {String(t('home.learn_more', 'Learn more'))}
-                    <ArrowRight className="w-4 h-4 ml-1" />
-                  </div>
-                </Link>
-              )
-            })}
           </div>
         </div>
       </section>

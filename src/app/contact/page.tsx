@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState, useRef } from 'react'
 import Image from 'next/image'
-import emailjs from '@emailjs/browser'
 import { useTranslation } from '@/contexts/TranslationContext'
 import { Mail, Phone, MapPin, Clock, ShieldCheck } from 'lucide-react'
 
@@ -227,39 +226,27 @@ export default function Contact() {
 
         try {
             setStatus({ loading: true, success: false })
-            const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID as string | undefined
-            const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID as string | undefined
-            const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY as string | undefined
-
             // Sanitize inputs before sending
             const sanitizedName = sanitizeInput(name)
             const sanitizedEmail = sanitizeInput(email)
             const sanitizedSubject = sanitizeInput(subject)
             const sanitizedMessage = sanitizeInput(message)
 
-            if (!serviceId || !templateId || !publicKey) {
-                console.warn('EmailJS env vars missing; skipping real send')
-                await new Promise((r) => setTimeout(r, 500))
-                setStatus({ loading: false, success: true })
-                setName(''); setEmail(''); setSubject(''); setMessage('')
-                setErrors({})
-                incrementDailySubmissions()
-                setDailyLimitReached(isDailyLimitExceeded())
-                const newCooldown = Date.now() + COOLDOWN_MS
-                setCooldownUntil(newCooldown)
-                setStoredCooldown(newCooldown)
-                formLoadTime.current = Date.now() // Reset form load time
-                return
+            const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: sanitizedName,
+                    email: sanitizedEmail,
+                    subject: sanitizedSubject,
+                    message: sanitizedMessage,
+                }),
+            })
+
+            if (!response.ok) {
+                throw new Error('Failed to submit contact form')
             }
 
-            const templateParams = {
-                name: sanitizedName,
-                email: sanitizedEmail,
-                subject: sanitizedSubject,
-                message: sanitizedMessage,
-            }
-
-            await emailjs.send(serviceId, templateId, templateParams, publicKey)
             setStatus({ loading: false, success: true })
             setName(''); setEmail(''); setSubject(''); setMessage('')
             setErrors({})

@@ -25,6 +25,8 @@ const Card: React.FC<{ person: Person }> = ({ person }) => {
         }
     }
 
+    const displayRole = person.role.replace(/^Overseas\s+/i, '')
+
     return (
         <div
             className={`group bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-neutral-100 text-center relative overflow-hidden ${person.link ? 'cursor-pointer' : ''}`}
@@ -32,20 +34,20 @@ const Card: React.FC<{ person: Person }> = ({ person }) => {
         >
             <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-red-600 to-red-800 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
 
-            <div className="w-56 h-56 mx-auto mb-4 rounded-xl p-1.5 bg-linear-to-br from-red-100 to-red-50 group-hover:from-red-600 group-hover:to-red-800 transition-colors duration-300">
+            <div className="w-56 h-60 mx-auto mb-4 rounded-xl p-1.5 bg-linear-to-br from-red-100 to-red-50 group-hover:from-red-600 group-hover:to-red-800 transition-colors duration-300">
                 <div className="w-full h-full rounded-lg overflow-hidden bg-white relative">
                     <Image
                         src={person.img}
                         alt={`${person.name} photo`}
                         fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-110"
+                        className="object-cover object-top transition-transform duration-500 group-hover:scale-110"
                         sizes="224px"
                     />
                 </div>
             </div>
 
             <h3 className="text-lg font-bold text-neutral-900 mb-1">{person.name}</h3>
-            <p className="text-red-700 font-medium text-sm">{person.role}</p>
+            <p className="text-red-700 font-medium text-sm">{displayRole}</p>
             {person.location && (
                 <div className="flex items-center justify-center gap-1.5 mb-4 mt-1">
                     <MapPin className="w-4 h-4 text-gray-600" />
@@ -144,6 +146,8 @@ export default function OurTeam() {
         phone: member.phone || '',
         location: member.location || '',
     })
+
+    const toUpperCase = (value: string) => value.toUpperCase()
 
     return (
         <div className="bg-neutral-50 min-h-screen">
@@ -249,8 +253,8 @@ export default function OurTeam() {
                                         <div className="text-center mb-10">
                                             <div className="flex items-center justify-center gap-3 mb-3">
                                                 <Shield className={`w-6 h-6 ${isExecutive ? 'text-red-700' : 'text-red-600'}`} />
-                                                <h2 className={`text-3xl font-bold ${isExecutive ? 'text-red-800' : 'text-neutral-900'}`}>
-                                                    {displayRole}
+                                                <h2 className={`text-3xl sm:text-4xl font-bold ${isExecutive ? 'text-red-800' : 'text-neutral-900'}`}>
+                                                    {toUpperCase(displayRole)}
                                                 </h2>
                                             </div>
                                         </div>
@@ -307,7 +311,7 @@ export default function OurTeam() {
                                             <div className={`flex flex-col items-center w-full ${leftSpan}`}>
                                                 <div className="flex items-center justify-center gap-3 mb-8">
                                                     <Shield className="w-6 h-6 text-purple-700" />
-                                                    <h2 className="text-3xl font-bold text-purple-900">{getRoleTitle(leftGroup.roleName, leftGroup.members.length)}</h2>
+                                                        <h2 className="text-3xl sm:text-4xl font-bold text-purple-900">{toUpperCase(getRoleTitle(leftGroup.roleName, leftGroup.members.length))}</h2>
                                                 </div>
                                                 <div className={`w-full flex flex-wrap justify-center gap-6 ${!hasVP && leftGroup.members.length === 1 ? 'max-w-sm' : ''}`}>
                                                     {leftGroup.members.map((member: TeamMember) => (
@@ -322,7 +326,7 @@ export default function OurTeam() {
                                             <div className={`flex flex-col items-center w-full ${rightSpan}`}>
                                                 <div className="flex items-center justify-center gap-3 mb-8">
                                                     <Shield className="w-6 h-6 text-purple-700" />
-                                                    <h2 className="text-3xl font-bold text-purple-900">{getRoleTitle(rightGroup.roleName, rightGroup.members.length)}</h2>
+                                                        <h2 className="text-3xl sm:text-4xl font-bold text-purple-900">{toUpperCase(getRoleTitle(rightGroup.roleName, rightGroup.members.length))}</h2>
                                                 </div>
                                                 <div className={`w-full flex flex-wrap justify-center gap-6 ${!hasVP && rightGroup.members.length === 1 ? 'max-w-sm' : ''}`}>
                                                     {rightGroup.members.map((member: TeamMember) => (
@@ -377,7 +381,7 @@ export default function OurTeam() {
                                         <div className="text-center mb-10">
                                             <div className="flex items-center justify-center gap-3 mb-3">
                                                 <Shield className="w-6 h-6 text-red-700" />
-                                                <h2 className="text-2xl sm:text-3xl font-bold text-neutral-900">{t('ourteam.founder_president', 'Founder, President')}</h2>
+                                                <h2 className="text-3xl sm:text-4xl font-bold text-neutral-900">{toUpperCase(t('ourteam.founder_president', 'Founder, President'))}</h2>
                                             </div>
                                         </div>
 
@@ -399,7 +403,7 @@ export default function OurTeam() {
                                         <div className="text-center mb-10">
                                             <div className="flex items-center justify-center gap-3 mb-3">
                                                 <Shield className="w-6 h-6 text-red-700" />
-                                                <h2 className="text-2xl sm:text-3xl font-bold text-neutral-900">{t('ourteam.board_of_trustee', 'Board of Trustee')}</h2>
+                                                <h2 className="text-3xl sm:text-4xl font-bold text-neutral-900">{toUpperCase(t('ourteam.board_of_trustee', 'Board of Trustees'))}</h2>
                                             </div>
                                         </div>
 

@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
         const posts = await db
             .collection('president_blog')
             .find(filter)
-            .sort({ order_index: 1, date: -1, created_at: -1 }) // Added order_index sorting
+            .sort({ order_index: 1, created_at: -1 })
             .toArray()
 
         const mapped = posts.map((p) => ({

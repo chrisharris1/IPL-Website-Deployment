@@ -498,7 +498,7 @@ const translations = {
     },
     news: {
       badge: 'Latest Updates',
-      title: 'News & Events',
+      title: 'News',
       subtitle: "Discover the latest happenings, milestones, and celebrations from the Indian Penpals' League community",
       search_placeholder: 'Search events...',
       view_grid: 'Grid',
@@ -848,7 +848,7 @@ const translations = {
   },
   news: {
     badge: 'சமீபத்திய புதுப்பிப்புகள்',
-    title: 'செய்திகள் & நிகழ்வுகள்',
+    title: 'செய்திகள்',
     subtitle: 'IPL சமூகத்தின் சமீபத்திய நிகழ்வுகள், மைல் கற்கள் மற்றும் கொண்டாட்டங்கள்',
     search_placeholder: 'நிகழ்வுகளை தேடு...',
     view_grid: 'கட்டம்',

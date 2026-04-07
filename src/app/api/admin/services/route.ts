@@ -6,6 +6,33 @@ import { getAdminSession } from '@/lib/auth-edge'
 import { serviceSchema } from '@/lib/validation'
 import sanitizeHtml from 'sanitize-html'
 
+const sanitizeRichText = (html: string) =>
+    sanitizeHtml(html, {
+        allowedTags: sanitizeHtml.defaults.allowedTags.concat(['span', 'p', 'div', 'br', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li']),
+        allowedAttributes: {
+            ...sanitizeHtml.defaults.allowedAttributes,
+            span: ['style'],
+            p: ['style'],
+            div: ['style'],
+            h1: ['style'],
+            h2: ['style'],
+            h3: ['style'],
+            h4: ['style'],
+            h5: ['style'],
+            h6: ['style'],
+        },
+        allowedStyles: {
+            '*': {
+                'color': [/^#[0-9a-fA-F]{3,8}$/, /^rgb\(/, /^rgba\(/, /^[a-zA-Z]+$/],
+                'font-size': [/^\d+(?:\.\d+)?(?:px|em|rem|%)$/],
+                'font-family': [/^[\w\s,'"-]+$/],
+                'text-decoration': [/^underline$/, /^line-through$/, /^none$/],
+                'font-weight': [/^\d{3}$/, /^bold$/, /^normal$/],
+                'font-style': [/^italic$/, /^normal$/],
+            },
+        },
+    })
+
 // GET - List all humanitarian services with search/filter
 export async function GET(request: NextRequest) {
     try {
@@ -107,22 +134,28 @@ export async function POST(request: NextRequest) {
         console.log('Admin Services POST: Image uploaded successfully')
         const db = await getDb()
         
-        // Sanitize HTML content
+        // Preserve rich text styling while removing unsafe markup
+        let sanitizedTitleEn = ''
+        let sanitizedTitleTa = ''
         let sanitizedDescEn = ''
         let sanitizedDescTa = ''
         try {
+            sanitizedTitleEn = rawData.title_en ? sanitizeRichText(rawData.title_en as string) : ''
+            sanitizedTitleTa = rawData.title_ta ? sanitizeRichText(rawData.title_ta as string) : ''
             sanitizedDescEn = rawData.description_en ? sanitizeHtml(rawData.description_en as string) : ''
             sanitizedDescTa = rawData.description_ta ? sanitizeHtml(rawData.description_ta as string) : ''
             console.log('Admin Services POST: HTML sanitized successfully')
         } catch (sanitizeError) {
             console.error('Admin Services POST: Sanitization error', sanitizeError)
+            sanitizedTitleEn = (rawData.title_en as string) || ''
+            sanitizedTitleTa = (rawData.title_ta as string) || ''
             sanitizedDescEn = (rawData.description_en as string) || ''
             sanitizedDescTa = (rawData.description_ta as string) || ''
         }
         
         const doc = {
-            title_en: rawData.title_en,
-            title_ta: rawData.title_ta,
+            title_en: sanitizedTitleEn,
+            title_ta: sanitizedTitleTa,
             country: rawData.country,
             state: rawData.state,
             district: rawData.district,
@@ -175,23 +208,31 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 })
         }
 
-        // Sanitize HTML content
+        // Preserve rich text styling while removing unsafe markup
+        let sanitizedTitleEn = ''
+        let sanitizedTitleTa = ''
         let sanitizedDescEn = ''
         let sanitizedDescTa = ''
         try {
+            const titleEn = formData.get('title_en') as string
+            const titleTa = formData.get('title_ta') as string
             const descEn = formData.get('description_en') as string
             const descTa = formData.get('description_ta') as string
-            sanitizedDescEn = descEn ? sanitizeHtml(descEn) : ''
-            sanitizedDescTa = descTa ? sanitizeHtml(descTa) : ''
+            sanitizedTitleEn = titleEn ? sanitizeRichText(titleEn) : ''
+            sanitizedTitleTa = titleTa ? sanitizeRichText(titleTa) : ''
+            sanitizedDescEn = descEn ? sanitizeRichText(descEn) : ''
+            sanitizedDescTa = descTa ? sanitizeRichText(descTa) : ''
         } catch (sanitizeError) {
             console.error('Admin Services PUT: Sanitization error', sanitizeError)
+            sanitizedTitleEn = (formData.get('title_en') as string) || ''
+            sanitizedTitleTa = (formData.get('title_ta') as string) || ''
             sanitizedDescEn = (formData.get('description_en') as string) || ''
             sanitizedDescTa = (formData.get('description_ta') as string) || ''
         }
         
         const update: Record<string, unknown> = {
-            title_en: formData.get('title_en') as string,
-            title_ta: formData.get('title_ta') as string,
+            title_en: sanitizedTitleEn,
+            title_ta: sanitizedTitleTa,
             country: formData.get('country') as string,
             state: formData.get('state') as string,
             district: formData.get('district') as string,

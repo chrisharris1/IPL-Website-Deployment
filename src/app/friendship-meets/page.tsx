@@ -191,22 +191,22 @@ export default function FriendshipMeetsPage() {
                                                 {meet.year}
                                             </div>
                                         </div>
-                                        <div className="p-6 min-w-0">
+                                        <div className="p-6 sm:p-7 min-w-0">
                                             <h3
-                                                className="text-base sm:text-lg font-bold text-neutral-900 mb-2 leading-snug"
+                                                className="text-xl sm:text-2xl font-bold text-neutral-900 mb-3 leading-snug"
                                                 dangerouslySetInnerHTML={{ __html: titleHtml }}
                                             />
                                             {preferredDescriptionHtml ? (
                                                 <div
-                                                    className="prose prose-sm max-w-none text-neutral-600 mb-3 line-clamp-3"
+                                                    className="prose prose-base max-w-none text-neutral-700 mb-4 line-clamp-3"
                                                     dangerouslySetInnerHTML={{ __html: preferredDescriptionHtml }}
                                                 />
                                             ) : null}
-                                            <p className="text-sm text-neutral-600 mb-3 flex items-start gap-1">
+                                            <p className="text-base text-neutral-700 mb-4 flex items-start gap-1.5">
                                                 <MapPin className="w-4 h-4 mt-0.5 shrink-0" />
                                                 <span className="min-w-0">{locationText || 'Location not specified'}</span>
                                             </p>
-                                            <div className="text-red-600 font-medium text-sm hover:underline">
+                                            <div className="text-red-600 font-semibold text-base hover:underline">
                                                 {t('friendshipMeets.view_details', isTamil ? 'விவரங்களைக் காண்க →' : 'View Details →')}
                                             </div>
                                         </div>

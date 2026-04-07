@@ -5,6 +5,33 @@ import { getAdminSession } from '@/lib/auth-edge'
 import { historySchema } from '@/lib/validation'
 import sanitizeHtml from 'sanitize-html'
 
+const sanitizeRichText = (html: string) =>
+    sanitizeHtml(html, {
+        allowedTags: sanitizeHtml.defaults.allowedTags.concat(['span', 'p', 'div', 'br', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li']),
+        allowedAttributes: {
+            ...sanitizeHtml.defaults.allowedAttributes,
+            span: ['style'],
+            p: ['style'],
+            div: ['style'],
+            h1: ['style'],
+            h2: ['style'],
+            h3: ['style'],
+            h4: ['style'],
+            h5: ['style'],
+            h6: ['style'],
+        },
+        allowedStyles: {
+            '*': {
+                'color': [/^#[0-9a-fA-F]{3,8}$/, /^rgb\(/, /^rgba\(/, /^[a-zA-Z]+$/],
+                'font-size': [/^\d+(?:\.\d+)?(?:px|em|rem|%)$/],
+                'font-family': [/^[\w\s,'"-]+$/],
+                'text-decoration': [/^underline$/, /^line-through$/, /^none$/],
+                'font-weight': [/^\d{3}$/, /^bold$/, /^normal$/],
+                'font-style': [/^italic$/, /^normal$/],
+            },
+        },
+    })
+
 export async function GET() {
     try {
         const session = await getAdminSession()
@@ -58,8 +85,8 @@ export async function POST(request: NextRequest) {
         const doc = {
             section_title_en: section_title_en || '',
             section_title_ta: section_title_ta || '',
-            content_en: sanitizeHtml(content_en),
-            content_ta: content_ta ? sanitizeHtml(content_ta) : '',
+            content_en: sanitizeRichText(content_en),
+            content_ta: content_ta ? sanitizeRichText(content_ta) : '',
             order_index: nextOrder,
             is_deletable: true,
             created_at: new Date(),
@@ -101,8 +128,8 @@ export async function PUT(request: NextRequest) {
 
         if (section_title_en !== undefined) update.section_title_en = section_title_en
         if (section_title_ta !== undefined) update.section_title_ta = section_title_ta
-        if (content_en !== undefined) update.content_en = sanitizeHtml(content_en)
-        if (content_ta !== undefined) update.content_ta = sanitizeHtml(content_ta)
+        if (content_en !== undefined) update.content_en = sanitizeRichText(content_en)
+        if (content_ta !== undefined) update.content_ta = sanitizeRichText(content_ta)
         if (order_index !== undefined) update.order_index = order_index
 
         await db.collection('history_sections').updateOne(

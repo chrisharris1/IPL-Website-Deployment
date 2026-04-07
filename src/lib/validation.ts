@@ -135,3 +135,10 @@ export const reminderSchema = z.object({
     eventDate: z.string().min(1, "Event date is required"), // Keeping as string to matching API payload, will parse in route
     eventLocation: z.string().optional(),
 })
+
+export const contactMessageSchema = z.object({
+    name: z.string().min(1, 'Name is required').max(100, 'Name is too long'),
+    email: z.string().email('Invalid email address').max(200, 'Email is too long'),
+    subject: z.string().min(3, 'Subject is too short').max(120, 'Subject is too long'),
+    message: z.string().min(10, 'Message is too short').max(2000, 'Message is too long'),
+})
