@@ -1,6 +1,6 @@
 "use client"
 
-import React from 'react'
+import React, { useState } from 'react'
 import Image from 'next/image'
 import { Calendar, Heart, Users, Gift, Camera, Sparkles, Star, Globe, MapPin, Award } from 'lucide-react'
 import { useTranslation } from '@/contexts/TranslationContext'
