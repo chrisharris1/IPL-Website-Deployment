@@ -26,6 +26,10 @@ interface FriendshipMeet {
     state: string
     district: string
     year: number
+    hero_title_en: string
+    hero_title_ta: string
+    description_en: string
+    description_ta: string
     caption_en: string
     caption_ta: string
     banner_image: { url: string; public_id: string } | null
@@ -45,7 +49,7 @@ export default function FriendshipMeetDetailPage() {
     useEffect(() => {
         async function fetchMeetDetails() {
             try {
-                const res = await fetch('/api/friendship-meets')
+                const res = await fetch('/api/friendship-meets', { cache: 'no-store' })
                 const data = await res.json()
 
                 if (data.success) {
@@ -109,7 +113,13 @@ export default function FriendshipMeetDetailPage() {
         )
     }
 
-    const caption = lang === 'ta' && meet.caption_ta ? meet.caption_ta : meet.caption_en
+    const heroTitle = lang === 'ta'
+        ? (meet.hero_title_ta || meet.hero_title_en || meet.caption_ta || meet.caption_en)
+        : (meet.hero_title_en || meet.hero_title_ta || meet.caption_en || meet.caption_ta)
+
+    const description = lang === 'ta'
+        ? (meet.description_ta || meet.description_en || meet.caption_ta || meet.caption_en)
+        : (meet.description_en || meet.description_ta || meet.caption_en || meet.caption_ta)
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -124,7 +134,16 @@ export default function FriendshipMeetDetailPage() {
                         </svg>
                         {t('back', isTamil ? 'பின்னால்' : 'Back')}
                     </button>
-                    <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-2 wrap-break-word px-2">{caption || t('meet.title', isTamil ? 'நட்புச் சங்கமம்' : 'Friendship Meet')}</h1>
+                    <h1
+                        className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold uppercase mb-2 wrap-break-word px-2"
+                        dangerouslySetInnerHTML={{ __html: heroTitle || t('meet.title', isTamil ? 'நட்புச் சங்கமம்' : 'Friendship Meet') }}
+                    />
+                    {description ? (
+                        <div
+                            className="prose prose-invert prose-sm sm:prose-base max-w-none text-sm sm:text-base md:text-lg opacity-95 wrap-break-word px-2 mb-3"
+                            dangerouslySetInnerHTML={{ __html: description }}
+                        />
+                    ) : null}
                     <p className="text-sm sm:text-lg md:text-xl opacity-90 wrap-break-word">
                         {meet.district}, {meet.state}, {meet.country} - {meet.year}
                     </p>

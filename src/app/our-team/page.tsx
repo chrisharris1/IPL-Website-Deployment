@@ -166,7 +166,7 @@ export default function OurTeam() {
                         <span className="text-sm font-semibold text-red-800">{t('ourteam.badge', 'Leadership & Volunteers')}</span>
                     </div>
 
-                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-neutral-900 mb-6 animate-slide-up">
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold uppercase text-neutral-900 mb-6 animate-slide-up">
                         {t('ourteam.title', 'Our Team')}
                     </h1>
 

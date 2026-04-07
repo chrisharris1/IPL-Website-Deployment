@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
     const [news, services, meets, blogs, aboutSections, team, joinNow] = await Promise.all([
       db.collection('news_events').find({}, { projection: { title_en: 1, title_ta: 1, city: 1, district: 1, date: 1, description_en: 1, description_ta: 1 } }).limit(200).toArray(),
       db.collection('humanitarian_services').find({}, { projection: { _id: 1, title_en: 1, title_ta: 1, city: 1, district: 1, state: 1, description_en: 1, description_ta: 1 } }).limit(200).toArray(),
-      db.collection('friendship_meets').find({}, { projection: { slug: 1, district: 1, state: 1, country: 1, year: 1, caption_en: 1, caption_ta: 1 } }).limit(200).toArray(),
+      db.collection('friendship_meets').find({}, { projection: { slug: 1, district: 1, state: 1, country: 1, year: 1, hero_title_en: 1, hero_title_ta: 1, description_en: 1, description_ta: 1, caption_en: 1, caption_ta: 1 } }).limit(200).toArray(),
       db.collection('president_blog').find({}, { projection: { title_en: 1, title_ta: 1, description_en: 1, description_ta: 1 } }).limit(200).toArray(),
       db.collection('about_us').find({}, { projection: { section_title_en: 1, section_title_ta: 1, content_en: 1, content_ta: 1 } }).limit(200).toArray(),
       db.collection('our_team').find({}, { projection: { name: 1, role: 1 } }).limit(200).toArray(),
@@ -91,10 +91,10 @@ export async function GET(request: NextRequest) {
         keywords: [stripHtml(s.title_ta || ''), stripHtml(s.description_en || ''), stripHtml(s.description_ta || ''), s.city || '', s.district || '', s.state || ''],
       })),
       ...meets.map((m: any) => ({
-        title: stripHtml(m.caption_en || m.caption_ta || `${m.district || ''} ${m.year || ''}`.trim()),
+        title: stripHtml(m.hero_title_en || m.hero_title_ta || m.caption_en || m.caption_ta || `${m.district || ''} ${m.year || ''}`.trim()),
         subtitle: [m.district, m.state, m.country, m.year].filter(Boolean).join(', '),
         href: `/friendship-meet/${m.slug || ''}`,
-        keywords: [stripHtml(m.caption_ta || ''), m.district || '', m.state || '', m.country || '', String(m.year || '')],
+        keywords: [stripHtml(m.hero_title_ta || ''), stripHtml(m.description_en || ''), stripHtml(m.description_ta || ''), stripHtml(m.caption_ta || ''), m.district || '', m.state || '', m.country || '', String(m.year || '')],
       })),
       ...blogs.map((b: any) => ({
         title: stripHtml(b.title_en || b.title_ta || "President's Blog"),

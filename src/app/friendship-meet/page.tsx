@@ -53,7 +53,7 @@ export default function FriendshipMeetPage() {
                         <Sparkles className="w-4 h-4 text-red-600" />
                         <span className="text-xs font-semibold tracking-wider uppercase text-neutral-600">{t('meet.badge', 'Annual Celebration')}</span>
                     </div>
-                    <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold tracking-tight text-neutral-900 mb-4 sm:mb-6 animate-slide-up wrap-break-word">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold uppercase tracking-tight text-neutral-900 mb-4 sm:mb-6 animate-slide-up wrap-break-word">
                         {t('meet.title', 'FRIENDS DAY')}
                     </h1>
                     <p className="text-base sm:text-lg md:text-xl text-neutral-600 leading-relaxed max-w-3xl mx-auto mb-6 sm:mb-8 animate-slide-up wrap-break-word" style={{ animationDelay: '0.1s' }}>

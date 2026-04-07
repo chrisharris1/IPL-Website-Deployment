@@ -78,7 +78,7 @@ function NewsEventsContent() {
                             {t('news.badge', 'Latest Updates')}
                         </span>
                     </div>
-                    <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-neutral-900 mb-6 animate-slide-up">
+                    <h1 className="text-5xl md:text-6xl font-extrabold uppercase tracking-tight text-neutral-900 mb-6 animate-slide-up">
                         {t('news.title', 'News & Events')}
                     </h1>
                     <p className="text-lg md:text-xl text-neutral-600 leading-relaxed max-w-3xl mx-auto animate-slide-up" style={{ animationDelay: '0.1s' }}>

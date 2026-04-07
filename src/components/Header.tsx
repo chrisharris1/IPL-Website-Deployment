@@ -301,7 +301,7 @@ const Header: React.FC<Props> = () => {
                   <button
                     onClick={() => setExpandedMobileMenu(expandedMobileMenu === link.path ? null : link.path)}
                     className={`
-                      w-full flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4 rounded-xl sm:rounded-2xl text-base sm:text-lg font-medium transition-all touch-manipulation
+                        w-full flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4 rounded-xl sm:rounded-2xl text-base sm:text-lg font-medium transition-all touch-manipulation
                       ${isActive(link.path)
                         ? 'bg-white text-red-900 shadow-lg'
                         : 'text-white/90 hover:bg-white/5 active:bg-white/10 border border-transparent hover:border-white/10'}

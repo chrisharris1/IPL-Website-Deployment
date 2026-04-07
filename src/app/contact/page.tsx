@@ -298,7 +298,7 @@ export default function Contact() {
                         <Mail className="w-4 h-4 text-red-600" />
                         <span className="text-xs font-semibold tracking-wider uppercase text-neutral-600">{t('contact.badge', 'Get In Touch')}</span>
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 animate-slide-up">
+                    <h1 className="text-4xl md:text-5xl font-extrabold uppercase tracking-tight mb-4 animate-slide-up">
                         {t('nav.contact', 'Contact Us')}
                     </h1>
                     <p className="text-lg md:text-xl text-neutral-600 leading-relaxed max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: '0.1s' }}>

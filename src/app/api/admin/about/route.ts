@@ -5,6 +5,36 @@ import { getAdminSession } from '@/lib/auth-edge'
 import { aboutSchema } from '@/lib/validation'
 import sanitizeHtml from 'sanitize-html'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+const sanitizeRichText = (html: string) =>
+    sanitizeHtml(html, {
+        allowedTags: sanitizeHtml.defaults.allowedTags.concat(['span', 'p', 'div', 'br', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']),
+        allowedAttributes: {
+            ...sanitizeHtml.defaults.allowedAttributes,
+            span: ['style'],
+            p: ['style'],
+            div: ['style'],
+            h1: ['style'],
+            h2: ['style'],
+            h3: ['style'],
+            h4: ['style'],
+            h5: ['style'],
+            h6: ['style'],
+        },
+        allowedStyles: {
+            '*': {
+                'color': [/^#[0-9a-fA-F]{3,8}$/, /^rgb\(/, /^rgba\(/, /^[a-zA-Z]+$/],
+                'font-size': [/^\d+(?:\.\d+)?(?:px|em|rem|%)$/],
+                'font-family': [/^[\w\s,'"-]+$/],
+                'text-decoration': [/^underline$/, /^line-through$/, /^none$/],
+                'font-weight': [/^\d{3}$/ , /^bold$/, /^normal$/],
+                'font-style': [/^italic$/, /^normal$/],
+            },
+        },
+    })
+
 // GET - List all about sections
 export async function GET(request: NextRequest) {
     try {
@@ -29,7 +59,14 @@ export async function GET(request: NextRequest) {
             is_deletable: s.is_deletable !== false, // default true
         }))
 
-        return NextResponse.json({ success: true, data: mapped })
+        return NextResponse.json(
+            { success: true, data: mapped },
+            {
+                headers: {
+                    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+                },
+            }
+        )
     } catch (error) {
         console.error('Admin About GET error:', error)
         return NextResponse.json({ success: false, error: 'Server error' }, { status: 500 })
@@ -62,8 +99,8 @@ export async function POST(request: NextRequest) {
         const doc = {
             section_title_en: section_title_en || '',
             section_title_ta: section_title_ta || '',
-            content_en: sanitizeHtml(content_en || ''),
-            content_ta: content_ta ? sanitizeHtml(content_ta) : '',
+            content_en: sanitizeRichText(content_en || ''),
+            content_ta: content_ta ? sanitizeRichText(content_ta) : '',
             order_index: nextOrder,
             is_deletable: true,
             created_at: new Date(),
@@ -102,14 +139,18 @@ export async function PUT(request: NextRequest) {
 
         if (section_title_en !== undefined) update.section_title_en = section_title_en
         if (section_title_ta !== undefined) update.section_title_ta = section_title_ta
-        if (content_en !== undefined) update.content_en = sanitizeHtml(String(content_en))
-        if (content_ta !== undefined) update.content_ta = sanitizeHtml(String(content_ta))
+        if (content_en !== undefined) update.content_en = sanitizeRichText(String(content_en))
+        if (content_ta !== undefined) update.content_ta = sanitizeRichText(String(content_ta))
         if (order_index !== undefined) update.order_index = order_index
 
-        await db.collection('about_us').updateOne(
+        const result = await db.collection('about_us').updateOne(
             { _id: new ObjectId(id) },
             { $set: update }
         )
+
+        if (result.matchedCount === 0) {
+            return NextResponse.json({ success: false, error: 'Section not found' }, { status: 404 })
+        }
 
         return NextResponse.json({ success: true })
     } catch (error) {

@@ -2,6 +2,34 @@ import { NextResponse } from 'next/server'
 import { getDb } from '@/lib/mongodb'
 import { ObjectId } from 'mongodb'
 import { v2 as cloudinary } from 'cloudinary'
+import sanitizeHtml from 'sanitize-html'
+
+const sanitizeRichText = (html: string) =>
+    sanitizeHtml(html || '', {
+        allowedTags: sanitizeHtml.defaults.allowedTags.concat(['span', 'p', 'div', 'br', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']),
+        allowedAttributes: {
+            ...sanitizeHtml.defaults.allowedAttributes,
+            span: ['style'],
+            p: ['style'],
+            div: ['style'],
+            h1: ['style'],
+            h2: ['style'],
+            h3: ['style'],
+            h4: ['style'],
+            h5: ['style'],
+            h6: ['style'],
+        },
+        allowedStyles: {
+            '*': {
+                'color': [/^#[0-9a-fA-F]{3,8}$/, /^rgb\(/, /^rgba\(/, /^[a-zA-Z]+$/],
+                'font-size': [/^\d+(?:\.\d+)?(?:px|em|rem|%)$/],
+                'font-family': [/^[\w\s,'"-]+$/],
+                'text-decoration': [/^underline$/, /^line-through$/, /^none$/],
+                'font-weight': [/^\d{3}$/, /^bold$/, /^normal$/],
+                'font-style': [/^italic$/, /^normal$/],
+            },
+        },
+    })
 
 function ensureCloudinaryConfig() {
     if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
@@ -120,6 +148,10 @@ export async function GET(request: Request) {
             state: meet.state,
             district: meet.district,
             year: meet.year,
+            hero_title_en: meet.hero_title_en || '',
+            hero_title_ta: meet.hero_title_ta || '',
+            description_en: meet.description_en || '',
+            description_ta: meet.description_ta || '',
             caption_en: meet.caption_en || '',
             caption_ta: meet.caption_ta || '',
             banner_image: includeBanners ? meet.banner_image || null : (meet.banner_image?.url ? { url: meet.banner_image.url } : null),
@@ -178,8 +210,12 @@ export async function POST(request: Request) {
             state: data.state,
             district: data.district,
             year: parseInt(data.year),
-            caption_en: data.caption_en || '',
-            caption_ta: data.caption_ta || '',
+            hero_title_en: sanitizeRichText(data.hero_title_en || data.caption_en || ''),
+            hero_title_ta: sanitizeRichText(data.hero_title_ta || data.caption_ta || ''),
+            description_en: sanitizeRichText(data.description_en || ''),
+            description_ta: sanitizeRichText(data.description_ta || ''),
+            caption_en: sanitizeRichText(data.caption_en || ''),
+            caption_ta: sanitizeRichText(data.caption_ta || ''),
             banner_image,
             created_at: new Date(),
             updated_at: new Date(),
@@ -267,8 +303,12 @@ export async function PUT(request: Request) {
             state: newState,
             district: newDistrict,
             year: newYear,
-            caption_en: data.caption_en !== undefined ? data.caption_en : existingMeet.caption_en,
-            caption_ta: data.caption_ta !== undefined ? data.caption_ta : existingMeet.caption_ta,
+            hero_title_en: data.hero_title_en !== undefined ? sanitizeRichText(data.hero_title_en) : (existingMeet.hero_title_en || ''),
+            hero_title_ta: data.hero_title_ta !== undefined ? sanitizeRichText(data.hero_title_ta) : (existingMeet.hero_title_ta || ''),
+            description_en: data.description_en !== undefined ? sanitizeRichText(data.description_en) : (existingMeet.description_en || ''),
+            description_ta: data.description_ta !== undefined ? sanitizeRichText(data.description_ta) : (existingMeet.description_ta || ''),
+            caption_en: data.caption_en !== undefined ? sanitizeRichText(data.caption_en) : existingMeet.caption_en,
+            caption_ta: data.caption_ta !== undefined ? sanitizeRichText(data.caption_ta) : existingMeet.caption_ta,
             banner_image,
             updated_at: new Date(),
         }

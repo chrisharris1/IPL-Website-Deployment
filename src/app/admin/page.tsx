@@ -44,6 +44,10 @@ interface FriendshipMeet {
     state: string;
     district: string;
     year: number;
+    hero_title_en: string;
+    hero_title_ta: string;
+    description_en: string;
+    description_ta: string;
     caption_en: string;
     caption_ta: string;
     banner_image: { url: string; public_id: string } | null;
@@ -656,7 +660,7 @@ function AboutSection_() {
 
     const fetchSections = useCallback(async () => {
         try {
-            const res = await fetch('/api/admin/about')
+            const res = await fetch('/api/admin/about', { cache: 'no-store' })
             const data = await res.json()
             if (data.success) setSections(data.data)
         } catch { /* ignore */ }
@@ -765,24 +769,26 @@ function AboutSection_() {
                     <div className="grid grid-cols-2 gap-4">
                         <div><label className="block text-sm font-medium mb-1">Paragraph Title (English) - Optional</label>
                             <RichTextEditor value={titleEn} onChange={setTitleEn} placeholder="Enter title" /></div>
-                        <div><label className="block text-sm font-medium mb-1">Title (Tamil)</label>
+                        <div><label className="block text-sm font-medium mb-1">Title (Tamil only)</label>
                             <RichTextEditor value={titleTa} onChange={setTitleTa} placeholder="Enter title (Tamil)" /></div>
                     </div>
                     <div>
-                        <label className="block text-sm font-medium mb-2">Paragraph Content (English) *</label>
+                        <label className="block text-sm font-medium mb-2">Paragraph Content (English or Tamil) *</label>
                         <RichTextEditor
                             value={contentEn}
                             onChange={setContentEn}
-                            placeholder="Write paragraph content in English..."
+                            placeholder="Write paragraph content in English or Tamil..."
                         />
+                        <p className="mt-1 text-xs text-gray-500">Use this field for the main section text. It can contain English, Tamil, or both.</p>
                     </div>
                     <div>
-                        <label className="block text-sm font-medium mb-2">Paragraph Content (Tamil)</label>
+                        <label className="block text-sm font-medium mb-2">Paragraph Content (Tamil only)</label>
                         <RichTextEditor
                             value={contentTa}
                             onChange={setContentTa}
                             placeholder="Write paragraph content in Tamil..."
                         />
+                        <p className="mt-1 text-xs text-gray-500">Keep this field in Tamil only.</p>
                     </div>
                     <button type="submit" className="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 font-semibold transition">
                         {editing ? 'Update Section' : 'Add Section'}
@@ -3238,6 +3244,10 @@ function FriendshipMeetsManager() {
         state: '',
         district: '',
         year: '' as string | number,
+        hero_title_en: '',
+        hero_title_ta: '',
+        description_en: '',
+        description_ta: '',
         caption_en: '',
         caption_ta: '',
     })
@@ -3259,6 +3269,8 @@ function FriendshipMeetsManager() {
 
     // Filters
     const [filterYear, setFilterYear] = useState('All')
+
+    const stripHtml = (value: string) => (value || '').replace(/<[^>]*>/g, ' ').replace(/&nbsp;/gi, ' ').trim()
 
     const fetchMeets = useCallback(async () => {
         try {
@@ -3336,7 +3348,7 @@ function FriendshipMeetsManager() {
 
     const openAddModal = () => {
         setEditing(null)
-        setFormData({ country: '', state: '', district: '', year: '', caption_en: '', caption_ta: '' })
+        setFormData({ country: '', state: '', district: '', year: '', hero_title_en: '', hero_title_ta: '', description_en: '', description_ta: '', caption_en: '', caption_ta: '' })
         setBannerFile(null)
         setBannerPreview('')
         setShouldDeleteBanner(false)
@@ -3356,8 +3368,12 @@ function FriendshipMeetsManager() {
             state: meet.state,
             district: meet.district,
             year: meet.year,
-            caption_en: meet.caption_en,
-            caption_ta: meet.caption_ta,
+            hero_title_en: meet.hero_title_en || meet.caption_en || '',
+            hero_title_ta: meet.hero_title_ta || meet.caption_ta || '',
+            description_en: meet.description_en || '',
+            description_ta: meet.description_ta || '',
+            caption_en: meet.caption_en || '',
+            caption_ta: meet.caption_ta || '',
         })
         setBannerFile(null)
         setBannerPreview('')
@@ -3388,6 +3404,18 @@ function FriendshipMeetsManager() {
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         setSubmitting(true)
+
+        if (!stripHtml(formData.hero_title_en)) {
+            setMsg({ text: 'Hero Title (English) is required', type: 'error' })
+            setSubmitting(false)
+            return
+        }
+
+        if (!stripHtml(formData.description_en)) {
+            setMsg({ text: 'Description (English) is required', type: 'error' })
+            setSubmitting(false)
+            return
+        }
 
         // Handle custom locations (same as ServicesSection logic)
         let finalCountry = formData.country
@@ -3432,8 +3460,13 @@ function FriendshipMeetsManager() {
             state: finalState,
             district: finalDistrict,
             year: formData.year,
-            caption_en: formData.caption_en,
-            caption_ta: formData.caption_ta,
+            hero_title_en: formData.hero_title_en,
+            hero_title_ta: formData.hero_title_ta,
+            description_en: formData.description_en,
+            description_ta: formData.description_ta,
+            // Keep legacy caption fields in sync for backward compatibility.
+            caption_en: formData.caption_en || formData.hero_title_en,
+            caption_ta: formData.caption_ta || formData.hero_title_ta,
             ...(editing ? { 
                 id: editing.id,
                 ...(bannerBase64 && { new_banner_image: bannerBase64 }),
@@ -3534,9 +3567,11 @@ function FriendshipMeetsManager() {
                             <div className="p-6">
                                 <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 mb-4">
                                     <div className="flex-1 min-w-0">
-                                        <h3 className="text-xl font-bold text-gray-900 mb-2 wrap-break-word">
-                                            {meet.caption_en || 'No Caption'} - {meet.district}, {meet.state}, {meet.country}
-                                        </h3>
+                                        <h3
+                                            className="text-xl font-bold text-gray-900 mb-2 wrap-break-word"
+                                            dangerouslySetInnerHTML={{ __html: meet.hero_title_en || meet.caption_en || 'No Title' }}
+                                        />
+                                        <p className="text-sm text-gray-600 mb-2">{meet.district}, {meet.state}, {meet.country}</p>
                                         <span className="inline-block bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-semibold">
                                             Year: {meet.year}
                                         </span>
@@ -3557,8 +3592,16 @@ function FriendshipMeetsManager() {
                                     </div>
                                 </div>
 
-                                {meet.caption_ta && (
-                                    <p className="text-sm text-gray-600 mb-3">Tamil: {meet.caption_ta}</p>
+                                {meet.hero_title_ta && (
+                                    <p className="text-sm text-gray-600 mb-2">
+                                        Tamil Title: <span dangerouslySetInnerHTML={{ __html: meet.hero_title_ta }} />
+                                    </p>
+                                )}
+                                {(meet.description_en || meet.description_ta) && (
+                                    <div
+                                        className="prose prose-sm max-w-none text-gray-700 mb-3 line-clamp-3"
+                                        dangerouslySetInnerHTML={{ __html: meet.description_en || meet.description_ta }}
+                                    />
                                 )}
 
                                 {meet.banner_image && (
@@ -3725,29 +3768,43 @@ function FriendshipMeetsManager() {
                         </div>
                     </div>
 
-                    {/* STEP 2: CAPTION & BANNER */}
+                    {/* STEP 2: HERO TITLE, DESCRIPTION & BANNER */}
                     <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                        <p className="text-sm font-semibold text-yellow-900 mb-3">📝 Step 2: Caption & Banner (Optional)</p>
+                        <p className="text-sm font-semibold text-yellow-900 mb-3">📝 Step 2: Hero Title, Description & Banner</p>
 
                         <div className="mb-3">
-                            <label className="block text-sm font-medium mb-1">Caption (English)</label>
-                            <input
-                                type="text"
-                                value={formData.caption_en}
-                                onChange={(e) => setFormData({ ...formData, caption_en: e.target.value })}
-                                placeholder="e.g., Annual International Gathering"
-                                className="w-full border rounded-lg p-2.5"
+                            <label className="block text-sm font-medium mb-1">Hero Title (English) *</label>
+                            <RichTextEditor
+                                value={formData.hero_title_en}
+                                onChange={(value) => setFormData({ ...formData, hero_title_en: value })}
+                                placeholder="e.g., 1st Friendship Meet (1996)"
+                            />
+                        </div>
+
+                        <div className="mb-3">
+                            <label className="block text-sm font-medium mb-1">Hero Title (Tamil) - Optional</label>
+                            <RichTextEditor
+                                value={formData.hero_title_ta}
+                                onChange={(value) => setFormData({ ...formData, hero_title_ta: value })}
+                                placeholder="தமிழ் தலைப்பு (விருப்பம்)"
+                            />
+                        </div>
+
+                        <div className="mb-3">
+                            <label className="block text-sm font-medium mb-1">Description (English) *</label>
+                            <RichTextEditor
+                                value={formData.description_en}
+                                onChange={(value) => setFormData({ ...formData, description_en: value })}
+                                placeholder="Detailed body content shown in cards and detail page"
                             />
                         </div>
 
                         <div className="mb-4">
-                            <label className="block text-sm font-medium mb-1">Caption (Tamil)</label>
-                            <input
-                                type="text"
-                                value={formData.caption_ta}
-                                onChange={(e) => setFormData({ ...formData, caption_ta: e.target.value })}
-                                placeholder="e.g., வருடாந்திர சர்வதேச கூட்டம்"
-                                className="w-full border rounded-lg p-2.5"
+                            <label className="block text-sm font-medium mb-1">Description (Tamil) - Optional</label>
+                            <RichTextEditor
+                                value={formData.description_ta}
+                                onChange={(value) => setFormData({ ...formData, description_ta: value })}
+                                placeholder="தமிழ் விளக்கம் (விருப்பம்)"
                             />
                         </div>
 

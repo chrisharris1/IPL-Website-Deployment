@@ -151,7 +151,7 @@ export default function HumanitarianServices() {
                     <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-white/90 backdrop-blur-xl rounded-full mb-6 sm:mb-8 border border-neutral-200 shadow-sm animate-fade-in">
                         <HandHeart className="w-8 h-8 sm:w-10 sm:h-10 text-primary-700" />
                     </div>
-                    <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-neutral-900 mb-4 sm:mb-6 animate-slide-up">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold uppercase tracking-tight text-neutral-900 mb-4 sm:mb-6 animate-slide-up">
                         {t('nav.humanitarian', 'Humanitarian Services')}
                     </h1>
                     <p className="text-base sm:text-lg md:text-xl text-neutral-600 leading-relaxed max-w-3xl mx-auto animate-slide-up px-2" style={{ animationDelay: '0.1s' }}>

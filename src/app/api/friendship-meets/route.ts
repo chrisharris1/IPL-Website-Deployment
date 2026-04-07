@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server'
 import { getDb } from '@/lib/mongodb'
 import { ObjectId } from 'mongodb'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 // Helper to generate URL-friendly slug from location and year
 function generateSlug(district: string, state: string, country: string, year: number): string {
     const normalize = (str: string) => 
@@ -78,12 +81,23 @@ export async function GET(request: Request) {
             state: meet.state,
             district: meet.district,
             year: meet.year,
+            hero_title_en: meet.hero_title_en || '',
+            hero_title_ta: meet.hero_title_ta || '',
+            description_en: meet.description_en || '',
+            description_ta: meet.description_ta || '',
             caption_en: meet.caption_en || '',
             caption_ta: meet.caption_ta || '',
             banner_image: meet.banner_image || null,
         }))
 
-        return NextResponse.json({ success: true, data: formattedMeets })
+        return NextResponse.json(
+            { success: true, data: formattedMeets },
+            {
+                headers: {
+                    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+                },
+            }
+        )
     } catch (error) {
         console.error('GET friendship meets error:', error)
         return NextResponse.json({ success: false, error: 'Failed to fetch friendship meets' }, { status: 500 })

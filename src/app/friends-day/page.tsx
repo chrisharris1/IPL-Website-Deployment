@@ -112,7 +112,7 @@ export default function FriendsDay() {
                         <Sparkles className="w-4 h-4 text-red-600" />
                         <span className="text-xs font-semibold tracking-wider uppercase text-neutral-600">{t('friendsday.badge', 'International Friendship Day')}</span>
                     </div>
-                    <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold tracking-tight text-neutral-900 mb-4 sm:mb-6 animate-slide-up">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold uppercase tracking-tight text-neutral-900 mb-4 sm:mb-6 animate-slide-up">
                         {t('friendsday.title', 'Friends Day')}
                     </h1>
                 </div>

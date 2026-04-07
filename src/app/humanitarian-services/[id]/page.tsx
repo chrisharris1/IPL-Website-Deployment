@@ -106,7 +106,7 @@ export default function HumanitarianServiceDetail() {
                                 <HandHeart className="w-5 h-5 text-primary-700" />
                                 <span className="text-primary-700 font-medium text-xs sm:text-sm">{t('service.humanitarian_service', 'Humanitarian Service')}</span>
                             </div>
-                            <h1 className="text-3xl md:text-4xl font-bold text-neutral-900 leading-tight" dangerouslySetInnerHTML={{ __html: lang === 'ta' && service.title_ta ? service.title_ta : service.title_en }} />
+                            <h1 className="text-3xl md:text-4xl font-bold uppercase text-neutral-900 leading-tight" dangerouslySetInnerHTML={{ __html: lang === 'ta' && service.title_ta ? service.title_ta : service.title_en }} />
                         </div>
 
                         {/* Meta Info */}

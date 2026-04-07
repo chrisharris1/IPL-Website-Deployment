@@ -3,7 +3,6 @@
 import { useEditor, EditorContent } from '@tiptap/react'
 import { Extension } from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
-import Underline from '@tiptap/extension-underline'
 import { TextStyle } from '@tiptap/extension-text-style'
 import { Color } from '@tiptap/extension-color'
 import { FontFamily } from '@tiptap/extension-font-family'
@@ -107,7 +106,6 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
         },
         strike: false, // Disable strike to avoid conflicts
       }),
-      Underline,
       TextStyle,
       Color,
       FontFamily.configure({
@@ -128,6 +126,15 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
       },
     },
   })
+
+  // Keep editor content in sync when parent state changes (e.g. reopening Edit modal).
+  useEffect(() => {
+    if (!editor) return
+    const incoming = value || ''
+    if (editor.getHTML() !== incoming) {
+      editor.commands.setContent(incoming, { emitUpdate: false })
+    }
+  }, [editor, value])
 
   // Cleanup editor on unmount
   useEffect(() => {

@@ -336,7 +336,7 @@ export default function Home() {
                 </span>
               </div>
 
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-extrabold leading-tight mb-4 sm:mb-6 tracking-tight animate-slide-up px-2 text-[#e91e8c]" style={{ fontFamily: "'Britannic Bold', 'Impact', sans-serif" }}>
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-extrabold uppercase leading-tight mb-4 sm:mb-6 tracking-tight animate-slide-up px-2 text-[#e91e8c]" style={{ fontFamily: "'Britannic Bold', 'Impact', sans-serif" }}>
                 <span className="text-[1.5em]">I</span>NDIAN <span className="text-[1.5em]">P</span>ENPALS' <span className="text-[1.5em]">L</span>EAGUE
               </h1>
 

@@ -86,7 +86,7 @@ export default function OrganiserPage() {
             <Globe className="w-5 h-5 text-red-700" />
             <span className="text-xs font-semibold tracking-wider uppercase text-neutral-600">{t('organiser.badge', 'Organiser')}</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-3 px-2">{t('organiser.badge', 'Organiser')}</h1>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold uppercase tracking-tight mb-3 px-2">{t('organiser.badge', 'Organiser')}</h1>
           <p className="text-base sm:text-lg text-neutral-600 max-w-3xl mx-auto px-4">{t('organiser.subtitle', 'Our global organisers — filter by country, state and district')}</p>
         </div>
       </section>

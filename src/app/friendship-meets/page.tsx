@@ -12,6 +12,10 @@ interface FriendshipMeet {
     state: string
     district: string
     year: number
+    hero_title_en: string
+    hero_title_ta: string
+    description_en: string
+    description_ta: string
     caption_en: string
     caption_ta: string
     banner_image: { url: string; public_id: string } | null
@@ -56,7 +60,7 @@ export default function FriendshipMeetsPage() {
         const fetchMeets = async () => {
             try {
                 setLoading(true)
-                const res = await fetch(`/api/friendship-meets`)
+                const res = await fetch(`/api/friendship-meets`, { cache: 'no-store' })
                 const data = await res.json()
                 if (data.success) {
                     // Sort by year in ascending order (oldest first)
@@ -89,9 +93,9 @@ export default function FriendshipMeetsPage() {
     }, [])
 
     return (
-        <div className="min-h-screen bg-neutral-50">
+        <div className="min-h-screen bg-neutral-50 pt-8 sm:pt-10">
             {/* Hero Section */}
-            <section className="relative bg-transparent pt-12 sm:pt-14 md:pt-16 lg:pt-20 pb-6 sm:pb-8 overflow-hidden" style={{ minHeight: '280px' }}>
+            <section className="relative bg-transparent pt-12 sm:pt-14 md:pt-16 lg:pt-20 pb-12 sm:pb-16 overflow-hidden" style={{ minHeight: '280px' }}>
                 <div className="absolute inset-0 z-0 pointer-events-none">
                     <Image
                         src="/Images/iplbanner.png"
@@ -106,7 +110,7 @@ export default function FriendshipMeetsPage() {
                         <Sparkles className="w-4 h-4 text-red-600" />
                         <span className="text-xs font-semibold tracking-wider uppercase text-neutral-600">{t('friendshipMeets.badge', 'Annual Celebration')}</span>
                     </div>
-                    <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold tracking-tight text-neutral-900 mb-4 sm:mb-6 animate-slide-up">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold uppercase tracking-tight text-neutral-900 mb-4 sm:mb-6 animate-slide-up">
                         {t('friendshipMeets.title', 'Friendship Meets')}
                     </h1>
                     <p className="text-base sm:text-lg md:text-xl text-neutral-600 leading-relaxed max-w-3xl mx-auto mb-6 sm:mb-8 animate-slide-up" style={{ animationDelay: '0.1s' }}>
@@ -147,18 +151,24 @@ export default function FriendshipMeetsPage() {
                     ) : meets.length > 0 ? (
                         <div className="flex flex-col gap-8 items-center">
                             {meets.map((meet) => {
-                                const captionEn = cleanText(meet.caption_en)
-                                const captionTa = cleanText(meet.caption_ta)
-                                const preferredCaption = lang === 'ta'
-                                    ? (captionTa || captionEn)
-                                    : (captionEn || captionTa)
+                                const heroTitleEnHtml = meet.hero_title_en || meet.caption_en || ''
+                                const heroTitleTaHtml = meet.hero_title_ta || meet.caption_ta || ''
+                                const preferredTitleHtml = lang === 'ta'
+                                    ? (heroTitleTaHtml || heroTitleEnHtml)
+                                    : (heroTitleEnHtml || heroTitleTaHtml)
+                                const descriptionEnHtml = meet.description_en || ''
+                                const descriptionTaHtml = meet.description_ta || ''
+                                const preferredDescriptionHtml = lang === 'ta'
+                                    ? (descriptionTaHtml || descriptionEnHtml)
+                                    : (descriptionEnHtml || descriptionTaHtml)
                                 const locationParts = [meet.district, meet.state, meet.country]
                                     .map(part => cleanText(part))
                                     .filter(Boolean)
                                 const locationText = locationParts.join(', ')
                                 const safeFallbackTitle = `${meet.year} ${t('friendshipMeets.title', 'Friendship Meets')}`
-                                const titleCandidates = [preferredCaption, captionEn, captionTa, locationText, safeFallbackTitle]
-                                const title = titleCandidates.find(candidate => hasVisibleContent(candidate)) || safeFallbackTitle
+                                const titleCandidates = [preferredTitleHtml, heroTitleEnHtml, heroTitleTaHtml, locationText, safeFallbackTitle]
+                                const titleHtml = titleCandidates.find(candidate => hasVisibleContent(cleanText(candidate))) || safeFallbackTitle
+                                const titleText = cleanText(titleHtml)
                                 return (
                                     <Link
                                         key={meet.id}
@@ -169,7 +179,7 @@ export default function FriendshipMeetsPage() {
                                             {meet.banner_image ? (
                                                 <img
                                                     src={meet.banner_image.url}
-                                                    alt={title || `${meet.district} ${meet.year}`}
+                                                    alt={titleText || `${meet.district} ${meet.year}`}
                                                     className="w-full h-full object-contain"
                                                 />
                                             ) : (
@@ -182,9 +192,16 @@ export default function FriendshipMeetsPage() {
                                             </div>
                                         </div>
                                         <div className="p-6 min-w-0">
-                                            <h3 className="text-base sm:text-lg font-bold text-neutral-900 mb-2 leading-snug">
-                                                {title}
-                                            </h3>
+                                            <h3
+                                                className="text-base sm:text-lg font-bold text-neutral-900 mb-2 leading-snug"
+                                                dangerouslySetInnerHTML={{ __html: titleHtml }}
+                                            />
+                                            {preferredDescriptionHtml ? (
+                                                <div
+                                                    className="prose prose-sm max-w-none text-neutral-600 mb-3 line-clamp-3"
+                                                    dangerouslySetInnerHTML={{ __html: preferredDescriptionHtml }}
+                                                />
+                                            ) : null}
                                             <p className="text-sm text-neutral-600 mb-3 flex items-start gap-1">
                                                 <MapPin className="w-4 h-4 mt-0.5 shrink-0" />
                                                 <span className="min-w-0">{locationText || 'Location not specified'}</span>

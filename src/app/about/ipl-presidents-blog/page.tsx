@@ -63,7 +63,7 @@ export default function PresidentBlogPage() {
                 {t('blog.hero.badge', lang === 'ta' ? 'தலைவரின் குரல்' : "President's Voice")}
               </span>
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 px-2">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold uppercase mb-3 sm:mb-4 px-2">
               {t('blog.hero.title', "IPL President's Blog")}
             </h1>
           </div>

@@ -63,7 +63,7 @@ export default function JoinNowPage() {
                     <span className="inline-block py-1 px-3 rounded-full bg-red-100/90 text-red-700 text-sm font-bold tracking-wide mb-4 animate-bounce shadow-sm backdrop-blur-sm">
                         {t('nav.joinNow', 'Join Now')}
                     </span>
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-neutral-900 mb-6 animate-slide-up">
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold uppercase tracking-tight text-neutral-900 mb-6 animate-slide-up">
                         {t('nav.joinNow', 'Join Now')}
                     </h1>
                 </div>

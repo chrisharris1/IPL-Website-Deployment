@@ -22,7 +22,7 @@ export default function About() {
     useEffect(() => {
         async function loadSections() {
             try {
-                const res = await fetch('/api/about')
+                const res = await fetch('/api/about', { cache: 'no-store' })
                 const data = await res.json()
                 if (data.success) setSections(data.data || [])
             } catch (error) {
@@ -58,7 +58,7 @@ export default function About() {
                             </span>
                         </div>
 
-                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-neutral-900 mb-6 leading-tight">
+                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold uppercase text-neutral-900 mb-6 leading-tight">
                             {t('about.title', 'About Us')}
                         </h1>
 
@@ -96,17 +96,40 @@ export default function About() {
                                     .sort((a, b) => a.order_index - b.order_index)
                                     .map((section) => {
                                         const title = lang === 'ta' && section.section_title_ta ? section.section_title_ta : section.section_title_en
-                                        const content = lang === 'ta' && section.content_ta ? section.content_ta : section.content_en
+                                        const contentBlocks = [
+                                            {
+                                                label: '',
+                                                html: section.content_en,
+                                            },
+                                        ]
+
+                                        if (section.content_ta && section.content_ta !== section.content_en) {
+                                            contentBlocks.push({
+                                                label: 'Tamil',
+                                                html: section.content_ta,
+                                            })
+                                        }
 
                                         return (
                                             <article key={section.id} className="bg-neutral-50 rounded-2xl border border-neutral-100 p-6 sm:p-8">
                                                 {title ? (
                                                     <h3 className="text-2xl font-bold text-neutral-900 mb-5" dangerouslySetInnerHTML={{ __html: title }} />
                                                 ) : null}
-                                                <div
-                                                    className="prose prose-lg max-w-none text-neutral-700"
-                                                    dangerouslySetInnerHTML={{ __html: content || '' }}
-                                                />
+                                                <div className="space-y-5">
+                                                    {contentBlocks.map((block) => (
+                                                        <div key={block.label} className="space-y-2">
+                                                            {block.label ? (
+                                                                <div className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
+                                                                    {block.label}
+                                                                </div>
+                                                            ) : null}
+                                                            <div
+                                                                className="prose prose-lg max-w-none text-neutral-700"
+                                                                dangerouslySetInnerHTML={{ __html: block.html || '' }}
+                                                            />
+                                                        </div>
+                                                    ))}
+                                                </div>
                                             </article>
                                         )
                                     })}
