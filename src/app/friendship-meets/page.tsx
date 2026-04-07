@@ -131,7 +131,7 @@ export default function FriendshipMeetsPage() {
                         )}
                         {(introContent.intro_content_en || introContent.intro_content_ta) && (
                             <div 
-                                className="text-neutral-700 leading-relaxed prose prose-neutral max-w-none"
+                                className="text-neutral-700 leading-relaxed max-w-none text-base sm:text-lg [&_p]:my-2 [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-6 [&_ol]:pl-6"
                                 dangerouslySetInnerHTML={{ __html: isTamil ? (introContent.intro_content_ta || introContent.intro_content_en) : (introContent.intro_content_en || introContent.intro_content_ta) }}
                             />
                         )}
@@ -198,7 +198,7 @@ export default function FriendshipMeetsPage() {
                                             />
                                             {preferredDescriptionHtml ? (
                                                 <div
-                                                    className="prose prose-base max-w-none text-neutral-700 mb-4 line-clamp-3"
+                                                    className="max-w-none text-neutral-700 mb-4 line-clamp-3 text-base leading-relaxed"
                                                     dangerouslySetInnerHTML={{ __html: preferredDescriptionHtml }}
                                                 />
                                             ) : null}

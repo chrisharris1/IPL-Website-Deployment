@@ -5,6 +5,50 @@ import { ObjectId } from 'mongodb'
 import { getAdminSession } from '@/lib/auth-edge'
 import { newsSchema } from '@/lib/validation'
 import sanitizeHtml from 'sanitize-html'
+import { v2 as cloudinary } from 'cloudinary'
+
+const sanitizeRichText = (html: string) =>
+    sanitizeHtml(html || '', {
+        allowedTags: sanitizeHtml.defaults.allowedTags.concat(['span', 'p', 'div', 'br', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li']),
+        allowedAttributes: {
+            ...sanitizeHtml.defaults.allowedAttributes,
+            span: ['style'],
+            p: ['style'],
+            div: ['style'],
+            h1: ['style'],
+            h2: ['style'],
+            h3: ['style'],
+            h4: ['style'],
+            h5: ['style'],
+            h6: ['style'],
+            li: ['style'],
+        },
+        allowedStyles: {
+            '*': {
+                color: [/^#[0-9a-fA-F]{3,8}$/, /^rgb\(/, /^rgba\(/, /^[a-zA-Z]+$/],
+                'font-size': [/^\d+(?:\.\d+)?(?:px|em|rem|%)$/],
+                'font-family': [/^[\w\s,'"-]+$/],
+                'text-decoration': [/^underline$/, /^line-through$/, /^none$/],
+                'font-weight': [/^\d{3}$/, /^bold$/, /^normal$/],
+                'font-style': [/^italic$/, /^normal$/],
+            },
+        },
+    })
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+})
+
+async function uploadNewsGalleryImage(photoBase64: string): Promise<{ url: string; public_id: string }> {
+    const result = await cloudinary.uploader.upload(photoBase64, {
+        folder: 'ipl/news/gallery',
+        resource_type: 'image',
+    })
+
+    return { url: result.secure_url, public_id: result.public_id }
+}
 
 // GET - List all news events
 export async function GET() {
@@ -42,6 +86,7 @@ export async function GET() {
             description_en: e.description_en,
             description_ta: e.description_ta,
             image_url: e.image_url,
+            photos: Array.isArray(e.photos) ? e.photos : [],
         }))
 
         console.log('Admin News GET: Returning success response')
@@ -111,24 +156,33 @@ export async function POST(request: NextRequest) {
         const db = await getDb()
         
         // Sanitize HTML content
+        let sanitizedTitleEn = ''
+        let sanitizedTitleTa = ''
         let sanitizedDescEn = ''
         let sanitizedDescTa = ''
         try {
-            sanitizedDescEn = data.description_en ? sanitizeHtml(data.description_en) : ''
-            sanitizedDescTa = data.description_ta ? sanitizeHtml(data.description_ta) : ''
+            sanitizedTitleEn = data.title_en ? sanitizeRichText(data.title_en) : ''
+            sanitizedTitleTa = data.title_ta ? sanitizeRichText(data.title_ta) : ''
+            sanitizedDescEn = data.description_en ? sanitizeRichText(data.description_en) : ''
+            sanitizedDescTa = data.description_ta ? sanitizeRichText(data.description_ta) : ''
             console.log('Admin News POST: HTML sanitized successfully')
         } catch (sanitizeError) {
             console.error('Admin News POST: Sanitization error', sanitizeError)
             // Continue without sanitization if it fails
+            sanitizedTitleEn = data.title_en || ''
+            sanitizedTitleTa = data.title_ta || ''
             sanitizedDescEn = data.description_en || ''
             sanitizedDescTa = data.description_ta || ''
         }
         
         const doc = {
             ...data,
+            title_en: sanitizedTitleEn,
+            title_ta: sanitizedTitleTa,
             description_en: sanitizedDescEn,
             description_ta: sanitizedDescTa,
             image_url: uploadResult.url,
+            photos: [],
             created_at: new Date(),
         }
 
@@ -181,6 +235,46 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
         }
 
+        const contentType = request.headers.get('content-type') || ''
+        if (contentType.includes('application/json')) {
+            const body = await request.json()
+            const { id, photoBase64 } = body
+
+            if (!id || !photoBase64) {
+                return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 })
+            }
+
+            const uploadedImage = await uploadNewsGalleryImage(photoBase64)
+            const db = await getDb()
+
+            const result = await db.collection('news_events').updateOne(
+                { _id: new ObjectId(id) },
+                {
+                    $push: {
+                        photos: {
+                            url: uploadedImage.url,
+                            public_id: uploadedImage.public_id,
+                            uploadedAt: new Date(),
+                        },
+                    } as any,
+                    $set: { updated_at: new Date() },
+                }
+            )
+
+            if (result.matchedCount === 0) {
+                return NextResponse.json({ success: false, error: 'News item not found' }, { status: 404 })
+            }
+
+            return NextResponse.json({
+                success: true,
+                message: 'Photo uploaded successfully',
+                photo: {
+                    url: uploadedImage.url,
+                    public_id: uploadedImage.public_id,
+                },
+            })
+        }
+
         const formData = await request.formData()
         const id = formData.get('id') as string
 
@@ -215,20 +309,28 @@ export async function PUT(request: NextRequest) {
         const data = validation.data
 
         // Sanitize HTML content
+        let sanitizedTitleEn = ''
+        let sanitizedTitleTa = ''
         let sanitizedDescEn = ''
         let sanitizedDescTa = ''
         try {
-            sanitizedDescEn = data.description_en ? sanitizeHtml(data.description_en) : ''
-            sanitizedDescTa = data.description_ta ? sanitizeHtml(data.description_ta) : ''
+            sanitizedTitleEn = data.title_en ? sanitizeRichText(data.title_en) : ''
+            sanitizedTitleTa = data.title_ta ? sanitizeRichText(data.title_ta) : ''
+            sanitizedDescEn = data.description_en ? sanitizeRichText(data.description_en) : ''
+            sanitizedDescTa = data.description_ta ? sanitizeRichText(data.description_ta) : ''
         } catch (sanitizeError) {
             console.error('Admin News PUT: Sanitization error', sanitizeError)
             // Continue without sanitization if it fails
+            sanitizedTitleEn = data.title_en || ''
+            sanitizedTitleTa = data.title_ta || ''
             sanitizedDescEn = data.description_en || ''
             sanitizedDescTa = data.description_ta || ''
         }
 
         const update: Record<string, unknown> = {
             ...data,
+            title_en: sanitizedTitleEn,
+            title_ta: sanitizedTitleTa,
             description_en: sanitizedDescEn,
             description_ta: sanitizedDescTa,
         }
@@ -265,6 +367,34 @@ export async function DELETE(request: NextRequest) {
             return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
         }
 
+        const { searchParams } = request.nextUrl
+        const idFromQuery = searchParams.get('id')
+        const photoPublicId = searchParams.get('photoPublicId')
+
+        if (idFromQuery && photoPublicId) {
+            const db = await getDb()
+
+            try {
+                await cloudinary.uploader.destroy(photoPublicId)
+            } catch (error) {
+                console.error('Admin News DELETE photo cloudinary error:', error)
+            }
+
+            const result = await db.collection('news_events').updateOne(
+                { _id: new ObjectId(idFromQuery) },
+                {
+                    $pull: { photos: { public_id: photoPublicId } } as any,
+                    $set: { updated_at: new Date() },
+                }
+            )
+
+            if (result.matchedCount === 0) {
+                return NextResponse.json({ success: false, error: 'News item not found' }, { status: 404 })
+            }
+
+            return NextResponse.json({ success: true, message: 'Photo deleted successfully' })
+        }
+
         const { id } = await request.json()
         if (!id) {
             return NextResponse.json({ success: false, error: 'No ID provided' }, { status: 400 })
@@ -274,6 +404,20 @@ export async function DELETE(request: NextRequest) {
         const doc = await db.collection('news_events').findOne({ _id: new ObjectId(id) })
 
         if (doc) {
+            if (Array.isArray(doc.photos)) {
+                for (const photo of doc.photos) {
+                    if (photo?.public_id) {
+                        try {
+                            await cloudinary.uploader.destroy(photo.public_id)
+                        } catch (error) {
+                            console.error('Admin News DELETE gallery photo error:', error)
+                        }
+                    } else if (photo?.url) {
+                        await deleteImage(photo.url)
+                    }
+                }
+            }
+
             await deleteImage(doc.image_url)
             await db.collection('news_events').deleteOne({ _id: new ObjectId(id) })
         }

@@ -5,6 +5,34 @@ import { ObjectId } from 'mongodb'
 import { getAdminSession } from '@/lib/auth-edge'
 import sanitizeHtml from 'sanitize-html'
 
+const sanitizeConfig = {
+    allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'span', 'p', 'div', 'br', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li']),
+    allowedAttributes: {
+        ...sanitizeHtml.defaults.allowedAttributes,
+        img: ['src', 'alt', 'title', 'width', 'height'],
+        span: ['style'],
+        p: ['style'],
+        div: ['style'],
+        h1: ['style'],
+        h2: ['style'],
+        h3: ['style'],
+        h4: ['style'],
+        h5: ['style'],
+        h6: ['style'],
+        li: ['style'],
+    },
+    allowedStyles: {
+        '*': {
+            color: [/^#[0-9a-fA-F]{3,8}$/, /^rgb\(/, /^rgba\(/, /^[a-zA-Z]+$/],
+            'font-size': [/^\d+(?:\.\d+)?(?:px|em|rem|%)$/],
+            'font-family': [/^[\w\s,'"-]+$/],
+            'text-decoration': [/^underline$/, /^line-through$/, /^none$/],
+            'font-weight': [/^\d{3}$/, /^bold$/, /^normal$/],
+            'font-style': [/^italic$/, /^normal$/],
+        },
+    },
+}
+
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
@@ -70,15 +98,6 @@ export async function POST(request: NextRequest) {
 
         const body = await request.json()
         const { id, newsId, title_en, title_ta, description_en, description_ta, photos, date } = body
-
-        // Sanitize HTML content
-        const sanitizeConfig = {
-            allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'h1', 'h2']),
-            allowedAttributes: {
-                ...sanitizeHtml.defaults.allowedAttributes,
-                img: ['src', 'alt', 'title', 'width', 'height'],
-            },
-        }
 
         const sanitizedData = {
             newsId: newsId || null,

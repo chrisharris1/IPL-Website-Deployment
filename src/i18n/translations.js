@@ -511,7 +511,7 @@ const translations = {
       all_events: 'All Events',
       all_events_sub: 'Browse events in grid or timeline view. Use search to filter results by title, description or location.',
       upcoming_events: 'Upcoming Events',
-      past_events: 'Past Events',
+      past_events: 'Past News',
       no_events: 'No events found',
       upcoming_badge: 'Upcoming',
       past_badge: 'Past',

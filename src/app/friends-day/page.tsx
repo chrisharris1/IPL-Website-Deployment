@@ -1,13 +1,12 @@
 "use client"
 
-import React, { useState } from 'react'
+import React from 'react'
 import Image from 'next/image'
 import { Calendar, Heart, Users, Gift, Camera, Sparkles, Star, Globe, MapPin, Award } from 'lucide-react'
 import { useTranslation } from '@/contexts/TranslationContext'
 
 export default function FriendsDay() {
     const { t, lang } = useTranslation() // Assuming language is available in context
-    const [selectedEvent, setSelectedEvent] = useState<number | null>(null)
     const [content, setContent] = useState<any>(null)
 
     React.useEffect(() => {
@@ -196,68 +195,47 @@ export default function FriendsDay() {
                     </p>
                 </div>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="flex flex-col gap-8 items-center">
                     {friendsDayEvents.map((event) => (
                         <div
                             key={event.id}
-                            className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-neutral-100 hover:-translate-y-1 cursor-pointer"
-                            onClick={() => setSelectedEvent(selectedEvent === event.id ? null : event.id)}
+                            className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-neutral-200 transition-all duration-300 hover:-translate-y-1 block h-full w-full max-w-sm"
                         >
-                            <div className="relative h-48 overflow-hidden">
+                            <div className="relative h-48 overflow-hidden bg-linear-to-br from-red-100 to-purple-100">
                                 <Image
                                     src={event.image}
                                     alt={event.title}
                                     fill
-                                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                                    className="w-full h-full object-contain"
                                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                 />
-                                <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent" />
-                                <div className="absolute bottom-4 left-4 right-4">
-                                    <span className="inline-block px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full mb-2">
-                                        {event.year}
-                                    </span>
+                                <div className="absolute top-3 right-3 bg-red-600 text-white px-3 py-1 rounded-full text-sm font-bold">
+                                    {event.year}
                                 </div>
                             </div>
 
-                            <div className="p-6">
-                                <h3 className="text-lg font-bold text-neutral-900 mb-2 group-hover:text-red-700 transition-colors">
+                            <div className="p-6 sm:p-7 min-w-0">
+                                <h3 className="text-xl sm:text-2xl font-bold text-neutral-900 mb-3 leading-snug">
                                     {event.title}
                                 </h3>
 
-                                <div className="flex items-center gap-2 text-sm text-neutral-600 mb-2">
+                                <div className="flex items-center gap-2 text-sm text-neutral-600 mb-3">
                                     <Calendar className="w-4 h-4" />
                                     <span>{event.date}</span>
                                 </div>
 
-                                <div className="flex items-center gap-2 text-sm text-neutral-600 mb-4">
-                                    <MapPin className="w-4 h-4" />
-                                    <span>{event.location}</span>
-                                </div>
-
-                                <p className="text-sm text-neutral-600 mb-4">
+                                <p className="text-base text-neutral-700 mb-4 line-clamp-3">
                                     {event.description}
                                 </p>
 
-                                {selectedEvent === event.id && (
-                                    <div className="mt-4 pt-4 border-t border-neutral-100">
-                                        <div className="flex items-center gap-2 mb-3">
-                                            <Users className="w-4 h-4 text-red-600" />
-                                            <span className="text-sm font-semibold text-neutral-900">
-                                                {event.participants} Participants
-                                            </span>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <p className="text-xs font-semibold text-neutral-700 uppercase tracking-wider">Activities:</p>
-                                            <div className="flex flex-wrap gap-2">
-                                                {event.activities.map((activity, idx) => (
-                                                    <span key={idx} className="px-2 py-1 bg-red-50 text-red-700 text-xs rounded-full">
-                                                        {activity}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
+                                <p className="text-base text-neutral-700 mb-4 flex items-start gap-1.5">
+                                    <MapPin className="w-4 h-4 mt-0.5 shrink-0" />
+                                    <span className="min-w-0">{event.location}</span>
+                                </p>
+
+                                <div className="text-red-600 font-semibold text-base hover:underline">
+                                    {t('friendshipMeets.view_details', 'View Details →')}
+                                </div>
                             </div>
                         </div>
                     ))}

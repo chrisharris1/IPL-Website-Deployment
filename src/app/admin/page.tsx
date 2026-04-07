@@ -35,7 +35,7 @@ import { motion } from 'framer-motion'
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface CarouselImage { id: string; image_url: string; title?: string; subtitle?: string; hide_text: boolean; active: boolean; order_index?: number; created_at: string }
 interface ServiceItem { id: string; title_en: string; title_ta: string; country: string; state: string; district: string; city: string; date: string; description_en: string; description_ta: string; image_url: string }
-interface NewsItem { id: string; title_en: string; title_ta: string; country: string; state: string; district: string; city: string; date: string; time: string; description_en: string; description_ta: string; image_url: string }
+interface NewsItem { id: string; title_en: string; title_ta: string; country: string; state: string; district: string; city: string; date: string; time: string; description_en: string; description_ta: string; image_url: string; photos?: { url: string; public_id: string; uploadedAt?: string }[] }
 interface AboutSection { id: string; section_title_en: string; section_title_ta: string; content_en: string; content_ta: string; order_index: number; is_deletable: boolean }
 interface TeamMember { id: string; name: string; role: string; image_url: string; order_index: number; hierarchy_level?: number; email?: string; phone?: string; location?: string }
 interface FriendshipMeet {
@@ -51,6 +51,14 @@ interface FriendshipMeet {
     caption_en: string;
     caption_ta: string;
     banner_image: { url: string; public_id: string } | null;
+}
+interface FriendsDayCard {
+    id: string;
+    title_en: string;
+    title_ta: string;
+    description_en: string;
+    description_ta: string;
+    image: { url: string; public_id?: string } | null;
 }
 interface JoinNowItem { id: string; title_en: string; title_ta: string; content_en: string; content_ta: string; google_form_url: string; order_index: number }
 interface DashboardStats { carousel: number; services: number; news: number; events: number; about: number; history: number; team: number; friendship: number; presidentBlog: number; joinNow: number }
@@ -1485,6 +1493,7 @@ function NewsSection() {
     const [editing, setEditing] = useState<NewsItem | null>(null)
     const [submitting, setSubmitting] = useState(false)
     const [msg, setMsg] = useState({ text: '', type: 'success' as 'success' | 'error' })
+    const [uploadingPhoto, setUploadingPhoto] = useState(false)
 
     // Form state for cascading dropdowns
     const [formData, setFormData] = useState({
@@ -1742,6 +1751,59 @@ function NewsSection() {
         } catch { setMsg({ text: 'Delete failed', type: 'error' }) }
     }
 
+    const handlePhotoUpload = async (newsId: string, file: File) => {
+        setUploadingPhoto(true)
+        try {
+            const reader = new FileReader()
+            reader.onloadend = async () => {
+                try {
+                    const photoBase64 = reader.result as string
+                    const res = await fetch('/api/admin/news', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: newsId, photoBase64 }),
+                    })
+                    const data = await res.json()
+
+                    if (data.success) {
+                        setMsg({ text: 'Photo uploaded!', type: 'success' })
+                        await fetchItems()
+                    } else {
+                        setMsg({ text: data.error || 'Photo upload failed', type: 'error' })
+                    }
+                } catch {
+                    setMsg({ text: 'Photo upload failed', type: 'error' })
+                } finally {
+                    setUploadingPhoto(false)
+                }
+            }
+            reader.readAsDataURL(file)
+        } catch {
+            setUploadingPhoto(false)
+            setMsg({ text: 'Photo upload failed', type: 'error' })
+        }
+    }
+
+    const deletePhoto = async (newsId: string, photoPublicId: string) => {
+        if (!confirm('Delete this photo?')) return
+
+        try {
+            const res = await fetch(`/api/admin/news?id=${newsId}&photoPublicId=${photoPublicId}`, {
+                method: 'DELETE',
+            })
+            const data = await res.json()
+
+            if (data.success) {
+                setMsg({ text: 'Photo deleted', type: 'success' })
+                await fetchItems()
+            } else {
+                setMsg({ text: data.error || 'Delete failed', type: 'error' })
+            }
+        } catch {
+            setMsg({ text: 'Delete failed', type: 'error' })
+        }
+    }
+
     // Cascading dropdown logic
     const baseCountries = getCountries()
     const availableCountries = [...baseCountries, ...customCountries]
@@ -1765,6 +1827,7 @@ function NewsSection() {
                     {filteredItems.map(item => {
                         const eventDateTime = new Date(`${item.date}T${item.time || '00:00'}`)
                         const isUpcoming = eventDateTime > new Date()
+                        const validPhotos = item.photos?.filter(photo => photo && photo.url) || []
 
                         return (
                             <div key={item.id} className="bg-white rounded-xl shadow overflow-hidden relative">
@@ -1785,6 +1848,44 @@ function NewsSection() {
                                     <p className="text-xs text-gray-400 mb-3">
                                         📅 {item.date} {item.time && `⏰ ${item.time}`}
                                     </p>
+                                    <p className="text-xs text-gray-500 mb-3">{validPhotos.length} gallery photo{validPhotos.length !== 1 ? 's' : ''}</p>
+
+                                    <div className="mb-3">
+                                        <label className="block text-xs font-medium mb-1">Add Photos</label>
+                                        <input
+                                            key={`news-upload-${item.id}-${validPhotos.length}`}
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0]
+                                                if (file) handlePhotoUpload(item.id, file)
+                                            }}
+                                            className="block w-full text-xs text-gray-500 file:mr-2 file:py-1.5 file:px-2.5 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100"
+                                            disabled={uploadingPhoto}
+                                        />
+                                        {uploadingPhoto && <p className="text-xs text-gray-500 mt-1">Uploading...</p>}
+                                    </div>
+
+                                    {validPhotos.length > 0 && (
+                                        <div className="mb-3">
+                                            <label className="block text-xs font-medium mb-1">News Photo Gallery</label>
+                                            <div className="grid grid-cols-3 gap-2">
+                                                {validPhotos.map((photo, idx) => (
+                                                    <div key={idx} className="relative aspect-square rounded overflow-hidden group">
+                                                        <img src={photo.url} alt={`News photo ${idx + 1}`} className="w-full h-full object-cover" />
+                                                        <button
+                                                            onClick={() => deletePhoto(item.id, photo.public_id)}
+                                                            className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                                                            title="Delete Photo"
+                                                        >
+                                                            <Trash2 size={12} />
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
                                     <div className="flex gap-2">
                                         <button onClick={() => openEditModal(item)}
                                             className="flex-1 bg-blue-600 text-white px-3 py-2 rounded-lg text-xs hover:bg-blue-700 transition">Edit</button>
@@ -3985,6 +4086,21 @@ function FriendshipContentManager() {
     const [aboutContentEn, setAboutContentEn] = useState('')
     const [aboutContentTa, setAboutContentTa] = useState('')
 
+    // Friends Day cards state
+    const [cards, setCards] = useState<FriendsDayCard[]>([])
+    const [cardsLoading, setCardsLoading] = useState(true)
+    const [showCardModal, setShowCardModal] = useState(false)
+    const [editingCard, setEditingCard] = useState<FriendsDayCard | null>(null)
+    const [cardSubmitting, setCardSubmitting] = useState(false)
+    const [cardImageFile, setCardImageFile] = useState<File | null>(null)
+    const [cardImagePreview, setCardImagePreview] = useState('')
+    const [cardForm, setCardForm] = useState({
+        title_en: '',
+        title_ta: '',
+        description_en: '',
+        description_ta: '',
+    })
+
     const fetchContent = useCallback(async () => {
         try {
             const res = await fetch('/api/admin/friends-day')
@@ -4000,13 +4116,25 @@ function FriendshipContentManager() {
         setLoading(false)
     }, [])
 
+    const fetchCards = useCallback(async () => {
+        try {
+            const res = await fetch('/api/admin/friends-day/events')
+            const data = await res.json()
+            if (data.success && Array.isArray(data.data)) {
+                setCards(data.data)
+            }
+        } catch { /* ignore */ }
+        setCardsLoading(false)
+    }, [])
+
     useEffect(() => {
         let isMounted = true
         if (isMounted) {
             fetchContent()
+            fetchCards()
         }
         return () => { isMounted = false }
-    }, [fetchContent])
+    }, [fetchContent, fetchCards])
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -4033,6 +4161,106 @@ function FriendshipContentManager() {
             }
         } catch { setMsg({ text: 'Failed to update', type: 'error' }) }
         setSubmitting(false)
+    }
+
+    const openAddCardModal = () => {
+        setEditingCard(null)
+        setCardForm({ title_en: '', title_ta: '', description_en: '', description_ta: '' })
+        setCardImageFile(null)
+        setCardImagePreview('')
+        setShowCardModal(true)
+    }
+
+    const openEditCardModal = (card: FriendsDayCard) => {
+        setEditingCard(card)
+        setCardForm({
+            title_en: card.title_en || '',
+            title_ta: card.title_ta || '',
+            description_en: card.description_en || '',
+            description_ta: card.description_ta || '',
+        })
+        setCardImageFile(null)
+        setCardImagePreview('')
+        setShowCardModal(true)
+    }
+
+    const handleCardImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+        setCardImageFile(file)
+        setCardImagePreview(URL.createObjectURL(file))
+    }
+
+    const toBase64 = (file: File) =>
+        new Promise<string>((resolve) => {
+            const reader = new FileReader()
+            reader.onloadend = () => resolve(reader.result as string)
+            reader.readAsDataURL(file)
+        })
+
+    const handleCardSubmit = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        setCardSubmitting(true)
+
+        if (!cardForm.title_en.trim()) {
+            setMsg({ text: 'Card title (English) is required', type: 'error' })
+            setCardSubmitting(false)
+            return
+        }
+
+        let imageBase64: string | undefined
+        if (cardImageFile) {
+            imageBase64 = await toBase64(cardImageFile)
+        }
+
+        try {
+            const res = await fetch('/api/admin/friends-day/events', {
+                method: editingCard ? 'PUT' : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ...(editingCard ? { id: editingCard.id } : {}),
+                    ...cardForm,
+                    ...(imageBase64 ? { image_base64: imageBase64 } : {}),
+                }),
+            })
+
+            const data = await res.json()
+            if (data.success) {
+                setMsg({ text: editingCard ? 'Friends Day card updated!' : 'Friends Day card added!', type: 'success' })
+                setShowCardModal(false)
+                setEditingCard(null)
+                setCardImageFile(null)
+                setCardImagePreview('')
+                fetchCards()
+            } else {
+                setMsg({ text: data.error || 'Failed to save card', type: 'error' })
+            }
+        } catch {
+            setMsg({ text: 'Failed to save card', type: 'error' })
+        }
+
+        setCardSubmitting(false)
+    }
+
+    const handleCardDelete = async (id: string) => {
+        if (!confirm('Delete this Friends Day card?')) return
+
+        try {
+            const res = await fetch('/api/admin/friends-day/events', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id }),
+            })
+            const data = await res.json()
+            if (data.success) {
+                setMsg({ text: 'Friends Day card deleted', type: 'success' })
+                fetchCards()
+            } else {
+                setMsg({ text: data.error || 'Delete failed', type: 'error' })
+            }
+        } catch {
+            setMsg({ text: 'Delete failed', type: 'error' })
+        }
     }
 
     if (loading) return <p className="text-gray-500">Loading...</p>
@@ -4081,6 +4309,140 @@ function FriendshipContentManager() {
                     </button>
                 </div>
             </form>
+
+            <div className="mt-8 bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <h3 className="text-xl font-bold text-gray-800">Friends Day Cards (Photo + Title + Description)</h3>
+                    <button
+                        onClick={openAddCardModal}
+                        className="bg-red-600 text-white px-5 py-2.5 rounded-lg hover:bg-red-700 font-semibold transition flex items-center gap-2"
+                    >
+                        <Plus size={18} /> Add Card
+                    </button>
+                </div>
+
+                {cardsLoading ? (
+                    <p className="text-gray-500">Loading cards...</p>
+                ) : cards.length === 0 ? (
+                    <p className="text-gray-500">No Friends Day cards added yet.</p>
+                ) : (
+                    <div className="space-y-4">
+                        {cards.map((card) => (
+                            <div key={card.id} className="border border-gray-200 rounded-xl p-4">
+                                <div className="flex flex-col lg:flex-row gap-4">
+                                    <div className="w-full lg:w-48 h-28 bg-gray-100 rounded-lg overflow-hidden shrink-0 flex items-center justify-center">
+                                        {card.image?.url ? (
+                                            <img src={card.image.url} alt="Friends Day" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <span className="text-gray-400 text-sm">No image</span>
+                                        )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className="text-lg font-bold text-gray-900 mb-2" dangerouslySetInnerHTML={{ __html: card.title_en || 'Untitled Card' }} />
+                                        <div className="text-sm text-gray-600 line-clamp-3" dangerouslySetInnerHTML={{ __html: card.description_en || '' }} />
+                                    </div>
+                                    <div className="flex gap-2 lg:self-start">
+                                        <button
+                                            onClick={() => (window.location.href = `/admin/friends-day/${card.id}`)}
+                                            className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700 transition whitespace-nowrap"
+                                        >
+                                            📷 Manage Gallery
+                                        </button>
+                                        <button
+                                            onClick={() => openEditCardModal(card)}
+                                            className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition"
+                                        >
+                                            Edit
+                                        </button>
+                                        <button
+                                            onClick={() => handleCardDelete(card.id)}
+                                            className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition"
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            <Modal
+                open={showCardModal}
+                onClose={() => {
+                    setShowCardModal(false)
+                    setEditingCard(null)
+                    setCardImageFile(null)
+                    setCardImagePreview('')
+                }}
+                title={editingCard ? 'Edit Friends Day Card' : 'Add Friends Day Card'}
+            >
+                <form onSubmit={handleCardSubmit} className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium mb-1">Title (English) *</label>
+                        <RichTextEditor
+                            value={cardForm.title_en}
+                            onChange={(value) => setCardForm(prev => ({ ...prev, title_en: value }))}
+                            placeholder="Enter card title in English"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium mb-1">Title (Tamil)</label>
+                        <RichTextEditor
+                            value={cardForm.title_ta}
+                            onChange={(value) => setCardForm(prev => ({ ...prev, title_ta: value }))}
+                            placeholder="Enter card title in Tamil"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium mb-1">Description (English)</label>
+                        <RichTextEditor
+                            value={cardForm.description_en}
+                            onChange={(value) => setCardForm(prev => ({ ...prev, description_en: value }))}
+                            placeholder="Enter description in English"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium mb-1">Description (Tamil)</label>
+                        <RichTextEditor
+                            value={cardForm.description_ta}
+                            onChange={(value) => setCardForm(prev => ({ ...prev, description_ta: value }))}
+                            placeholder="Enter description in Tamil"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium mb-1">Card Photo {editingCard ? '(optional to replace)' : '*'}</label>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleCardImageSelect}
+                            className="w-full border border-gray-300 rounded-lg p-2.5"
+                        />
+                        {(cardImagePreview || editingCard?.image?.url) && (
+                            <div className="mt-3">
+                                <img
+                                    src={cardImagePreview || editingCard?.image?.url}
+                                    alt="Card preview"
+                                    className="w-full max-w-xs h-40 object-cover rounded-lg border"
+                                />
+                            </div>
+                        )}
+                    </div>
+
+                    <button
+                        type="submit"
+                        disabled={cardSubmitting}
+                        className="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 font-semibold transition disabled:opacity-50"
+                    >
+                        {cardSubmitting ? 'Saving...' : editingCard ? 'Update Card' : 'Add Card'}
+                    </button>
+                </form>
+            </Modal>
         </div>
     )
 }

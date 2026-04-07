@@ -140,7 +140,7 @@ export default function FriendshipMeetDetailPage() {
                     />
                     {description ? (
                         <div
-                            className="prose prose-invert prose-sm sm:prose-base max-w-none text-sm sm:text-base md:text-lg opacity-95 wrap-break-word px-2 mb-3"
+                            className="max-w-none text-base sm:text-lg md:text-xl leading-relaxed opacity-95 wrap-break-word px-2 mb-3 [&_p]:my-2 [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-6 [&_ol]:pl-6"
                             dangerouslySetInnerHTML={{ __html: description }}
                         />
                     ) : null}
@@ -259,7 +259,7 @@ export default function FriendshipMeetDetailPage() {
 
                                 {selectedItem.description_en || selectedItem.description_ta ? (
                                     <div
-                                        className="prose prose-sm max-w-none text-gray-700 wrap-break-word"
+                                        className="max-w-none text-gray-700 wrap-break-word text-sm sm:text-base leading-relaxed [&_p]:my-2 [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-6 [&_ol]:pl-6"
                                         dangerouslySetInnerHTML={{
                                             __html: lang === 'ta' && selectedItem.description_ta ? selectedItem.description_ta : selectedItem.description_en
                                         }}

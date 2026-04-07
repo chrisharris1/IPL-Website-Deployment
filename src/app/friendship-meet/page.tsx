@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { Sparkles } from 'lucide-react'
+import Link from 'next/link'
+import { ImageIcon, Sparkles } from 'lucide-react'
 import { useTranslation } from '@/contexts/TranslationContext'
 
 interface FriendsDayContent {
@@ -16,13 +17,23 @@ interface FriendsDayContent {
     about_content_ta?: string
 }
 
+interface FriendsDayEventCard {
+    id: string
+    title_en: string
+    title_ta: string
+    description_en: string
+    description_ta: string
+    image: { url: string; public_id?: string } | null
+}
+
 export default function FriendshipMeetPage() {
     const { t, lang } = useTranslation()
     const isTamil = lang === 'ta'
     const [friendsDayContent, setFriendsDayContent] = useState<FriendsDayContent | null>(null)
+    const [friendsDayCards, setFriendsDayCards] = useState<FriendsDayEventCard[]>([])
 
     useEffect(() => {
-        // Fetch Friends Day Content
+        // Fetch Friends Day Content 
         fetch('/api/admin/friends-day')
             .then(res => res.json())
             .then(data => {
@@ -31,6 +42,17 @@ export default function FriendshipMeetPage() {
                 }
             })
             .catch(err => console.error('Failed to load friends day content', err))
+    }, [])
+
+    useEffect(() => {
+        fetch('/api/friends-day/events', { cache: 'no-store' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && Array.isArray(data.data)) {
+                    setFriendsDayCards(data.data)
+                }
+            })
+            .catch(err => console.error('Failed to load friends day cards', err))
     }, [])
 
     return (
@@ -112,7 +134,7 @@ export default function FriendshipMeetPage() {
                     <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-neutral-900 mb-6 wrap-break-word text-center" style={{ fontFamily: "'David Libre', 'Times New Roman', serif", letterSpacing: '0.02em' }}>
                         INAUGURAL DAY OF <span className="text-[1.5em]">I</span>NDIAN <span className="text-[1.5em]">P</span>ENPALS<sup className="text-[0.6em]">'</sup> <span className="text-[1.5em]">L</span>EAGUE
                     </p>
-                    <div className="prose prose-base sm:prose-lg max-w-none text-neutral-600 space-y-4 wrap-break-word">
+                    <div className="max-w-none text-neutral-600 text-base sm:text-lg leading-relaxed space-y-4 wrap-break-word [&_p]:my-3 [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-6 [&_ol]:pl-6">
                         {friendsDayContent ? (
                             <div dangerouslySetInnerHTML={{ __html: lang === 'ta' ? (friendsDayContent.about_content_ta || friendsDayContent.about_content_en || '') : (friendsDayContent.about_content_en || '') }} />
                         ) : (
@@ -131,6 +153,54 @@ export default function FriendshipMeetPage() {
                         )}
                     </div>
                 </div>
+
+                {friendsDayCards.length > 0 && (
+                    <div className="flex flex-col gap-8 items-center mt-12">
+                        {friendsDayCards.map((card) => {
+                            const titleHtml = lang === 'ta'
+                                ? (card.title_ta || card.title_en)
+                                : (card.title_en || card.title_ta)
+                            const descriptionHtml = lang === 'ta'
+                                ? (card.description_ta || card.description_en)
+                                : (card.description_en || card.description_ta)
+
+                            return (
+                                <Link
+                                    key={card.id}
+                                    href={`/friendship-meet/card/${card.id}`}
+                                    className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-neutral-200 transition-all duration-300 hover:-translate-y-1 block h-full w-full max-w-sm"
+                                >
+                                    <div className="relative h-48 overflow-hidden bg-linear-to-br from-red-100 to-purple-100">
+                                        {card.image?.url ? (
+                                            <img
+                                                src={card.image.url}
+                                                alt="Friends Day"
+                                                className="w-full h-full object-contain"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center">
+                                                <ImageIcon className="w-16 h-16 text-neutral-300" />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="p-6 sm:p-7 min-w-0">
+                                        <h3
+                                            className="text-xl sm:text-2xl font-bold text-neutral-900 mb-3 leading-snug"
+                                            dangerouslySetInnerHTML={{ __html: titleHtml || 'Friends Day' }}
+                                        />
+                                        <div
+                                            className="max-w-none text-neutral-700 line-clamp-3 text-base leading-relaxed"
+                                            dangerouslySetInnerHTML={{ __html: descriptionHtml || '' }}
+                                        />
+                                        <div className="text-red-600 font-semibold text-base hover:underline mt-4">
+                                            {t('friendshipMeets.view_details', 'View Details →')}
+                                        </div>
+                                    </div>
+                                </Link>
+                            )
+                        })}
+                    </div>
+                )}
             </section>
         </div>
     )
