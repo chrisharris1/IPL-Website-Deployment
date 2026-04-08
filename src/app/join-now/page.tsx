@@ -92,7 +92,7 @@ export default function JoinNowPage() {
                                         <div className="w-full">
                                             <h3 className="text-xl md:text-2xl font-bold text-neutral-900 mb-4">HOW TO JOIN?</h3>
                                             <Image
-                                                src="/Images/header/WhatsApp Image 2026-04-08 at 13.34.38.jpeg"
+                                                src="/Images/header/membership-conditions.jpeg"
                                                 alt="Membership Conditions"
                                                 width={1200}
                                                 height={800}
