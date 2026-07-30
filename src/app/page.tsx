@@ -377,7 +377,29 @@ export default function Home() {
             </div>
 
             <div className="lg:w-1/2 bg-white/5 backdrop-blur-sm rounded-2xl p-8 lg:p-12 border border-white/10">
-              <h2 className="text-2xl font-bold mb-6">{String(t('home.welcome_title', 'Welcome to IPL'))}</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold leading-tight tracking-wide mb-6">
+                {lang === 'en' ? (
+                  <>
+                    <span className="text-neutral-100">Welcome to </span>
+                    <span className="text-neutral-100 inline-flex items-baseline flex-wrap gap-0.5">
+                      <span>
+                        <span className="text-4xl sm:text-5xl font-extrabold leading-none align-baseline">I</span>
+                        <span>NDIAN </span>
+                      </span>
+                      <span>
+                        <span className="text-4xl sm:text-5xl font-extrabold leading-none align-baseline">P</span>
+                        <span>ENPALS' </span>
+                      </span>
+                      <span>
+                        <span className="text-4xl sm:text-5xl font-extrabold leading-none align-baseline">L</span>
+                        <span>EAGUE</span>
+                      </span>
+                    </span>
+                  </>
+                ) : (
+                  String(t('home.welcome_title', 'Welcome to IPL'))
+                )}
+              </h2>
               <p className="text-neutral-300 mb-6 leading-relaxed">
                 {String(t('home.about_intro', 'About intro text'))}
               </p>
