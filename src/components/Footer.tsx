@@ -4,7 +4,8 @@ import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useTranslation } from '../contexts/TranslationContext'
-import { Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin, ArrowRight } from 'lucide-react'
+import { Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin, ArrowRight, MessageSquare } from 'lucide-react'
+import FeedbackModal from './FeedbackModal'
 
 type Props = Record<string, never>
 
@@ -15,6 +16,7 @@ const Footer: React.FC<Props> = () => {
   const currentYear = new Date().getFullYear()
   const [visitorCount, setVisitorCount] = useState(0)
   const [isLoaded, setIsLoaded] = useState(false)
+  const [feedbackOpen, setFeedbackOpen] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -141,6 +143,16 @@ const Footer: React.FC<Props> = () => {
                   </Link>
                 </li>
               ))}
+              <li>
+                <button
+                  onClick={() => setFeedbackOpen(true)}
+                  className="flex items-center gap-2 text-neutral-400 hover:text-red-400 transition-colors group text-sm w-full text-left"
+                >
+                  <ArrowRight className="w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                  <MessageSquare className="w-4 h-4" />
+                  {t('feedback.title', 'Send Feedback')}
+                </button>
+              </li>
             </ul>
           </div>
 
@@ -188,6 +200,8 @@ const Footer: React.FC<Props> = () => {
           </div>
         </div>
       </div>
+
+      <FeedbackModal isOpen={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
     </footer>
   )
 }
