@@ -367,7 +367,7 @@ export default function Home() {
                 <div className="absolute -top-10 -left-10 text-red-700/20">
                   <Quote className="w-32 h-32" />
                 </div>
-                <blockquote className="text-3xl lg:text-4xl font-medium leading-tight mb-8 relative z-10">
+                <blockquote className="text-2xl sm:text-3xl lg:text-4xl font-medium leading-relaxed mb-8 relative z-10 whitespace-pre-line">
                   &ldquo;{String(t('home.founder_quote', 'Our founder quote'))}&rdquo;
                 </blockquote>
                 <cite className="text-lg text-red-400 font-style-normal block mb-12">
