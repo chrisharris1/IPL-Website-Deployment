@@ -116,6 +116,20 @@ export default function FriendshipMeetsPage() {
                     <p className="text-base sm:text-lg md:text-xl text-neutral-600 leading-relaxed max-w-3xl mx-auto mb-6 sm:mb-8 animate-slide-up" style={{ animationDelay: '0.1s' }}>
                         {t('friendshipMeets.subtitle', 'Celebrating friendship across borders since decades. Join us in the spirit of international friendship and unity.')}
                     </p>
+
+                    <div className="mt-8 bg-white/90 backdrop-blur-sm rounded-3xl p-8 sm:p-10 shadow-xl border border-red-100 max-w-5xl mx-auto text-left animate-slide-up" style={{ animationDelay: '0.2s' }}>
+                        <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-red-800 mb-6 pb-4 border-b-2 border-red-100/50">
+                            நட்புச் சங்கம விழாக்கள் (Friendship Meets):
+                        </h2>
+                        <div className="space-y-6">
+                            <p className="text-lg sm:text-xl font-bold text-blue-900 leading-relaxed tracking-wide">
+                                கடிதங்கள் மூலம் கருத்துகளைப் பரிமாறும் நண்பர்கள் நேரில் சந்தித்து நட்பின் உறுதியையும், பெருமையையும் உணர களம் அமைக்க வேண்டும் என்ற எண்ண விதையின் ஆலவிருட்சமே, தொடர்ந்துசிறப்புடன் நடைபெற்று வரும் நட்புச் சங்கம விழாக்கள் (Friendship Meet). நட்புச்சங்கம விழாக்களில் பேரவை உறுப்பின நண்பர்கள் குடும்ப உறவுகளுடன் கலந்து கொள்கின்றனர். இருநாள் நிகழ்வுகளிலும் குடும்பவிழா என்ற உணர்வு மேலோங்கி நட்புக்கு சிறப்பு சேர்க்கிறது.
+                            </p>
+                            <p className="text-lg sm:text-xl font-bold text-purple-900 leading-relaxed tracking-wide">
+                                மும்பையில் துவக்க விழா - 12-03-1995. தொடர்ந்து 1996 - தஞ்சை, 1997 - கோலார் தங்க வயல், 1998 - சென்னை, 1999 - கரூர், 2000 - செங்கம், 2001 - புதுக்கோட்டை, 2002 - தேனி, 2003 - திருச்சி, 2004 - நாகர்கோவில், 2005 - கோபி செட்டிபாளையம், 2006 - மைசூர், 2007 - காஞ்சிபுரம், 2008 - திருநெல்வேலி, 2009 - ஜெயங்கொண்டம், 2010 - சென்னை, 2011 - விருதுநகர், 2012 - நாகர்கோவில், 2013 - மும்பை, 2014 - சிவகங்கை, 2015 - கோவை, 2016 - ஓசூர், 2017 - நாமக்கல், 2018 - கோவா, 2019 - திருச்சி, 2022 - மாமல்லபுரம், 2023 - புதுடெல்லி, 2024 - குற்றாலம், 2025 - கோயம்புத்தூர், 2026 - பெங்களூரு என 29 நட்புச் சங்கமங்கள் நடத்திய பெருமையான வரலாறு இந்தியப் பேனாநண்பர் பேரவைக்கு உண்டு.
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </section>
 

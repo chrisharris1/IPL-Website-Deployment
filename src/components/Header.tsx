@@ -61,7 +61,6 @@ const Header: React.FC<Props> = () => {
       ],
     },
     { path: '/our-team', label: 'nav.team' },
-    { path: '/humanitarian-services', label: 'nav.humanitarian' },
     {
       path: '/news-events',
       label: 'nav.news',
@@ -69,10 +68,11 @@ const Header: React.FC<Props> = () => {
       dropdownItems: [
         { path: '/news-events', label: 'nav.iplNews' },
         { path: '/events', label: 'nav.events' },
-        { path: '/friendship-meets', label: 'nav.friendshipMeets' },
         { path: '/friendship-meet', label: 'nav.friendsDay' },
       ],
     },
+    { path: '/friendship-meets', label: 'nav.friendshipMeets' },
+    { path: '/humanitarian-services', label: 'nav.humanitarian' },
     { path: '/join-now', label: 'nav.joinNow' },
     { path: '/contact', label: 'nav.contact' },
   ] as const
