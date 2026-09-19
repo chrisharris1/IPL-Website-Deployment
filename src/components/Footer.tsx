@@ -163,9 +163,9 @@ const Footer: React.FC<Props> = () => {
               <div className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-red-600 shrink-0 mt-1" />
                 <p className="text-neutral-400 text-sm leading-relaxed">
-                  103, Starview Apts., Opp. Corporate Park,<br />
-                  V.N.Purav Marg, Chembur,<br />
-                  Mumbai - 400071, India
+                  VN Purav Marg, Swastik Park,<br />
+                  Chembur, Mumbai,<br />
+                  Maharashtra 400071, India
                 </p>
               </div>
               <div className="flex items-center gap-3">

@@ -70,7 +70,7 @@ const translations = {
       activity3_date: 'Dec 2023',
       activity3_title: 'Education Fee Assistance, Bangalore',
       activity3_desc: 'Education fee assistance by the League, Bangalore',
-      view_all: 'View All Activities',
+      view_all: 'View All Events',
       mother_teresa_quote: 'We feel what we are doing is just a drop in the ocean but the ocean would be less because of that missing drop',
       mother_teresa: 'Mother Teresa',
       // Carousel additions
@@ -84,7 +84,7 @@ const translations = {
     footer: {
       contact_us: 'Contact Us',
       quick_links: 'Quick Links',
-      address: '103, Starview Apts., Opp. Corporate Park, V.N.Purav Marg, Chembur, Mumbai - 400071, India',
+      address: 'VN Purav Marg, Swastik Park, Chembur, Mumbai, Maharashtra 400071, India',
       email: 'Email',
       about_text: 'Love, Friendship & Humanity - A confederation of friends united to serve communities.',
       rights: 'All Rights Reserved',
@@ -696,7 +696,7 @@ const translations = {
       activity3_date: 'டிச 2023',
       activity3_title: 'கல்விக் கட்டண உதவி, பெங்களூரு',
       activity3_desc: 'பேரவை சார்பாக கல்விக் கட்டண உதவி, பெங்களூரு',
-      view_all: 'அனைத்து செயல்பாடுகளையும் காண்க',
+      view_all: 'அனைத்து நிகழ்வுகளையும் காண்க',
       mother_teresa_quote: 'நாம் செய்வது கடலில் ஒரு துளி மட்டுமே என்று நாம் நினைக்கிறோம், ஆனால் அந்த துளி இல்லாமல் கடல் குறைவாக இருக்கும்',
       mother_teresa: 'அன்னை தெரசா',
       carousel1_title: 'IPL சமூக தருணங்கள்',
@@ -709,7 +709,7 @@ const translations = {
     footer: {
       contact_us: 'எங்களை தொடர்பு கொள்ளுங்கள்',
       quick_links: 'விரைவு இணைப்புகள்',
-      address: '103, ஸ்டார்வியூ அபார்ட்மெண்ட்ஸ், கார்ப்பரேட் பார்க் எதிரில், வி.என்.புரவ் மார்க், செம்பூர், மும்பை - 400071, இந்தியா',
+      address: 'வி.என்.புரவ் மார்க், ஸ்வஸ்திக் பார்க், செம்பூர், மும்பை, மகாராஷ்டிரா 400071, இந்தியா',
       email: 'மின்னஞ்சல்',
       about_text: 'அன்பு, நட்பு மற்றும் மனிதநேயம் - சமூகங்களுக்கு சேவை செய்ய ஒன்றிணைந்த நண்பர்களின் கூட்டமைப்பு.',
       rights: 'அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை',

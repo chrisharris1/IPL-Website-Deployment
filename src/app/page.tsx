@@ -10,11 +10,13 @@ import {
   ChevronLeft,
   ChevronRight,
   Sparkles,
-  Quote
+  Quote,
+  Calendar,
+  Newspaper
 } from 'lucide-react'
 import { useTranslation } from '@/contexts/TranslationContext'
-import { getHomeData } from '@/lib/api'
-import type { CarouselImage, HumanitarianService } from '@/types/api'
+import { getHomeData, getNewsEvents } from '@/lib/api'
+import type { CarouselImage, HumanitarianService, NewsEvent } from '@/types/api'
 
 type ImageItem = { src: string; title?: string; subtitle?: string; hideText?: boolean }
 
@@ -144,11 +146,23 @@ const ImageCarousel: React.FC = () => {
   )
 }
 
-const RecentActivitiesCarousel: React.FC = () => {
+interface EventPhoto { url: string }
+interface WebsiteEvent {
+    id: string
+    title_en: string
+    title_ta: string
+    description_en: string
+    description_ta: string
+    posterImage: string
+    photos: EventPhoto[]
+    date: string
+}
+
+const RecentEventsCarousel: React.FC = () => {
   const { lang, t } = useTranslation()
   const [currentIndex, setCurrentIndex] = useState(0)
   const [itemsPerPage, setItemsPerPage] = useState(3)
-  const [services, setServices] = useState<HumanitarianService[]>([])
+  const [events, setEvents] = useState<WebsiteEvent[]>([])
   const [loading, setLoading] = useState(true)
 
   // Helper to strip HTML tags for preview
@@ -166,21 +180,22 @@ const RecentActivitiesCarousel: React.FC = () => {
     return decoded.replace(/\s+/g, ' ').trim().substring(0, 150)
   }
 
-  // Fetch latest services from API
+  // Fetch latest events from API
   useEffect(() => {
-    async function loadServices() {
+    async function loadEvents() {
       try {
-        const response = await getHomeData()
-        if (response.success && response.data) {
-          setServices(response.data.services)
+        const res = await fetch('/api/events')
+        const data = await res.json()
+        if (data.success && data.data) {
+          setEvents(data.data.slice(0, 9)) // Take top 9 events
         }
       } catch (error) {
-        console.error('Failed to load services:', error)
+        console.error('Failed to load events:', error)
       } finally {
         setLoading(false)
       }
     }
-    loadServices()
+    loadEvents()
   }, [])
 
   useEffect(() => {
@@ -196,17 +211,17 @@ const RecentActivitiesCarousel: React.FC = () => {
 
   // Auto-slide functionality
   useEffect(() => {
-    if (services.length === 0) return
+    if (events.length === 0) return
     const timer = setInterval(() => {
       setCurrentIndex(prev => {
-        const maxIndex = Math.max(0, services.length - itemsPerPage)
+        const maxIndex = Math.max(0, events.length - itemsPerPage)
         return prev >= maxIndex ? 0 : prev + 1
       })
     }, 3000)
     return () => clearInterval(timer)
-  }, [itemsPerPage, services.length])
+  }, [itemsPerPage, events.length])
 
-  const maxIndex = Math.max(0, services.length - itemsPerPage)
+  const maxIndex = Math.max(0, events.length - itemsPerPage)
 
   const nextSlide = () => {
     setCurrentIndex(prev => (prev >= maxIndex ? 0 : prev + 1))
@@ -245,46 +260,46 @@ const RecentActivitiesCarousel: React.FC = () => {
           className="flex transition-transform duration-500 ease-out"
           style={{ transform: `translateX(-${currentIndex * (100 / itemsPerPage)}%)` }}
         >
-          {services.map((service) => (
-            <div key={service.id} className="flex-none w-full md:w-1/2 lg:w-1/3 px-2 md:px-3 lg:px-4">
+          {events.map((event) => {
+            const title = lang === 'ta' ? (event.title_ta || event.title_en) : event.title_en
+            const desc = lang === 'ta' ? (event.description_ta || event.description_en) : event.description_en
+            const imgUrl = event.posterImage || (event.photos && event.photos.length > 0 ? event.photos[0].url : '')
+            
+            return (
+            <div key={event.id} className="flex-none w-full md:w-1/2 lg:w-1/3 px-2 md:px-3 lg:px-4">
               <Link
-                href={`/humanitarian-services/${service.id}`}
+                href={`/events#${event.id}`}
                 className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 block h-full"
               >
                 <div className="h-48 overflow-hidden relative">
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10" />
-                  <Image
-                    src={service.image_url}
-                    alt={lang === 'ta' ? service.title_ta : service.title_en}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-contain bg-neutral-100"
-                  />
+                  {imgUrl && (
+                    <Image
+                      src={imgUrl}
+                      alt={title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover bg-neutral-100"
+                    />
+                  )}
                   <div className="absolute top-4 right-4 z-20 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-red-700 uppercase tracking-wider shadow-sm">
-                    {new Date(service.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                   </div>
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-bold text-neutral-900 mb-2 group-hover:text-red-700 transition-colors line-clamp-2" dangerouslySetInnerHTML={{ __html: lang === 'ta' ? service.title_ta : service.title_en }} />
-                  <div className="flex items-center gap-1.5 text-neutral-500 text-sm mb-3">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    {[service.city, service.district, service.state, service.country].filter(Boolean).join(', ')}
-                  </div>
+                  <h3 className="text-xl font-bold text-neutral-900 mb-4 group-hover:text-red-700 transition-colors line-clamp-2" dangerouslySetInnerHTML={{ __html: title }} />
                   <p className="text-neutral-600 text-sm leading-relaxed line-clamp-3 mb-4">
-                    {stripHtml(lang === 'ta' ? service.description_ta : service.description_en)}
+                    {stripHtml(desc)}
                   </p>
                   <div className="flex items-center justify-start mt-auto">
                     <span className="text-red-700 text-sm font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
-                      {String(t('home.read_more', 'Read more'))} <ArrowRight className="w-4 h-4" />
+                      {String(t('home.read_more', 'View event'))} <ArrowRight className="w-4 h-4" />
                     </span>
                   </div>
                 </div>
               </Link>
             </div>
-          ))}
+          )})}
         </div>
       </div>
     </div>
@@ -335,7 +350,7 @@ export default function Home() {
                 {String(t('home.hero_sub', 'Love, Friendship & Humanity'))}
               </p>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up flex-wrap" style={{ animationDelay: '0.2s' }}>
                 <Link
                   href="/about"
                   className="w-full sm:w-auto px-8 py-4 bg-red-700 text-white rounded-full font-bold text-lg shadow-lg shadow-red-700/30 hover:bg-red-800 hover:shadow-red-800/40 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2"
@@ -349,6 +364,20 @@ export default function Home() {
                 >
                   <Mail className="w-5 h-5" />
                   {String(t('nav.contact', 'Contact'))}
+                </Link>
+                <Link
+                  href="/events"
+                  className="w-full sm:w-auto px-8 py-4 bg-white text-neutral-700 border border-neutral-200 rounded-full font-bold text-lg hover:bg-neutral-50 hover:border-neutral-300 transition-all duration-300 flex items-center justify-center gap-2"
+                >
+                  <Calendar className="w-5 h-5" />
+                  Events
+                </Link>
+                <Link
+                  href="/news-events"
+                  className="w-full sm:w-auto px-8 py-4 bg-white text-neutral-700 border border-neutral-200 rounded-full font-bold text-lg hover:bg-neutral-50 hover:border-neutral-300 transition-all duration-300 flex items-center justify-center gap-2"
+                >
+                  <Newspaper className="w-5 h-5" />
+                  News
                 </Link>
               </div>
             </div>
@@ -435,27 +464,27 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Recent Activities */}
+      {/* Recent Events */}
       <section className="py-20 bg-neutral-50">
         <div className="container-custom mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
             <div>
               <h2 className="text-3xl font-bold text-neutral-900 mb-2">
-                {String(t('home.recent_activities', 'Recent Humanitarian Activities'))}
+                News and Current Events
               </h2>
               <p className="text-neutral-600">
-                {String(t('home.recent_subtitle', 'Our latest efforts in serving the community'))}
+                {String(t('home.events_subtitle', 'Catch up with our latest events and news'))}
               </p>
             </div>
             <Link
-              href="/humanitarian-services"
+              href="/events"
               className="px-6 py-2 bg-white border border-neutral-200 rounded-full text-neutral-700 font-medium hover:bg-neutral-50 hover:border-neutral-300 transition-all"
             >
-              {String(t('home.view_all', 'View All'))}
+              {String(t('home.view_all', 'View All Events'))}
             </Link>
           </div>
 
-          <RecentActivitiesCarousel />
+          <RecentEventsCarousel />
         </div>
       </section>
 

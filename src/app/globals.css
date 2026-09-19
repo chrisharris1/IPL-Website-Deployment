@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Baloo+Thambi+2:wght@400;500;600;700&family=Crimson+Pro:wght@400;500;600;700&family=Hind+Madurai:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Libre+Baskerville:wght@400;700&family=Lora:wght@400;500;600;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;500;600;700&family=Mukta+Malar:wght@400;500;600;700&family=Noto+Sans+Tamil:wght@400;500;700&family=Noto+Sans:wght@400;500;600;700&family=Noto+Serif+Tamil:wght@400;600;700&family=Nunito:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Roboto+Slab:wght@400;600;700&family=Source+Sans+3:wght@400;500;600;700&family=Tiro+Tamil:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Anek+Tamil:wght@400;500;600;700&family=Arima+Madurai:wght@400;500;700&family=Baloo+Thambi+2:wght@400;500;600;700&family=Catamaran:wght@400;500;600;700&family=Courgette&family=Crimson+Pro:wght@400;500;600;700&family=Hind+Madurai:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inder&family=Kalam:wght@400;700&family=Kavivanar&family=Libre+Baskerville:wght@400;700&family=Lora:wght@400;500;600;700&family=Meera+Inimai&family=Merriweather:wght@400;700&family=Montserrat:wght@400;500;600;700&family=Mukta+Malar:wght@400;500;600;700&family=Noto+Sans+Tamil:wght@400;500;700&family=Noto+Sans:wght@400;500;600;700&family=Noto+Serif+Tamil:wght@400;600;700&family=Nunito:wght@400;500;600;700&family=Pavanam&family=Playfair+Display:wght@400;600;700&family=Roboto+Slab:wght@400;600;700&family=Source+Sans+3:wght@400;500;600;700&family=Tiro+Tamil:ital@0;1&display=swap');
 @import "tailwindcss";
 
 /* =====================================
@@ -8,6 +8,31 @@
   font-family: 'Britannic Bold';
   src: url('/Britannic Bold Bold.ttf') format('truetype');
   font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Shree Lipi Tamil Fonts — loaded from /public */
+@font-face {
+  font-family: 'Shree 0804';
+  src: url('/Shree_0804.TTF') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Shree 0805';
+  src: url('/Shree_0805.TTF') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Shree 0807';
+  src: url('/Shree_0807.TTF') format('truetype');
+  font-weight: normal;
   font-style: normal;
   font-display: swap;
 }

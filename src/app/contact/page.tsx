@@ -263,7 +263,7 @@ export default function Contact() {
         }
     }
 
-    const addressLines = (t('footer.address', `103, Starview Apts., Opp. Corporate Park,\nV.N.Purav Marg, Chembur,\nMumbai - 400071, India`) || '').split('\n')
+    const addressLines = (t('footer.address', `VN Purav Marg, Swastik Park,\nChembur, Mumbai,\nMaharashtra 400071, India`) || '').split('\n')
 
     return (
         <div className="bg-neutral-50 text-neutral-900 min-h-screen">
@@ -491,7 +491,7 @@ export default function Contact() {
                             </div>
                             <div className="rounded-2xl overflow-hidden border border-neutral-200 shadow-sm h-64">
                                 <iframe
-                                    src="https://www.google.com/maps?q=103,+Starview+Apts,+Opp.+Corporate+Park,+V.N.Purav+Marg,+Chembur,+Mumbai+400071&output=embed"
+                                    src="https://www.google.com/maps?q=VN+Purav+Marg,+Swastik+Park,+Chembur,+Mumbai,+Maharashtra+400071,+India&output=embed"
                                     title={t('contact.map_title', 'Office location map')}
                                     width="100%"
                                     height="100%"

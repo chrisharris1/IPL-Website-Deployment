@@ -99,7 +99,7 @@ export default function EventsPage() {
                             const validPhotos = event.photos?.filter(p => p && p.url) || []
                             
                             return (
-                                <div key={event.id} className="bg-white rounded-3xl p-8 shadow-lg border border-neutral-200">
+                                <div id={event.id} key={event.id} className="bg-white rounded-3xl p-8 shadow-lg border border-neutral-200">
                                     {/* Event Header */}
                                     <div className="mb-6">
                                         <div className="flex items-center gap-3 mb-3">
